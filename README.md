@@ -28,12 +28,9 @@ A full-stack travel booking application built with the MERN stack (MongoDB, Expr
 
 ## Run Locally
 
-1. Install dependencies:
-   - `cd backend && npm install`
-   - `cd ../frontend && npm install`
-2. Start backend:
-   - `cd backend && npm run dev`
-3. Start frontend:
-   - `cd frontend && npm run dev`
+1. Install dependencies (from project root):
+   - `npm run setup`
+2. Start backend and frontend together:
+   - `npm run dev`
 
 Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
