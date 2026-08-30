@@ -1,0 +1,62 @@
+// TripNest backend schema — Phase 0
+// Scope: Users + auth (real, hashed, JWT) and Listings (unified single source of
+// truth, replacing the old duplicated frontend/backend hardcoded arrays).
+// Review, Booking, Photo, Wishlist etc. land in later phases per README.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TRAVELER
+  OWNER
+  ADMIN
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  name          String
+  role          Role           @default(TRAVELER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+// Refresh tokens are stored hashed (never the raw token) so a leaked DB
+// doesn't hand out usable tokens. Each row can be individually revoked,
+// which is why we don't just rely on JWT expiry alone.
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Listing {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  location      String
+  price         Float
+  averageRating Float    @default(0)
+  imageUrl      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("listings")
+}

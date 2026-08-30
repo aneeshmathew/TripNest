@@ -1,10 +1,15 @@
 {
-  "name": "mern-travel-app",
-  "version": "1.0.0",
+  "name": "tripnest",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
+    "setup": "npm install --ignore-scripts && npm install --prefix backend && npm install --prefix frontend",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run prisma:migrate --prefix backend",
+    "db:seed": "npm run seed --prefix backend",
     "dev": "concurrently -n backend,frontend -c blue,green \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "setup": "npm install --ignore-scripts && npm install --prefix backend && npm install --prefix frontend"
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

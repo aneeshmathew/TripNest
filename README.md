@@ -186,7 +186,49 @@ Wishlist        id, userId, listingId
 
 ---
 
-## 7. Immediate Next Steps
-1. Confirm this plan/tech stack (React+TS/Next.js, NestJS, Postgres+Prisma, REST-first) or flag anything you'd rather do differently (e.g., keep MongoDB, keep Express instead of Nest, use Redux instead of Zustand).
-2. Set up the monorepo structure (e.g., `apps/web`, `apps/api`, `packages/shared-types`) and Docker Compose for local dev.
-3. Start Phase 0.
+## 7. Phase 0 — Status: Implemented
+
+The codebase now reflects Phase 0. What changed, concretely:
+
+- **Login bug fixed.** The frontend used to hardcode `http://localhost:5001` while the backend listened on `5000` — login was broken out of the box. There's now a single `VITE_API_URL` env var driving the API base URL everywhere.
+- **Single source of truth for listings.** The old duplicated arrays (one in `frontend/src/data/apartments.js`, a different one in `backend/src/server.js`) are gone. Listings live in Postgres and the frontend fetches them from `GET /api/listings`.
+- **Both apps are TypeScript.** `frontend/src/**/*.tsx` and `backend/src/**/*.ts`, with `tsconfig.json` in both, plus `npm run typecheck` in both `package.json`s.
+- **Real auth.** `bcryptjs`-hashed passwords, JWT access tokens (15 min default) + rotating, DB-backed, revocable refresh tokens (7 day default). Endpoints: `POST /api/auth/signup`, `/login`, `/refresh`, `/logout`, `GET /api/auth/me`. The frontend's `api/client.ts` attaches the access token automatically and transparently retries once via `/refresh` on a 401.
+- **Postgres via Prisma**, `backend/prisma/schema.prisma` defines `User`, `RefreshToken`, `Listing`. `docker-compose.yml` at the repo root runs Postgres locally.
+
+**Not implemented in this pass** (this sandbox has no network access, so nothing below was actually installed or run — you'll want to do this locally to verify):
+- No `npm install` was run (no lockfiles were regenerated).
+- `prisma generate` / `prisma migrate dev` haven't been run — no migration files exist yet under `backend/prisma/migrations/`; running `npm run db:migrate` locally will create the first one.
+- No automated tests were added yet (still tracked as a cross-cutting item for every phase per section 6).
+
+### Running Phase 0 locally
+
+```bash
+# 1. Install dependencies (root, backend, frontend)
+npm run setup
+
+# 2. Copy env files and fill in real JWT secrets
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+# edit backend/.env — set JWT_ACCESS_SECRET / JWT_REFRESH_SECRET,
+# e.g. via: openssl rand -base64 48
+
+# 3. Start Postgres
+npm run db:up
+
+# 4. Create the database schema
+npm run db:migrate
+
+# 5. Seed the demo user + listings
+npm run db:seed
+
+# 6. Run both apps
+npm run dev
+```
+
+Frontend: `http://localhost:5173`. Backend: `http://localhost:5000` (`/health` for a liveness check). Demo login is still `user1@mail.com` / `user123` — now backed by a real hashed password in Postgres instead of an `if` statement.
+
+## 8. Immediate Next Steps
+1. Run the steps above locally, confirm `npm run typecheck` passes in both `backend/` and `frontend/`, and commit the first Prisma migration.
+2. Add the test setup (Vitest/RTL + Playwright per section 3) — nothing is tested yet.
+3. Start Phase 1: review CRUD + rating aggregation, and the Next.js migration for SEO.

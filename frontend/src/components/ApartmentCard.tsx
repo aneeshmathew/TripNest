@@ -1,9 +1,14 @@
 import { Link } from "react-router-dom";
+import type { Listing } from "../types/listing";
 
-function ApartmentCard({ apartment }) {
+interface ApartmentCardProps {
+  apartment: Listing;
+}
+
+function ApartmentCard({ apartment }: ApartmentCardProps) {
   return (
     <article className="card" data-testid={`apartment-card-${apartment.id}`}>
-      <img src={apartment.image} alt={apartment.title} />
+      <img src={apartment.imageUrl} alt={apartment.title} />
       <div className="card-content">
         <h3>{apartment.title}</h3>
         <p>{apartment.location}</p>

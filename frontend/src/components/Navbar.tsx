@@ -1,13 +1,20 @@
 import { Link, useLocation } from "react-router-dom";
 
-function Navbar({ onOpenSort, isAuthenticated, userEmail, onLogout }) {
+interface NavbarProps {
+  onOpenSort: () => void;
+  isAuthenticated: boolean;
+  userEmail?: string;
+  onLogout: () => void;
+}
+
+function Navbar({ onOpenSort, isAuthenticated, userEmail, onLogout }: NavbarProps) {
   const location = useLocation();
   const showSortButton = isAuthenticated && location.pathname === "/";
 
   return (
     <header className="navbar">
       <Link to="/" className="brand">
-        travelapp
+        TripNest
       </Link>
       <nav className="nav-links">
         {isAuthenticated ? <Link to="/">Home</Link> : <Link to="/login">Login</Link>}

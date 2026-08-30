@@ -1,4 +1,16 @@
-const options = ["Price", "Average Rating", "Title"];
+import type { SortDirection, SortOption } from "../types/listing";
+
+const options: SortOption[] = ["Price", "Average Rating", "Title"];
+
+interface SortModalProps {
+  open: boolean;
+  selectedOption: SortOption;
+  selectedDirection: SortDirection;
+  onSelectOption: (option: SortOption) => void;
+  onSelectDirection: (direction: SortDirection) => void;
+  onApply: () => void;
+  onClose: () => void;
+}
 
 function SortModal({
   open,
@@ -8,7 +20,7 @@ function SortModal({
   onSelectDirection,
   onApply,
   onClose
-}) {
+}: SortModalProps) {
   if (!open) {
     return null;
   }

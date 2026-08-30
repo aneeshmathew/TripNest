@@ -1,6 +1,11 @@
 import ApartmentCard from "./ApartmentCard";
+import type { Listing } from "../types/listing";
 
-function ApartmentList({ apartments }) {
+interface ApartmentListProps {
+  apartments: Listing[];
+}
+
+function ApartmentList({ apartments }: ApartmentListProps) {
   return (
     <section>
       <h1 className="page-title">Featured Apartments</h1>
