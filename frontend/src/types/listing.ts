@@ -8,6 +8,7 @@ export interface Listing {
   location: string;
   price: number;
   averageRating: number;
+  reviewCount: number;
   imageUrl: string;
   createdAt: string;
   updatedAt: string;

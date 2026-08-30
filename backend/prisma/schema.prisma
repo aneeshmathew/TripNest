@@ -1,7 +1,7 @@
-// TripNest backend schema — Phase 0
-// Scope: Users + auth (real, hashed, JWT) and Listings (unified single source of
-// truth, replacing the old duplicated frontend/backend hardcoded arrays).
-// Review, Booking, Photo, Wishlist etc. land in later phases per README.md.
+// TripNest backend schema.
+// Users + auth, Listings, and now Reviews (with per-listing rating
+// aggregation — see reviews.service.ts:recomputeListingRating). Booking,
+// Wishlist etc. land in later phases per README.md.
 
 generator client {
   provider = "prisma-client-js"
@@ -27,6 +27,7 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   refreshTokens RefreshToken[]
+  reviews       Review[]
 
   @@map("users")
 }
@@ -53,10 +54,53 @@ model Listing {
   description   String?
   location      String
   price         Float
+  // Both fields below are derived from Review rows, recomputed by
+  // reviews.service.ts:recomputeListingRating() on every review
+  // create/update/delete — never written to directly elsewhere.
   averageRating Float    @default(0)
+  reviewCount   Int      @default(0)
   imageUrl      String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  reviews       Review[]
 
   @@map("listings")
+}
+
+model Review {
+  id          String        @id @default(uuid())
+  listingId   String
+  listing     Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating      Int // overall rating, 1-5
+  cleanliness Int? // sub-ratings, 1-5 each, all optional
+  service     Int?
+  value       Int?
+  location    Int?
+  title       String
+  body        String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  photos      ReviewPhoto[]
+
+  // One review per user per listing — mirrors how TripAdvisor and similar
+  // platforms constrain reviews; also makes "have I reviewed this?" a
+  // simple lookup on the frontend.
+  @@unique([listingId, userId])
+  @@index([listingId])
+  @@map("reviews")
+}
+
+// Photo URLs only for now — no upload/storage pipeline exists yet (see
+// README.md, Platform concerns: "Image storage/CDN for uploads"). Callers
+// must supply already-hosted URLs until S3/Cloudinary is wired up.
+model ReviewPhoto {
+  id        String   @id @default(uuid())
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime @default(now())
+
+  @@map("review_photos")
 }

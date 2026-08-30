@@ -9,17 +9,18 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 ### Frontend
 - **React 18 + TypeScript**, built with **Next.js (App Router)** for SSR/ISR — listing browse and detail pages are Server Components, so content is present in the initial HTML for search engines rather than fetched client-side after hydration.
 - `src/app/` — routes. `page.tsx` (home) and `apartments/[id]/page.tsx` (listing detail) are async Server Components that fetch data server-side; `apartments/[id]/page.tsx` also exports `generateMetadata` (per-listing title/description/OG tags) and `generateStaticParams` (pre-renders a page per listing, refreshed via ISR).
-- `src/lib/listings.ts` — server-only data fetching for listings, with a 60s `revalidate` window (ISR).
-- `src/api/` — client-only API layer for auth (`client.ts` wraps `fetch`, attaches the JWT access token, and transparently retries once via `/api/auth/refresh` on a 401; `auth.ts`, `tokenStorage.ts`).
+- `src/lib/listings.ts` — server-only listings data fetching, 60s `revalidate` (ISR). `src/lib/reviews.ts` — server-only reviews data fetching, uncached (`cache: "no-store"`) so a new/edited/deleted review is reflected immediately rather than waiting out a revalidation window.
+- `src/api/` — client-only API layer for auth and review mutations (`client.ts` wraps `fetch`, attaches the JWT access token, and transparently retries once via `/api/auth/refresh` on a 401; `auth.ts`, `reviews.ts`, `tokenStorage.ts`).
 - `src/context/` — `AuthProvider` (current user, login/logout) and `SortProvider` (listing sort state), both client-side, since Next needs sort state shared between the Navbar in the root layout and the home page's listing grid.
-- `src/components/` — `AppShell` is the one client boundary wrapping the whole app (providers + `Navbar` + `SortModal`); `ApartmentCard`/`ApartmentList` stay server-renderable; `ListingsBrowser` is the client component that applies sorting on top of server-fetched listings; `LoginForm` handles the login flow.
-- Browsing listings requires no login — it's public content by design, for crawlability.
+- `src/components/` — `AppShell` is the one client boundary wrapping the whole app (providers + `Navbar` + `SortModal`); `ApartmentCard`/`ApartmentList` stay server-renderable; `ListingsBrowser` applies sorting on top of server-fetched listings; `LoginForm` handles login; `ReviewsSection`/`ReviewItem`/`ReviewForm`/`StarRating`/`StarRatingInput` handle review display, submission, and inline edit/delete for the review's own author.
+- Browsing listings and reading reviews requires no login — public by design, for crawlability. Writing a review requires login; a user can leave at most one review per listing (enforced by the backend, reflected in the UI by hiding the form once they have one).
 
 ### Backend
-- **Node.js + TypeScript + Express**, organized by module (`modules/auth`, `modules/listings`), each with `routes → controller → service`.
-- **PostgreSQL via Prisma** — `User`, `RefreshToken`, `Listing` models today (`backend/prisma/schema.prisma`); more models arrive as features are built (see Domain Model below).
+- **Node.js + TypeScript + Express**, organized by module (`modules/auth`, `modules/listings`, `modules/reviews`), each with `routes → controller → service`.
+- **PostgreSQL via Prisma** — `User`, `RefreshToken`, `Listing`, `Review`, `ReviewPhoto` models today (`backend/prisma/schema.prisma`); more arrive as features are built (see Domain Model below).
 - **Auth**: bcrypt-hashed passwords, short-lived JWT access tokens, rotating/revocable refresh tokens stored hashed in the DB. Endpoints: `POST /api/auth/{signup,login,refresh,logout}`, `GET /api/auth/me`.
 - **Listings**: `GET /api/listings`, `GET /api/listings/:id` — public/unauthenticated, since listing content needs to be crawlable by search engines.
+- **Reviews**: `GET/POST /api/listings/:listingId/reviews`, `PATCH/DELETE /api/reviews/:id`. Reading is public; writing requires auth and ownership (a user can only edit/delete their own review). `Listing.averageRating`/`reviewCount` are derived fields, recomputed from the actual review rows on every create/update/delete (`reviews.service.ts:recomputeListingRating`) rather than incremented in place. Review photos are URL-only for now — there's no upload/storage pipeline yet (see Feature Gaps below).
 - Centralized env validation (zod), a shared error-handling middleware, and a Prisma client singleton.
 
 ### Local infra
@@ -46,8 +47,8 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 
 ### 2.1 Core content model
 - Multi-type listings: hotels, restaurants, attractions/"things to do," vacation rentals — each with type-specific attributes (cuisine, amenities, opening hours, ticket price, accessibility).
-- Reviews as first-class entities: text, sub-ratings (cleanliness, service, value, location), photos attached to a review, helpful votes, owner responses, verified-stay badges, moderation/flagging.
-- Aggregate ranking logic — a recency/quality/popularity-weighted score, not just a raw average.
+- Reviews: basic text + sub-ratings (cleanliness, service, value, location) CRUD is built. Still missing: photo upload (photos are URL-only today, no storage pipeline), helpful votes, owner responses, verified-stay badges, moderation/flagging.
+- Aggregate ranking logic — average rating is now computed from real review data, but it's a plain average; a recency/quality/popularity-weighted ranking score is still open.
 - Rich media: multi-photo galleries per listing, user-submitted photos, photo moderation.
 
 ### 2.2 Discovery
@@ -114,7 +115,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 
 ## 5. Domain Model
 
-Implemented today: `User`, `RefreshToken`, `Listing`. Target model as features are built:
+Implemented today: `User`, `RefreshToken`, `Listing`, `Review`, `ReviewPhoto`. Target model as remaining features are built:
 
 ```
 User            id, email, passwordHash, name, avatarUrl, role(traveler|owner|admin), createdAt
@@ -133,10 +134,9 @@ Wishlist        id, userId, listingId
 
 ## 6. Roadmap
 
-**Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database, Next.js App Router with SSR/ISR on listing pages for SEO.
+**Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database, Next.js App Router with SSR/ISR on listing pages for SEO, review CRUD with rating aggregation (text + sub-ratings, one review per user per listing, average rating/count derived from real review data).
 
 **Next — Core content**
-- Review CRUD (text, star sub-ratings, photos) and rating aggregation on new reviews.
 - Basic search/filter (category, price, rating) via Postgres full-text search.
 - Add the test setup (Vitest/RTL + Playwright) — currently missing entirely.
 

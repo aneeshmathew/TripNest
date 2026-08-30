@@ -3,6 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getListing, getListingIds } from "../../../lib/listings";
+import { getReviews } from "../../../lib/reviews";
+import StarRating from "../../../components/StarRating";
+import ReviewsSection from "../../../components/ReviewsSection";
 
 interface ApartmentPageProps {
   params: Promise<{ id: string }>;
@@ -47,6 +50,8 @@ export default async function ApartmentPage({ params }: ApartmentPageProps) {
     notFound();
   }
 
+  const reviews = await getReviews(id);
+
   return (
     <section className="details">
       <h2>{apartment.title}</h2>
@@ -62,10 +67,18 @@ export default async function ApartmentPage({ params }: ApartmentPageProps) {
       </div>
       <p>{apartment.location}</p>
       <p>${apartment.price} / night</p>
-      <p>Average rating: {apartment.averageRating}</p>
+      <p className="rating-line">
+        <StarRating rating={apartment.averageRating} />
+        <span>
+          {apartment.averageRating.toFixed(1)} · {apartment.reviewCount}{" "}
+          {apartment.reviewCount === 1 ? "review" : "reviews"}
+        </span>
+      </p>
       <Link href="/" className="details-link">
         Back to home
       </Link>
+
+      <ReviewsSection listingId={apartment.id} reviews={reviews} />
     </section>
   );
 }

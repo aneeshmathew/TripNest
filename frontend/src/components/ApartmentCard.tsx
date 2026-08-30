@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import StarRating from "./StarRating";
 import type { Listing } from "../types/listing";
 
 interface ApartmentCardProps {
@@ -22,7 +23,12 @@ function ApartmentCard({ apartment }: ApartmentCardProps) {
         <h3>{apartment.title}</h3>
         <p>{apartment.location}</p>
         <p>${apartment.price} / night</p>
-        <p>Rating: {apartment.averageRating}</p>
+        <p className="rating-line">
+          <StarRating rating={apartment.averageRating} />
+          <span>
+            {apartment.averageRating.toFixed(1)} ({apartment.reviewCount})
+          </span>
+        </p>
         <Link href={`/apartments/${apartment.id}`} className="details-link">
           View details
         </Link>
