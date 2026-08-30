@@ -82,6 +82,41 @@ body {
   text-align: center;
 }
 
+.search-filters {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 auto 1.5rem;
+  max-width: 1080px;
+  padding: 1rem;
+}
+
+.search-filters input[type="text"] {
+  flex: 1 1 220px;
+}
+
+.search-filters input,
+.search-filters select {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.search-filters input[type="number"] {
+  width: 110px;
+}
+
+.clear-filters-link {
+  color: #333;
+  display: inline-block;
+  text-decoration: none;
+}
+
 .grid {
   display: grid;
   gap: 1rem;
