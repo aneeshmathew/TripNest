@@ -7,11 +7,13 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 ## 1. Architecture
 
 ### Frontend
-- **React 18 + TypeScript**, built with Vite.
-- `src/api/` — typed API client. `client.ts` wraps `fetch`, attaches the JWT access token to requests, and transparently retries once via `/api/auth/refresh` on a 401.
-- `src/types/` — shared TS types for `Listing`, `User`, `AuthResponse`, etc., matching the backend's Prisma models.
-- `src/components/` — presentational components (`ApartmentCard`, `ApartmentList`, `Navbar`, `SortModal`, `LoginPage`).
-- Routing via `react-router-dom`; sort preference persisted in `localStorage`.
+- **React 18 + TypeScript**, built with **Next.js (App Router)** for SSR/ISR — listing browse and detail pages are Server Components, so content is present in the initial HTML for search engines rather than fetched client-side after hydration.
+- `src/app/` — routes. `page.tsx` (home) and `apartments/[id]/page.tsx` (listing detail) are async Server Components that fetch data server-side; `apartments/[id]/page.tsx` also exports `generateMetadata` (per-listing title/description/OG tags) and `generateStaticParams` (pre-renders a page per listing, refreshed via ISR).
+- `src/lib/listings.ts` — server-only data fetching for listings, with a 60s `revalidate` window (ISR).
+- `src/api/` — client-only API layer for auth (`client.ts` wraps `fetch`, attaches the JWT access token, and transparently retries once via `/api/auth/refresh` on a 401; `auth.ts`, `tokenStorage.ts`).
+- `src/context/` — `AuthProvider` (current user, login/logout) and `SortProvider` (listing sort state), both client-side, since Next needs sort state shared between the Navbar in the root layout and the home page's listing grid.
+- `src/components/` — `AppShell` is the one client boundary wrapping the whole app (providers + `Navbar` + `SortModal`); `ApartmentCard`/`ApartmentList` stay server-renderable; `ListingsBrowser` is the client component that applies sorting on top of server-fetched listings; `LoginForm` handles the login flow.
+- Browsing listings requires no login — it's public content by design, for crawlability.
 
 ### Backend
 - **Node.js + TypeScript + Express**, organized by module (`modules/auth`, `modules/listings`), each with `routes → controller → service`.
@@ -26,13 +28,13 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 
 ### Run locally
 ```bash
-npm run setup                            # installs root, backend, frontend deps
-cp backend/.env.example backend/.env     # fill in JWT_ACCESS_SECRET / JWT_REFRESH_SECRET
-cp frontend/.env.example frontend/.env
-npm run db:up                            # starts Postgres
-npm run db:migrate                       # creates schema
-npm run db:seed                          # seeds a demo user + listings
-npm run dev                              # runs backend (:5000) + frontend (:5173)
+npm run setup                                # installs root, backend, frontend deps
+cp backend/.env.example backend/.env         # fill in JWT_ACCESS_SECRET / JWT_REFRESH_SECRET
+cp frontend/.env.example frontend/.env.local # Next.js convention for local env vars
+npm run db:up                                # starts Postgres
+npm run db:migrate                           # creates schema
+npm run db:seed                              # seeds a demo user + listings
+npm run dev                                  # runs backend (:5000) + frontend (:3000)
 ```
 Demo login: `user1@mail.com` / `user123`.
 
@@ -53,7 +55,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 - Geo search — "near me," map-based browsing, radius search.
 - Destination autocomplete.
 - Personalized recommendations ("Travelers who viewed this also viewed…").
-- SEO-indexable listing/review pages — needs SSR/SSG, which means moving to Next.js (a pure client-side SPA is invisible to search engines).
+- Sitemap generation, structured data (schema.org `Product`/`Review` markup), and canonical URLs for listing/review pages — SSR/ISR is in place, but the pages aren't yet optimized for search indexing beyond basic metadata.
 
 ### 2.3 Users & trust
 - User profiles: trip history, wishlist/saved listings, review history, contribution badges.
@@ -82,7 +84,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 | Concern | Choice | Why |
 |---|---|---|
 | Framework | React 18 + TypeScript | Core requirement. |
-| Meta-framework | **Next.js (App Router)** | SEO for listing/review pages requires SSR/SSG/ISR — needed before Phase 2 (Discovery). |
+| Meta-framework | **Next.js (App Router)** | Listing/detail pages are Server Components with ISR, so content is crawlable — foundational for Discovery below. |
 | Data fetching | **TanStack Query** | Caching, pagination, background refetch for listing/search/review feeds. |
 | Client state | **Zustand** | Lightweight for UI state (filters, modals) — Redux Toolkit is a fine alternative if the team prefers stronger conventions. |
 | Styling | **Tailwind CSS + shadcn/ui (Radix primitives)** | Fast, consistent, and accessible by default — the current `SortModal` lacks focus trapping/Escape handling, which Radix solves. |
@@ -131,12 +133,11 @@ Wishlist        id, userId, listingId
 
 ## 6. Roadmap
 
-**Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database.
+**Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database, Next.js App Router with SSR/ISR on listing pages for SEO.
 
 **Next — Core content**
 - Review CRUD (text, star sub-ratings, photos) and rating aggregation on new reviews.
 - Basic search/filter (category, price, rating) via Postgres full-text search.
-- Migrate the frontend to Next.js for SEO on listing pages.
 - Add the test setup (Vitest/RTL + Playwright) — currently missing entirely.
 
 **Then — Discovery**

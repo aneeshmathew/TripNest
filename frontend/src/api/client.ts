@@ -1,12 +1,10 @@
 import { tokenStorage } from "./tokenStorage";
 import type { AuthResponse } from "../types/auth";
 
-// This used to be hardcoded as "http://localhost:5001" in LoginPage.jsx —
-// which didn't match the backend's actual port (5000) and meant login was
-// broken out of the box. Now there is exactly one place the API base URL
-// is defined, driven by an env var so it's also correct in non-local
-// environments.
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+// This client is used from client components only (auth calls, which need
+// localStorage). Listing data is fetched server-side instead — see
+// src/lib/listings.ts — so it can be SSR'd/statically generated for SEO.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 export class ApiError extends Error {
   status: number;

@@ -1,13 +1,14 @@
+"use client";
+
 import { useState, type FormEvent } from "react";
-import { login } from "../api/auth";
+import { useRouter } from "next/navigation";
+import { login as loginRequest } from "../api/auth";
 import { ApiError } from "../api/client";
-import type { AuthResponse } from "../types/auth";
+import { useAuth } from "../context/AuthContext";
 
-interface LoginPageProps {
-  onLoginSuccess: (auth: AuthResponse) => void;
-}
-
-function LoginPage({ onLoginSuccess }: LoginPageProps) {
+function LoginForm() {
+  const router = useRouter();
+  const { login: setAuthenticated } = useAuth();
   const [email, setEmail] = useState("user1@mail.com");
   const [password, setPassword] = useState("user123");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,8 +20,9 @@ function LoginPage({ onLoginSuccess }: LoginPageProps) {
     setError("");
 
     try {
-      const data = await login(email, password);
-      onLoginSuccess(data);
+      const data = await loginRequest(email, password);
+      setAuthenticated(data);
+      router.push("/");
     } catch (requestError) {
       const message =
         requestError instanceof ApiError ? requestError.message : "Login failed";
@@ -34,7 +36,7 @@ function LoginPage({ onLoginSuccess }: LoginPageProps) {
     <section className="login-shell">
       <form className="login-card" onSubmit={handleSubmit}>
         <h1>Login</h1>
-        <p>Use demo account credentials to access featured apartments.</p>
+        <p>Use demo account credentials to sign in.</p>
 
         <label htmlFor="email">Email</label>
         <input
@@ -71,4 +73,4 @@ function LoginPage({ onLoginSuccess }: LoginPageProps) {
   );
 }
 
-export default LoginPage;
+export default LoginForm;

@@ -99,10 +99,12 @@ body {
   overflow: hidden;
 }
 
-.card img {
-  display: block;
+/* Wraps next/image with `fill` — the parent needs an explicit size and
+   position: relative since the old plain <img> with height/object-fit
+   isn't how next/image's fill mode sizes itself. */
+.card-image-wrap {
+  position: relative;
   height: 140px;
-  object-fit: cover;
   width: 100%;
 }
 
@@ -167,9 +169,13 @@ body {
   max-width: 620px;
 }
 
-.details-image {
-  border-radius: 12px;
+.details-image-wrap {
+  position: relative;
   width: 100%;
+  height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
 }
 
 .login-shell {

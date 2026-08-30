@@ -1,44 +1,39 @@
-import type { SortDirection, SortOption } from "../types/listing";
+"use client";
+
+import { useSort } from "../context/SortContext";
+import type { SortOption } from "../types/listing";
 
 const options: SortOption[] = ["Price", "Average Rating", "Title"];
 
-interface SortModalProps {
-  open: boolean;
-  selectedOption: SortOption;
-  selectedDirection: SortDirection;
-  onSelectOption: (option: SortOption) => void;
-  onSelectDirection: (direction: SortDirection) => void;
-  onApply: () => void;
-  onClose: () => void;
-}
+function SortModal() {
+  const {
+    modalOpen,
+    draftOption,
+    draftDirection,
+    setDraftOption,
+    setDraftDirection,
+    applySort,
+    closeModal
+  } = useSort();
 
-function SortModal({
-  open,
-  selectedOption,
-  selectedDirection,
-  onSelectOption,
-  onSelectDirection,
-  onApply,
-  onClose
-}: SortModalProps) {
-  if (!open) {
+  if (!modalOpen) {
     return null;
   }
 
   return (
-    <div className="overlay" role="presentation" onClick={onClose}>
+    <div className="overlay" role="presentation" onClick={closeModal}>
       <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <h2>Sort Apartments</h2>
 
         <div className="sort-options">
           {options.map((option) => {
-            const isActive = selectedOption === option;
+            const isActive = draftOption === option;
             return (
               <button
                 key={option}
                 type="button"
                 className={`option-btn ${isActive ? "active" : ""}`}
-                onClick={() => onSelectOption(option)}
+                onClick={() => setDraftOption(option)}
                 data-testid={`sort-option-${option.toLowerCase().replace(" ", "-")}`}
               >
                 {option}
@@ -50,16 +45,16 @@ function SortModal({
         <div className="direction">
           <button
             type="button"
-            className={`direction-btn ${selectedDirection === "asc" ? "active" : ""}`}
-            onClick={() => onSelectDirection("asc")}
+            className={`direction-btn ${draftDirection === "asc" ? "active" : ""}`}
+            onClick={() => setDraftDirection("asc")}
             data-testid="sort-direction-asc"
           >
             ↑ Ascending
           </button>
           <button
             type="button"
-            className={`direction-btn ${selectedDirection === "desc" ? "active" : ""}`}
-            onClick={() => onSelectDirection("desc")}
+            className={`direction-btn ${draftDirection === "desc" ? "active" : ""}`}
+            onClick={() => setDraftDirection("desc")}
             data-testid="sort-direction-desc"
           >
             ↓ Descending
@@ -67,10 +62,10 @@ function SortModal({
         </div>
 
         <div className="modal-actions">
-          <button type="button" onClick={onClose} className="secondary-btn">
+          <button type="button" onClick={closeModal} className="secondary-btn">
             Cancel
           </button>
-          <button type="button" onClick={onApply} className="primary-btn" data-testid="apply-sort-btn">
+          <button type="button" onClick={applySort} className="primary-btn" data-testid="apply-sort-btn">
             Apply Sort
           </button>
         </div>

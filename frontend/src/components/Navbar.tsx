@@ -1,34 +1,35 @@
-import { Link, useLocation } from "react-router-dom";
+"use client";
 
-interface NavbarProps {
-  onOpenSort: () => void;
-  isAuthenticated: boolean;
-  userEmail?: string;
-  onLogout: () => void;
-}
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+import { useSort } from "../context/SortContext";
 
-function Navbar({ onOpenSort, isAuthenticated, userEmail, onLogout }: NavbarProps) {
-  const location = useLocation();
-  const showSortButton = isAuthenticated && location.pathname === "/";
+function Navbar() {
+  const pathname = usePathname();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { openModal } = useSort();
+  const showSortButton = pathname === "/";
 
   return (
     <header className="navbar">
-      <Link to="/" className="brand">
+      <Link href="/" className="brand">
         TripNest
       </Link>
       <nav className="nav-links">
-        {isAuthenticated ? <Link to="/">Home</Link> : <Link to="/login">Login</Link>}
+        <Link href="/">Home</Link>
+        {!isAuthenticated && <Link href="/login">Login</Link>}
       </nav>
       <div className="nav-actions">
         {showSortButton && (
-          <button type="button" className="sort-btn" onClick={onOpenSort} data-testid="sort-trigger-btn">
+          <button type="button" className="sort-btn" onClick={openModal} data-testid="sort-trigger-btn">
             Sort
           </button>
         )}
         {isAuthenticated ? (
           <>
-            <span className="user-email">{userEmail}</span>
-            <button type="button" className="secondary-btn" onClick={onLogout} data-testid="logout-btn">
+            <span className="user-email">{user?.email}</span>
+            <button type="button" className="secondary-btn" onClick={logout} data-testid="logout-btn">
               Logout
             </button>
           </>
