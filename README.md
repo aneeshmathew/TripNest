@@ -110,27 +110,6 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 
 ---
 
-## 4. REST vs. GraphQL
-
-**Decision: REST, with GraphQL revisited only if a concrete need emerges.**
-
-- The near-term work is building out the data model and business logic (reviews, search, bookings) — not solving an over/under-fetching problem, which is what GraphQL is for.
-- REST + OpenAPI gives mature tooling for free: generated TS clients, simple per-endpoint HTTP caching, straightforward per-route rate limiting and auth.
-- GraphQL adds real operational cost (N+1 resolver mitigation, query complexity limits) that isn't justified yet.
-
-| Criterion | REST | GraphQL |
-|---|---|---|
-| Time to first working feature | Faster | Slower (schema, resolvers, N+1 mitigation) |
-| Caching (CDN/HTTP) | Simple, built-in | Needs extra work (persisted queries, custom caching) |
-| Multiple heterogeneous clients later | Adequate | Better |
-| Complex nested detail pages | More round trips or bespoke aggregate endpoints | Natural fit |
-| Public partner API | Weaker fit | Strong fit |
-| Operational complexity | Lower | Higher |
-
-Revisit GraphQL if: deeply nested detail pages (listing → reviews → users → photos → owner replies → similar listings) need different data shapes per client (web/iOS/Android), or a public partner API is built. Until then, a thin GraphQL BFF layer would be built speculatively — don't build it yet.
-
----
-
 ## 5. Domain Model
 
 Implemented today: `User`, `RefreshToken`, `Listing`. Target model as features are built:
@@ -176,8 +155,3 @@ Wishlist        id, userId, listingId
 **Cross-cutting, every phase**: tests written alongside each feature, CI/CD enforced from the start, accessibility pass on every new component, structured logging + error tracking.
 
 ---
-
-## 7. Open Decisions
-1. Confirm the stack choices above (Next.js, possible NestJS migration, Postgres+Prisma, REST-first) or flag anything you'd rather change (e.g., stay on Express, use Redux instead of Zustand).
-2. Whether to open up public listing browsing now (currently gated behind login) or hold it for the Next.js/SEO migration.
-3. Start on Review CRUD + rating aggregation.
