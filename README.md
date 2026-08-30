@@ -11,8 +11,8 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 - `src/app/` — routes. `page.tsx` (home) and `apartments/[id]/page.tsx` (listing detail) are async Server Components that fetch data server-side; `apartments/[id]/page.tsx` also exports `generateMetadata` (per-listing title/description/OG tags) and `generateStaticParams` (pre-renders a page per listing, refreshed via ISR).
 - `src/lib/listings.ts` — server-only listings data fetching, 60s `revalidate` (ISR). `src/lib/reviews.ts` — server-only reviews data fetching, uncached (`cache: "no-store"`) so a new/edited/deleted review is reflected immediately rather than waiting out a revalidation window.
 - `src/api/` — client-only API layer for auth and review mutations (`client.ts` wraps `fetch`, attaches the JWT access token, and transparently retries once via `/api/auth/refresh` on a 401; `auth.ts`, `reviews.ts`, `tokenStorage.ts`).
-- `src/context/` — `AuthProvider` (current user, login/logout) and `SortProvider` (listing sort state), both client-side, since Next needs sort state shared between the Navbar in the root layout and the home page's listing grid.
-- `src/components/` — `AppShell` is the one client boundary wrapping the whole app (providers + `Navbar` + `SortModal`); `ApartmentCard`/`ApartmentList` stay server-renderable; `ListingsBrowser` applies sorting on top of server-fetched listings; `LoginForm` handles login; `ReviewsSection`/`ReviewItem`/`ReviewForm`/`StarRating`/`StarRatingInput` handle review display, submission, and inline edit/delete for the review's own author.
+- `src/context/` — `AuthProvider` (current user, login/logout), client-side since it depends on `localStorage`/tokens.
+- `src/components/` — `AppShell` is the one client boundary wrapping the whole app (`AuthProvider` + `Navbar`); `ApartmentCard`/`ApartmentList` stay server-renderable end to end; `LoginForm` handles login; `ReviewsSection`/`ReviewItem`/`ReviewForm`/`StarRating`/`StarRatingInput` handle review display, submission, and inline edit/delete for the review's own author.
 - Browsing listings and reading reviews requires no login — public by design, for crawlability. Writing a review requires login; a user can leave at most one review per listing (enforced by the backend, reflected in the UI by hiding the form once they have one).
 
 ### Backend
@@ -88,7 +88,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 | Meta-framework | **Next.js (App Router)** | Listing/detail pages are Server Components with ISR, so content is crawlable — foundational for Discovery below. |
 | Data fetching | **TanStack Query** | Caching, pagination, background refetch for listing/search/review feeds. |
 | Client state | **Zustand** | Lightweight for UI state (filters, modals) — Redux Toolkit is a fine alternative if the team prefers stronger conventions. |
-| Styling | **Tailwind CSS + shadcn/ui (Radix primitives)** | Fast, consistent, and accessible by default — the current `SortModal` lacks focus trapping/Escape handling, which Radix solves. |
+| Styling | **Tailwind CSS + shadcn/ui (Radix primitives)** | Fast, consistent, and accessible by default — Radix primitives (dialogs, comboboxes) matter once features like search filters or booking flows need real modals/menus, which plain hand-rolled markup tends to get wrong (focus trapping, Escape handling, ARIA roles). |
 | Forms/validation | **React Hook Form + Zod** | Schemas can be shared with the backend for consistent validation. |
 | Maps | **Mapbox GL JS** | Geo search and map browsing. |
 | Testing | **Vitest + React Testing Library**, **Playwright** for e2e | Nothing exists yet — needed alongside every new feature from here on. |
@@ -113,7 +113,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 
 ---
 
-## 5. Domain Model
+## 4. Domain Model
 
 Implemented today: `User`, `RefreshToken`, `Listing`, `Review`, `ReviewPhoto`. Target model as remaining features are built:
 
@@ -132,7 +132,7 @@ Wishlist        id, userId, listingId
 
 ---
 
-## 6. Roadmap
+## 5. Roadmap
 
 **Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database, Next.js App Router with SSR/ISR on listing pages for SEO, review CRUD with rating aggregation (text + sub-ratings, one review per user per listing, average rating/count derived from real review data).
 
@@ -154,5 +154,3 @@ Wishlist        id, userId, listingId
 - Booking flow, availability calendars, Stripe payments, confirmation emails via background jobs.
 
 **Cross-cutting, every phase**: tests written alongside each feature, CI/CD enforced from the start, accessibility pass on every new component, structured logging + error tracking.
-
----

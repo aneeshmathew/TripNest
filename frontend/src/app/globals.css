@@ -47,11 +47,8 @@ body {
   font-size: 0.9rem;
 }
 
-.sort-btn,
 .primary-btn,
-.secondary-btn,
-.option-btn,
-.direction-btn {
+.secondary-btn {
   border: 0;
   border-radius: 8px;
   cursor: pointer;
@@ -59,7 +56,6 @@ body {
   padding: 0.6rem 1rem;
 }
 
-.sort-btn,
 .primary-btn {
   background: #e53973;
   color: #fff;
@@ -116,45 +112,6 @@ body {
   color: #e53973;
   font-weight: 600;
   text-decoration: none;
-}
-
-.overlay {
-  align-items: center;
-  background: rgba(0, 0, 0, 0.4);
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  left: 0;
-  position: fixed;
-  right: 0;
-  top: 0;
-}
-
-.modal {
-  background: #fff;
-  border-radius: 12px;
-  max-width: 520px;
-  padding: 1.2rem;
-  width: calc(100% - 2rem);
-}
-
-.sort-options,
-.direction {
-  display: flex;
-  gap: 0.6rem;
-  margin: 0.8rem 0;
-}
-
-.option-btn,
-.direction-btn {
-  background: #f3f3f3;
-  color: #1f1f1f;
-}
-
-.option-btn.active,
-.direction-btn.active {
-  background: #fbd8e5;
-  color: #a30f45;
 }
 
 .modal-actions {

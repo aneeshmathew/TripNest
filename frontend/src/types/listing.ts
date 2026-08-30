@@ -13,6 +13,3 @@ export interface Listing {
   createdAt: string;
   updatedAt: string;
 }
-
-export type SortOption = "Price" | "Average Rating" | "Title";
-export type SortDirection = "asc" | "desc";
