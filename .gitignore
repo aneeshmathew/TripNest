@@ -2,3 +2,25 @@ node_modules
 dist
 .DS_Store
 coverage
+
+# Environment secrets — copy .env.example to .env locally, never commit .env
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Prisma
+backend/prisma/*.db
+
+# Postgres data volume is managed by Docker, not git
+
+# Next.js
+.next
+out
+next-env.d.ts.bak
+
+# Playwright
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
