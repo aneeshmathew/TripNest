@@ -25,19 +25,28 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 
 ### Local infra
 - `docker-compose.yml` runs Postgres for local development.
-- Root `package.json` scripts: `setup`, `db:up`, `db:migrate`, `db:seed`, `dev`, `typecheck`.
+- Root `package.json` scripts: `setup`, `db:up`, `db:migrate`, `db:seed`, `dev`, `typecheck`, `test`, `test:e2e`.
+
+### Testing
+- **Backend** (`backend/vitest.config.ts`): Vitest unit tests co-located with the code they test — `tokens.test.ts`, `listings.schemas.test.ts`, `reviews.schemas.test.ts` test pure logic directly; `reviews.service.test.ts` mocks the Prisma client (`vi.mock("../../db/prisma.js")`) to test ownership checks and exactly when rating aggregation fires, without a real database. `app.test.ts` uses supertest against the assembled Express app for a few request-level checks (health check, 404s, validation errors, auth-required routes) — all chosen to not need a live DB. `vitest.setup.ts` stubs the env vars `config/env.ts` requires at import time, so tests don't need a real `.env`.
+- **Frontend** (`frontend/vitest.config.ts`): Vitest + React Testing Library component tests, co-located with components (`StarRating`, `StarRatingInput`, `SearchFilters`, `ApartmentCard`). `vitest.setup.tsx` mocks `next/image` and `next/link`, since both assume a full Next.js runtime (image optimization pipeline, App Router context) that doesn't exist under plain Vitest+jsdom.
+- **E2E** (root `playwright.config.ts`, `e2e/`): Playwright tests against the real running stack — browsing/searching listings, login/logout, and a full signup-via-API → login-via-UI → review-submission flow. Assumes the seed data is loaded and Postgres is already up; Playwright's `webServer` starts the frontend+backend dev servers but doesn't manage Docker.
+- **Coverage is a starting pattern, not comprehensive** — these are real working examples per layer (pure logic, mocked-dependency service logic, request-level integration, component rendering, full-stack e2e), not full coverage of every module. `AuthContext`, `ReviewItem`, `ReviewForm`, and `LoginForm` don't have unit tests yet, for instance — mocking `next/navigation`'s `useRouter` is the next piece needed to cover those.
+- Run with `npm test` (backend + frontend unit tests) or `npm run test:e2e` (Playwright) from the project root.
 
 ### Run locally
 ```bash
 npm run setup                                # installs root, backend, frontend deps
-cp backend/.env.example backend/.env         # fill in JWT_ACCESS_SECRET / JWT_REFRESH_SECRET
+cp backend/.env.example backend/.env         # fill in JWT_ACCESS_SECRET / JWT_REFRESH_SECRET / DATABASE_URL
 cp frontend/.env.example frontend/.env.local # Next.js convention for local env vars
-npm run db:up                                # starts Postgres
+npm run db:up                                # starts Postgres via Docker — skip if using a hosted DB instead (see below)
 npm run db:migrate                           # creates schema
 npm run db:seed                              # seeds a demo user + listings
 npm run dev                                  # runs backend (:5000) + frontend (:3000)
 ```
 Demo login: `user1@mail.com` / `user123`.
+
+`npm run db:up` requires Docker Desktop installed and running. If you'd rather not install Docker, a hosted Postgres (e.g. [Neon](https://neon.tech), free tier) works too — just put its connection string in `backend/.env`'s `DATABASE_URL` (prefer the *direct*, non-pooled connection string over a PgBouncer-pooled one — Prisma's migration engine can be finicky over pooled connections, and pooling isn't worth the complexity for local dev) and skip `npm run db:up` entirely.
 
 ---
 
@@ -91,7 +100,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 | Styling | **Tailwind CSS + shadcn/ui (Radix primitives)** | Fast, consistent, and accessible by default — Radix primitives (dialogs, comboboxes) matter once features like search filters or booking flows need real modals/menus, which plain hand-rolled markup tends to get wrong (focus trapping, Escape handling, ARIA roles). |
 | Forms/validation | **React Hook Form + Zod** | Schemas can be shared with the backend for consistent validation. |
 | Maps | **Mapbox GL JS** | Geo search and map browsing. |
-| Testing | **Vitest + React Testing Library**, **Playwright** for e2e | Nothing exists yet — needed alongside every new feature from here on. |
+| Testing | **Vitest + React Testing Library**, **Playwright** for e2e | In place with real example tests per layer (see Testing under Architecture) — pattern established, not yet comprehensive coverage. |
 
 ### Backend
 | Concern | Choice | Why |
@@ -134,12 +143,9 @@ Wishlist        id, userId, listingId
 
 ## 5. Roadmap
 
-**Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database, Next.js App Router with SSR/ISR on listing pages for SEO, review CRUD with rating aggregation (text + sub-ratings, one review per user per listing, average rating/count derived from real review data), basic search/filter (keyword + price range + minimum rating) via URL-driven searchParams and Postgres query filters.
+**Foundation (in place)**: TypeScript on both apps, Postgres + Prisma, real bcrypt/JWT auth with refresh tokens, listings served from the database, Next.js App Router with SSR/ISR on listing pages for SEO, review CRUD with rating aggregation (text + sub-ratings, one review per user per listing, average rating/count derived from real review data), basic search/filter (keyword + price range + minimum rating) via URL-driven searchParams and Postgres query filters, and a Vitest/RTL + Playwright test setup (see Testing below) — infrastructure and real example tests are in place, not yet full coverage.
 
-**Next — Core content**
-- Add the test setup (Vitest/RTL + Playwright) — currently missing entirely.
-
-**Then — Discovery**
+**Next — Discovery**
 - Meilisearch/Elasticsearch integration: faceted + geo search + autocomplete.
 - Map view (Mapbox), "near me."
 - Wishlist/saved listings, user profile pages.
