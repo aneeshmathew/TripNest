@@ -1,6 +1,6 @@
 import type { Review } from "../types/review";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
 // Unlike listings.ts (60s ISR), reviews are fetched with no caching.
 // Reviews are the whole point of this page and correctness right after a

@@ -8,7 +8,7 @@
 // listings is public.
 import type { Listing } from "../types/listing";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
 // Revalidate every 60s (ISR): listing data is served from cache and
 // refreshed in the background at most once a minute, rather than hitting

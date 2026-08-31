@@ -1,10 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Prerequisite this config assumes (documented in README.md): Postgres is
-// already up and migrated/seeded — `npm run db:up && npm run db:migrate
-// && npm run db:seed` — before running `npm run test:e2e`. Playwright's
-// webServer below starts the frontend+backend dev servers for you, but it
-// doesn't manage Docker/Postgres.
+// Prerequisite this config assumes (documented in README.md): the DB is
+// migrated/seeded — `npm run db:migrate && npm run db:seed` — before
+// running `npm run test:e2e`. Playwright's webServer below starts the
+// frontend+backend dev servers for you, but it doesn't set up the
+// database itself (backend/.env's DATABASE_URL points at a hosted
+// Postgres, e.g. Neon — nothing to start locally for that).
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,

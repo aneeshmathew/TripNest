@@ -4,7 +4,7 @@ import type { AuthResponse } from "../types/auth";
 // This client is used from client components only (auth calls, which need
 // localStorage). Listing data is fetched server-side instead — see
 // src/lib/listings.ts — so it can be SSR'd/statically generated for SEO.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
 export class ApiError extends Error {
   status: number;

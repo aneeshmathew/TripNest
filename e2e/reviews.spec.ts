@@ -17,7 +17,7 @@ test.describe("Reviews", () => {
     // a backend endpoint only). Hit the API directly to create a
     // throwaway user, since the seeded demo user has already reviewed
     // every seeded listing and can't submit another.
-    const signupResponse = await page.request.post("http://localhost:5000/api/auth/signup", {
+    const signupResponse = await page.request.post("http://localhost:5001/api/auth/signup", {
       data: { email, password: "password123", name: "E2E Tester" }
     });
     expect(signupResponse.ok()).toBe(true);

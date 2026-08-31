@@ -24,13 +24,13 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 - Centralized env validation (zod), a shared error-handling middleware, and a Prisma client singleton.
 
 ### Local infra
-- `docker-compose.yml` runs Postgres for local development.
-- Root `package.json` scripts: `setup`, `db:up`, `db:migrate`, `db:seed`, `dev`, `typecheck`, `test`, `test:e2e`.
+- **Database**: a hosted Postgres connection string (e.g. [Neon](https://neon.tech), free tier) — no local database service to install or run. Prefer Neon's *direct* (non `-pooler`) connection string over its PgBouncer-pooled one; Prisma's migration engine can be finicky over pooled connections, and pooling isn't worth the complexity for local dev.
+- Root `package.json` scripts: `setup`, `db:migrate`, `db:seed`, `dev`, `typecheck`, `test`, `test:e2e`.
 
 ### Testing
 - **Backend** (`backend/vitest.config.ts`): Vitest unit tests co-located with the code they test — `tokens.test.ts`, `listings.schemas.test.ts`, `reviews.schemas.test.ts` test pure logic directly; `reviews.service.test.ts` mocks the Prisma client (`vi.mock("../../db/prisma.js")`) to test ownership checks and exactly when rating aggregation fires, without a real database. `app.test.ts` uses supertest against the assembled Express app for a few request-level checks (health check, 404s, validation errors, auth-required routes) — all chosen to not need a live DB. `vitest.setup.ts` stubs the env vars `config/env.ts` requires at import time, so tests don't need a real `.env`.
 - **Frontend** (`frontend/vitest.config.ts`): Vitest + React Testing Library component tests, co-located with components (`StarRating`, `StarRatingInput`, `SearchFilters`, `ApartmentCard`). `vitest.setup.tsx` mocks `next/image` and `next/link`, since both assume a full Next.js runtime (image optimization pipeline, App Router context) that doesn't exist under plain Vitest+jsdom.
-- **E2E** (root `playwright.config.ts`, `e2e/`): Playwright tests against the real running stack — browsing/searching listings, login/logout, and a full signup-via-API → login-via-UI → review-submission flow. Assumes the seed data is loaded and Postgres is already up; Playwright's `webServer` starts the frontend+backend dev servers but doesn't manage Docker.
+- **E2E** (root `playwright.config.ts`, `e2e/`): Playwright tests against the real running stack — browsing/searching listings, login/logout, and a full signup-via-API → login-via-UI → review-submission flow. Assumes the seed data is loaded; Playwright's `webServer` starts the frontend+backend dev servers but doesn't set up the database itself.
 - **Coverage is a starting pattern, not comprehensive** — these are real working examples per layer (pure logic, mocked-dependency service logic, request-level integration, component rendering, full-stack e2e), not full coverage of every module. `AuthContext`, `ReviewItem`, `ReviewForm`, and `LoginForm` don't have unit tests yet, for instance — mocking `next/navigation`'s `useRouter` is the next piece needed to cover those.
 - Run with `npm test` (backend + frontend unit tests) or `npm run test:e2e` (Playwright) from the project root.
 
@@ -39,14 +39,13 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 npm run setup                                # installs root, backend, frontend deps
 cp backend/.env.example backend/.env         # fill in JWT_ACCESS_SECRET / JWT_REFRESH_SECRET / DATABASE_URL
 cp frontend/.env.example frontend/.env.local # Next.js convention for local env vars
-npm run db:up                                # starts Postgres via Docker — skip if using a hosted DB instead (see below)
-npm run db:migrate                           # creates schema
+npm run db:migrate                           # creates schema (prompts for a migration name the first time)
 npm run db:seed                              # seeds a demo user + listings
-npm run dev                                  # runs backend (:5000) + frontend (:3000)
+npm run dev                                  # runs backend (:5001) + frontend (:3000)
 ```
 Demo login: `user1@mail.com` / `user123`.
 
-`npm run db:up` requires Docker Desktop installed and running. If you'd rather not install Docker, a hosted Postgres (e.g. [Neon](https://neon.tech), free tier) works too — just put its connection string in `backend/.env`'s `DATABASE_URL` (prefer the *direct*, non-pooled connection string over a PgBouncer-pooled one — Prisma's migration engine can be finicky over pooled connections, and pooling isn't worth the complexity for local dev) and skip `npm run db:up` entirely.
+`DATABASE_URL` in `backend/.env` points at a hosted Postgres — no Docker or local database install needed. See `backend/.env.example` for the connection string format.
 
 ---
 
@@ -115,7 +114,7 @@ Grouped by what actually differentiates a TripAdvisor-class product.
 | Background jobs | **BullMQ (Redis-backed)** | Email sending, image processing, search index sync, ranking recomputation. |
 
 ### Infra
-- Docker Compose for local dev (Postgres, Redis, Meilisearch, API, web).
+- Postgres is a hosted connection (e.g. Neon), not containerized — no Docker required for local dev today. Docker Compose could still make sense later for local instances of Redis/Meilisearch once those are actually added, but isn't set up preemptively.
 - GitHub Actions for CI: lint/typecheck/test on PR, deploy on merge.
 - Vercel for the Next.js frontend; a container host (Fly.io/Railway/AWS ECS) for the API.
 - Sentry for errors; OpenTelemetry + Grafana/Datadog for metrics.
