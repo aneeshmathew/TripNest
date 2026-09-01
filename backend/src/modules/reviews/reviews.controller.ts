@@ -8,6 +8,11 @@ export async function listReviewsHandler(req: Request, res: Response) {
   res.json(reviews);
 }
 
+export async function listFeaturedReviewsHandler(_req: Request, res: Response) {
+  const reviews = await reviewsService.getFeaturedReviews();
+  res.json(reviews);
+}
+
 export async function createReviewHandler(req: Request, res: Response) {
   if (!req.user) {
     throw new AppError(401, "Not authenticated");

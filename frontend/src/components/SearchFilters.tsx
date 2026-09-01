@@ -12,11 +12,21 @@ const ratingOptions = [4, 3, 2, 1];
 // resulting URLs are shareable/bookmarkable search results.
 function SearchFilters({ defaultValues }: SearchFiltersProps) {
   const hasActiveFilters = Boolean(
-    defaultValues.search || defaultValues.minPrice || defaultValues.maxPrice || defaultValues.minRating
+    defaultValues.search ||
+      defaultValues.minPrice ||
+      defaultValues.maxPrice ||
+      defaultValues.minRating ||
+      defaultValues.continent
   );
 
   return (
     <form className="search-filters" method="GET" action="/" data-testid="search-filters-form">
+      {/* Carries forward whatever continent was picked on the map (see
+          ContinentMap) so submitting this form doesn't silently drop it —
+          the two filter UIs write to the same URL query params. */}
+      {defaultValues.continent && (
+        <input type="hidden" name="continent" value={defaultValues.continent} />
+      )}
       <input
         type="text"
         name="search"

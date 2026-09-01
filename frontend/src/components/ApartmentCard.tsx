@@ -9,7 +9,11 @@ interface ApartmentCardProps {
 
 function ApartmentCard({ apartment }: ApartmentCardProps) {
   return (
-    <article className="card" data-testid={`apartment-card-${apartment.id}`}>
+    <Link
+      href={`/apartments/${apartment.id}`}
+      className="card"
+      data-testid={`apartment-card-${apartment.id}`}
+    >
       <div className="card-image-wrap">
         <Image
           src={apartment.imageUrl}
@@ -29,11 +33,9 @@ function ApartmentCard({ apartment }: ApartmentCardProps) {
             {apartment.averageRating.toFixed(1)} ({apartment.reviewCount})
           </span>
         </p>
-        <Link href={`/apartments/${apartment.id}`} className="details-link">
-          View details
-        </Link>
+        <span className="details-link">View details</span>
       </div>
-    </article>
+    </Link>
   );
 }
 

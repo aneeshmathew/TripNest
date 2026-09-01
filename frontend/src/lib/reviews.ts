@@ -1,4 +1,4 @@
-import type { Review } from "../types/review";
+import type { FeaturedReview, Review } from "../types/review";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
@@ -20,4 +20,19 @@ export async function getReviews(listingId: string): Promise<Review[]> {
   }
 
   return response.json() as Promise<Review[]>;
+}
+
+// Homepage testimonials — unlike getReviews above, staleness isn't a big
+// deal here (it's marketing content, not "did my review save"), so this
+// uses the same 5-minute ISR window as getFeaturedListings.
+export async function getFeaturedReviews(): Promise<FeaturedReview[]> {
+  const response = await fetch(`${API_BASE_URL}/api/reviews/featured`, {
+    next: { revalidate: 300 }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to load featured reviews (${response.status})`);
+  }
+
+  return response.json() as Promise<FeaturedReview[]>;
 }

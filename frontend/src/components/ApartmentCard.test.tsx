@@ -8,6 +8,7 @@ const listing: Listing = {
   title: "Eiffel View Loft",
   description: null,
   location: "Paris, France",
+  continent: "EUROPE",
   price: 210,
   averageRating: 4.8,
   reviewCount: 12,
@@ -26,11 +27,16 @@ describe("ApartmentCard", () => {
     expect(screen.getByText("4.8 (12)")).toBeInTheDocument();
   });
 
-  it("links to the listing's detail page", () => {
+  it("makes the whole card a link to the listing's detail page", () => {
     render(<ApartmentCard apartment={listing} />);
-    expect(screen.getByRole("link", { name: /view details/i })).toHaveAttribute(
+    expect(screen.getByTestId("apartment-card-listing-1")).toHaveAttribute(
       "href",
       "/apartments/listing-1"
     );
+  });
+
+  it("still shows a View details affordance within the card", () => {
+    render(<ApartmentCard apartment={listing} />);
+    expect(screen.getByText("View details")).toBeInTheDocument();
   });
 });

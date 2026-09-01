@@ -1,3 +1,4 @@
+import { Continent } from "@prisma/client";
 import { z } from "zod";
 
 // Empty-string query params are common from GET forms with blank fields
@@ -14,7 +15,8 @@ export const listingsQuerySchema = z.object({
   search: z.preprocess(emptyToUndefined, z.string().trim().min(1).optional()),
   minPrice: optionalCoercedNumber((n) => n.nonnegative()),
   maxPrice: optionalCoercedNumber((n) => n.nonnegative()),
-  minRating: optionalCoercedNumber((n) => n.min(0).max(5))
+  minRating: optionalCoercedNumber((n) => n.min(0).max(5)),
+  continent: z.preprocess(emptyToUndefined, z.nativeEnum(Continent).optional())
 });
 
 export type ListingsQuery = z.infer<typeof listingsQuerySchema>;

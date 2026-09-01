@@ -8,6 +8,7 @@ const prismaMock = {
   listing: { findUnique: vi.fn(), update: vi.fn() },
   review: {
     findUnique: vi.fn(),
+    findMany: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
@@ -17,7 +18,9 @@ const prismaMock = {
 
 vi.mock("../../db/prisma.js", () => ({ prisma: prismaMock }));
 
-const { createReview, updateReview, deleteReview } = await import("./reviews.service.js");
+const { createReview, updateReview, deleteReview, getFeaturedReviews } = await import(
+  "./reviews.service.js"
+);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -141,5 +144,29 @@ describe("deleteReview", () => {
       where: { id: "listing-1" },
       data: { averageRating: 0, reviewCount: 0 }
     });
+  });
+});
+
+describe("getFeaturedReviews", () => {
+  it("orders by rating desc, then most recent, and includes listing context", async () => {
+    prismaMock.review.findMany.mockResolvedValue([{ id: "review-1", rating: 5 }]);
+
+    const result = await getFeaturedReviews();
+
+    expect(prismaMock.review.findMany).toHaveBeenCalledWith({
+      orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
+      take: 3,
+      include: {
+        user: { select: { id: true, name: true } },
+        listing: { select: { id: true, title: true, location: true } }
+      }
+    });
+    expect(result).toEqual([{ id: "review-1", rating: 5 }]);
+  });
+
+  it("respects a custom limit", async () => {
+    prismaMock.review.findMany.mockResolvedValue([]);
+    await getFeaturedReviews(5);
+    expect(prismaMock.review.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 5 }));
   });
 });

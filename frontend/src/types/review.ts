@@ -29,3 +29,10 @@ export interface CreateReviewInput {
   value?: number;
   location?: number;
 }
+
+// Returned by GET /api/reviews/featured — a real review plus enough
+// listing context to display as a homepage testimonial ("— Jane, about
+// Eiffel View Loft"), not a fabricated marketing quote.
+export interface FeaturedReview extends Review {
+  listing: { id: string; title: string; location: string };
+}

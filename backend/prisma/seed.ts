@@ -1,7 +1,8 @@
-// Seeds the DB with the same demo data the old hardcoded arrays used to
-// contain — but now there's exactly one source of truth (the database),
-// not one array in the frontend and a different one in the backend.
-import { PrismaClient, Role } from "@prisma/client";
+// Seeds the DB with demo data. Listings now span all 6 continents used by
+// the continent map (frontend/src/components/ContinentMap.tsx) — the
+// original 4 were all France/Europe, which would leave 5 of 6 continents
+// empty and make that feature untestable.
+import { Continent, PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -25,6 +26,7 @@ async function main() {
       title: "Eiffel View Loft",
       price: 210,
       location: "Paris, France",
+      continent: Continent.EUROPE,
       imageUrl:
         "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80"
     },
@@ -32,6 +34,7 @@ async function main() {
       title: "Beachside Villa",
       price: 165,
       location: "Nice, France",
+      continent: Continent.EUROPE,
       imageUrl:
         "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1200&q=80"
     },
@@ -39,6 +42,7 @@ async function main() {
       title: "Montmartre City Studio",
       price: 120,
       location: "Paris, France",
+      continent: Continent.EUROPE,
       imageUrl:
         "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80"
     },
@@ -46,8 +50,49 @@ async function main() {
       title: "Louvre Garden Apartment",
       price: 240,
       location: "Paris, France",
+      continent: Continent.EUROPE,
       imageUrl:
         "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      title: "Manhattan Skyline Suite",
+      price: 280,
+      location: "New York, USA",
+      continent: Continent.NORTH_AMERICA,
+      imageUrl:
+        "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      title: "Copacabana Beachfront Flat",
+      price: 150,
+      location: "Rio de Janeiro, Brazil",
+      continent: Continent.SOUTH_AMERICA,
+      imageUrl:
+        "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      title: "Table Mountain View House",
+      price: 130,
+      location: "Cape Town, South Africa",
+      continent: Continent.AFRICA,
+      imageUrl:
+        "https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      title: "Shibuya Sky Suite",
+      price: 190,
+      location: "Tokyo, Japan",
+      continent: Continent.ASIA,
+      imageUrl:
+        "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      title: "Bondi Beach Bungalow",
+      price: 175,
+      location: "Sydney, Australia",
+      continent: Continent.OCEANIA,
+      imageUrl:
+        "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=80"
     }
   ];
 
@@ -85,6 +130,31 @@ async function main() {
       rating: 5,
       title: "Best stay we've had in Paris",
       body: "Spotless, beautifully furnished, and the host was incredibly responsive. Would book again in a heartbeat."
+    },
+    "Manhattan Skyline Suite": {
+      rating: 5,
+      title: "Right in the middle of everything",
+      body: "Walked to every major sight. Small for the price, but that's Manhattan for you."
+    },
+    "Copacabana Beachfront Flat": {
+      rating: 4,
+      title: "Wake up to the beach",
+      body: "Loved being steps from Copacabana. Building's a bit dated but the location makes up for it."
+    },
+    "Table Mountain View House": {
+      rating: 5,
+      title: "Incredible views, incredible host",
+      body: "Table Mountain right outside the window. The host gave us great local restaurant tips too."
+    },
+    "Shibuya Sky Suite": {
+      rating: 4,
+      title: "Compact but perfectly located",
+      body: "Tiny by Western standards but spotless and right by the station. Would stay again."
+    },
+    "Bondi Beach Bungalow": {
+      rating: 5,
+      title: "Exactly the beach trip we wanted",
+      body: "Short walk to Bondi, quiet street, great coffee nearby. Couldn't have asked for more."
     }
   };
 
@@ -112,7 +182,7 @@ async function main() {
     });
   }
 
-  console.log("Seed complete: 1 demo user, 4 listings, 4 reviews.");
+  console.log("Seed complete: 1 demo user, 9 listings across 6 continents, 9 reviews.");
 }
 
 main()

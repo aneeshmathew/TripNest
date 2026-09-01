@@ -18,6 +18,19 @@ enum Role {
   ADMIN
 }
 
+// Coarse geographic region for the continent map (see
+// frontend/src/components/ContinentMap.tsx) — a lightweight click-to-filter
+// selector, not real lat/lng geo data. "Australia" in the UI maps to
+// OCEANIA here, matching the standard 6-continent model.
+enum Continent {
+  NORTH_AMERICA
+  SOUTH_AMERICA
+  EUROPE
+  AFRICA
+  ASIA
+  OCEANIA
+}
+
 model User {
   id            String         @id @default(uuid())
   email         String         @unique
@@ -49,21 +62,23 @@ model RefreshToken {
 }
 
 model Listing {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   title         String
   description   String?
   location      String
+  continent     Continent @default(EUROPE)
   price         Float
   // Both fields below are derived from Review rows, recomputed by
   // reviews.service.ts:recomputeListingRating() on every review
   // create/update/delete — never written to directly elsewhere.
-  averageRating Float    @default(0)
-  reviewCount   Int      @default(0)
+  averageRating Float     @default(0)
+  reviewCount   Int       @default(0)
   imageUrl      String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   reviews       Review[]
 
+  @@index([continent])
   @@map("listings")
 }
 

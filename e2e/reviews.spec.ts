@@ -4,8 +4,10 @@ test.describe("Reviews", () => {
   test("prompts a logged-out visitor to log in instead of showing the review form", async ({
     page
   }) => {
-    await page.goto("/");
-    await page.getByRole("link", { name: "View details" }).first().click();
+    // Home shows no listings until searched (see app/page.tsx) — search
+    // first to get to a listing card to click.
+    await page.goto("/?search=Eiffel");
+    await page.getByTestId(/^apartment-card-/).first().click();
 
     await expect(page.getByRole("link", { name: "Log in" })).toBeVisible();
   });
@@ -28,7 +30,8 @@ test.describe("Reviews", () => {
     await page.getByTestId("login-submit-btn").click();
     await expect(page).toHaveURL("/");
 
-    await page.getByRole("link", { name: "View details" }).first().click();
+    await page.goto("/?search=Eiffel");
+    await page.getByTestId(/^apartment-card-/).first().click();
     await page.getByTestId("review-title-input").fill("Wonderful stay");
     await page.getByTestId("review-body-input").fill("Everything was perfect, would recommend.");
     await page.getByTestId("submit-review-btn").click();

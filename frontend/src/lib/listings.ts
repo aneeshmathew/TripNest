@@ -24,6 +24,7 @@ export interface ListingFilters {
   minPrice?: string;
   maxPrice?: string;
   minRating?: string;
+  continent?: string;
 }
 
 function buildQueryString(filters: ListingFilters): string {
@@ -32,6 +33,7 @@ function buildQueryString(filters: ListingFilters): string {
   if (filters.minPrice) params.set("minPrice", filters.minPrice);
   if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
   if (filters.minRating) params.set("minRating", filters.minRating);
+  if (filters.continent) params.set("continent", filters.continent);
   const query = params.toString();
   return query ? `?${query}` : "";
 }
@@ -67,4 +69,14 @@ export async function getListing(id: string): Promise<Listing | null> {
 export async function getListingIds(): Promise<string[]> {
   const listings = await getListings();
   return listings.map((listing) => listing.id);
+}
+
+// Powers the homepage "Featured Stays" row — real listings, highest-rated
+// first, not fabricated "activity category" cards. No dedicated backend
+// endpoint for this; with the current catalog size, fetching everything
+// and sorting/slicing here is simpler than adding a sort/limit param to
+// the listings API for a single homepage row.
+export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
+  const listings = await getListings();
+  return [...listings].sort((a, b) => b.averageRating - a.averageRating).slice(0, limit);
 }

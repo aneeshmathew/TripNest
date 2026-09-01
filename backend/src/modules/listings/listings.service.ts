@@ -30,6 +30,10 @@ export async function getAllListings(query: ListingsQuery = {}) {
     where.averageRating = { gte: query.minRating };
   }
 
+  if (query.continent) {
+    where.continent = query.continent;
+  }
+
   return prisma.listing.findMany({ where, orderBy: { createdAt: "asc" } });
 }
 

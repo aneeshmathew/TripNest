@@ -35,6 +35,21 @@ export async function listReviewsForListing(listingId: string) {
   });
 }
 
+// Powers the homepage testimonials section — real reviews, not fabricated
+// marketing copy. Highest-rated first, tie-broken by most recent, with the
+// listing's title/location included since a testimonial needs that
+// context ("— Jane, about Eiffel View Loft").
+export async function getFeaturedReviews(limit = 3) {
+  return prisma.review.findMany({
+    orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
+    take: limit,
+    include: {
+      user: { select: { id: true, name: true } },
+      listing: { select: { id: true, title: true, location: true } }
+    }
+  });
+}
+
 export async function createReview(listingId: string, userId: string, input: CreateReviewInput) {
   const listing = await prisma.listing.findUnique({ where: { id: listingId } });
   if (!listing) {

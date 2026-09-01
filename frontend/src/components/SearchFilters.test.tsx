@@ -24,6 +24,22 @@ describe("SearchFilters", () => {
     expect(screen.getByTestId("clear-filters-link")).toBeInTheDocument();
   });
 
+  it("shows the Clear link when only a continent is selected", () => {
+    render(<SearchFilters defaultValues={{ continent: "EUROPE" }} />);
+    expect(screen.getByTestId("clear-filters-link")).toBeInTheDocument();
+  });
+
+  it("carries the selected continent forward as a hidden field", () => {
+    const { container } = render(<SearchFilters defaultValues={{ continent: "ASIA" }} />);
+    const hiddenInput = container.querySelector('input[name="continent"]');
+    expect(hiddenInput).toHaveAttribute("value", "ASIA");
+  });
+
+  it("omits the hidden continent field when no continent is selected", () => {
+    const { container } = render(<SearchFilters defaultValues={{}} />);
+    expect(container.querySelector('input[name="continent"]')).not.toBeInTheDocument();
+  });
+
   it("submits as a GET form to /, so results are shareable URLs", () => {
     render(<SearchFilters defaultValues={{}} />);
     const form = screen.getByTestId("search-filters-form");

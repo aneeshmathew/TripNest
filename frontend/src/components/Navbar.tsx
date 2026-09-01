@@ -1,21 +1,37 @@
 "use client";
 
 import Link from "next/link";
+import BrandMark from "./BrandMark";
 import { useAuth } from "../context/AuthContext";
 
+// "Home" was dropped as a separate link — the brand itself always links
+// to "/". Remaining center links are anchors into homepage sections
+// (still work from other pages via Link's default hash-navigation to
+// "/#..."). The theme toggle lives on /settings (see
+// components/SettingsForm.tsx), not here.
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className="navbar">
       <Link href="/" className="brand">
-        TripNest
+        <BrandMark />
       </Link>
       <nav className="nav-links">
-        <Link href="/">Home</Link>
-        {!isAuthenticated && <Link href="/login">Login</Link>}
+        <Link href="/#featured-stays" className="nav-link">
+          Start planning
+        </Link>
+        <Link href="/#testimonials" className="nav-link">
+          Reviews
+        </Link>
+        <Link href="/#contact" className="nav-link">
+          Contact
+        </Link>
       </nav>
       <div className="nav-actions">
+        <Link href="/settings" className="nav-link">
+          Settings
+        </Link>
         {isAuthenticated ? (
           <>
             <span className="user-email">{user?.email}</span>
@@ -23,7 +39,11 @@ function Navbar() {
               Logout
             </button>
           </>
-        ) : null}
+        ) : (
+          <Link href="/login" className="primary-btn nav-cta">
+            Login
+          </Link>
+        )}
       </div>
     </header>
   );

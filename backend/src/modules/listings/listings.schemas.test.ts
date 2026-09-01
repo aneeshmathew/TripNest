@@ -7,7 +7,8 @@ describe("listingsQuerySchema", () => {
       search: "",
       minPrice: "",
       maxPrice: "",
-      minRating: ""
+      minRating: "",
+      continent: ""
     });
     expect(result).toEqual({});
   });
@@ -28,5 +29,14 @@ describe("listingsQuerySchema", () => {
 
   it("rejects a negative minPrice", () => {
     expect(() => listingsQuerySchema.parse({ minPrice: "-10" })).toThrow();
+  });
+
+  it("accepts a valid continent enum value", () => {
+    const result = listingsQuerySchema.parse({ continent: "EUROPE" });
+    expect(result.continent).toBe("EUROPE");
+  });
+
+  it("rejects an unrecognized continent value", () => {
+    expect(() => listingsQuerySchema.parse({ continent: "ANTARCTICA" })).toThrow();
   });
 });

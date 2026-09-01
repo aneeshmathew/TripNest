@@ -4,6 +4,7 @@ import { requireAuth } from "../../middleware/auth.middleware.js";
 import {
   createReviewHandler,
   deleteReviewHandler,
+  listFeaturedReviewsHandler,
   listReviewsHandler,
   updateReviewHandler
 } from "./reviews.controller.js";
@@ -18,5 +19,9 @@ listingReviewsRouter.post("/", requireAuth, asyncHandler(createReviewHandler));
 // Mounted at /api/reviews — editing/deleting a specific review doesn't
 // need the listing in the path, just the review's own id.
 export const reviewsRouter = Router();
+// Public — powers the homepage testimonials section. Registered before
+// "/:id" routes, though there's no actual path collision risk here since
+// those are PATCH/DELETE (different methods) and this is GET.
+reviewsRouter.get("/featured", asyncHandler(listFeaturedReviewsHandler));
 reviewsRouter.patch("/:id", requireAuth, asyncHandler(updateReviewHandler));
 reviewsRouter.delete("/:id", requireAuth, asyncHandler(deleteReviewHandler));
