@@ -1,21 +1,29 @@
 :root {
   color-scheme: light;
 
-  --color-bg: #fafafa;
+  /* Palette: Palladian #EEE9DF, Oatmeal #C9C1B1, Blue Fantastic #2C3B4D,
+     Burning Flame #FFB162, Truffle Trouble #A35139, Abyssal Anchorfish
+     Blue #1B2632. Primary uses Truffle Trouble (rust) in light theme and
+     Burning Flame (brighter orange) in dark theme — same warm hue family,
+     just the lighter member for contrast against a dark background,
+     mirroring how the original pink theme handled light/dark contrast. */
+  --color-bg: #eee9df;
   --color-surface: #ffffff;
-  --color-border: #ececec;
-  --color-text: #121212;
-  --color-text-muted: #5d5d5d;
-  --color-text-subtle: #888888;
-  --color-primary: #e53973;
+  --color-border: #c9c1b1;
+  --color-text: #1b2632;
+  --color-text-muted: #52606d;
+  --color-text-subtle: #7c8894;
+  --color-primary: #a35139;
   --color-primary-text: #ffffff;
-  --color-secondary-bg: #efefef;
-  --color-secondary-text: #1f1f1f;
+  --color-secondary-bg: #e4dfd3;
+  --color-secondary-text: #1b2632;
   --color-error: #b21c1c;
   --color-input-bg: #ffffff;
-  --color-input-border: #dddddd;
-  --color-star-empty: #e0e0e0;
-  --color-star-filled: #f5a623;
+  --color-input-border: #c9c1b1;
+  --color-star-empty: #ddd6c8;
+  --color-star-filled: #ffb162;
+  --color-ocean: #d7e3ea;
+  --color-land: #c9c1b1;
 }
 
 /* Set via an inline script in layout.tsx that runs before paint (see
@@ -26,21 +34,23 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-bg: #121212;
-  --color-surface: #1e1e1e;
-  --color-border: #303030;
-  --color-text: #f2f2f2;
-  --color-text-muted: #b3b3b3;
-  --color-text-subtle: #8a8a8a;
-  --color-primary: #f0568a;
-  --color-primary-text: #14090c;
-  --color-secondary-bg: #2a2a2a;
-  --color-secondary-text: #f2f2f2;
+  --color-bg: #1b2632;
+  --color-surface: #2c3b4d;
+  --color-border: #3d4f63;
+  --color-text: #eee9df;
+  --color-text-muted: #b7c0c9;
+  --color-text-subtle: #8a97a5;
+  --color-primary: #ffb162;
+  --color-primary-text: #1b2632;
+  --color-secondary-bg: #34455a;
+  --color-secondary-text: #eee9df;
   --color-error: #ff6b6b;
-  --color-input-bg: #1a1a1a;
-  --color-input-border: #3a3a3a;
-  --color-star-empty: #3a3a3a;
-  --color-star-filled: #f5a623;
+  --color-input-bg: #22303f;
+  --color-input-border: #3d4f63;
+  --color-star-empty: #3d4f63;
+  --color-star-filled: #ffb162;
+  --color-ocean: #223140;
+  --color-land: #6b6255;
 }
 
 :root {
@@ -264,6 +274,18 @@ body {
   padding: 0.55rem 0.7rem;
 }
 
+.auth-switch-link {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0.4rem 0 0;
+  text-align: center;
+}
+
+.auth-switch-link a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .error-text {
   color: var(--color-error);
   font-weight: 600;
@@ -451,6 +473,14 @@ body {
   justify-content: space-between;
 }
 
+.settings-row + .settings-row {
+  margin-top: 0.9rem;
+}
+
+.settings-section + .settings-section {
+  margin-top: 1.2rem;
+}
+
 .settings-row-label {
   font-weight: 600;
   margin: 0;
@@ -473,11 +503,16 @@ body {
   border-radius: 10px;
   display: block;
   height: auto;
+  overflow: hidden;
   width: 100%;
 }
 
-.continent-region ellipse {
-  fill: var(--color-secondary-bg);
+.continent-map-ocean {
+  fill: var(--color-ocean);
+}
+
+.continent-region path {
+  fill: var(--color-land);
   stroke: var(--color-border);
   stroke-width: 2;
   transition: fill 0.15s ease;
@@ -486,13 +521,16 @@ body {
 .continent-region text {
   fill: var(--color-text);
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
+  paint-order: stroke;
   pointer-events: none;
+  stroke: var(--color-land);
+  stroke-width: 3px;
 }
 
-.continent-region:hover ellipse,
-.continent-region:focus-visible ellipse,
-.continent-region.selected ellipse {
+.continent-region:hover path,
+.continent-region:focus-visible path,
+.continent-region.selected path {
   fill: var(--color-primary);
 }
 
@@ -500,6 +538,7 @@ body {
 .continent-region:focus-visible text,
 .continent-region.selected text {
   fill: var(--color-primary-text);
+  stroke: var(--color-primary);
 }
 
 .continent-clear-link {

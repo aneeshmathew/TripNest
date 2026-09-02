@@ -3,15 +3,16 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { login as loginRequest } from "../api/auth";
+import { signup as signupRequest } from "../api/auth";
 import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
-function LoginForm() {
+function SignupForm() {
   const router = useRouter();
   const { login: setAuthenticated } = useAuth();
-  const [email, setEmail] = useState("user1@mail.com");
-  const [password, setPassword] = useState("user123");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,12 +22,15 @@ function LoginForm() {
     setError("");
 
     try {
-      const data = await loginRequest(email, password);
+      const data = await signupRequest(email, password, name);
+      // Signup returns the same token pair as login (see backend
+      // auth.service.ts:signup) — sign the new account straight in
+      // instead of bouncing them to a separate login step.
       setAuthenticated(data);
       router.push("/");
     } catch (requestError) {
       const message =
-        requestError instanceof ApiError ? requestError.message : "Login failed";
+        requestError instanceof ApiError ? requestError.message : "Sign up failed";
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -36,27 +40,38 @@ function LoginForm() {
   return (
     <section className="login-shell">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1>Login</h1>
-        <p>Use demo account credentials to sign in.</p>
+        <h1>Sign up</h1>
+        <p>Create an account to start leaving reviews.</p>
 
-        <label htmlFor="email">Email</label>
+        <label htmlFor="signup-name">Name</label>
         <input
-          id="email"
+          id="signup-name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          data-testid="signup-name"
+        />
+
+        <label htmlFor="signup-email">Email</label>
+        <input
+          id="signup-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          data-testid="login-email"
+          data-testid="signup-email"
         />
 
-        <label htmlFor="password">Password</label>
+        <label htmlFor="signup-password">Password</label>
         <input
-          id="password"
+          id="signup-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          data-testid="login-password"
+          minLength={8}
+          data-testid="signup-password"
         />
 
         {error ? <p className="error-text">{error}</p> : null}
@@ -65,17 +80,17 @@ function LoginForm() {
           type="submit"
           className="primary-btn"
           disabled={isSubmitting}
-          data-testid="login-submit-btn"
+          data-testid="signup-submit-btn"
         >
-          {isSubmitting ? "Signing in..." : "Sign In"}
+          {isSubmitting ? "Creating account..." : "Sign Up"}
         </button>
 
         <p className="auth-switch-link">
-          Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+          Already have an account? <Link href="/login">Log in</Link>
         </p>
       </form>
     </section>
   );
 }
 
-export default LoginForm;
+export default SignupForm;

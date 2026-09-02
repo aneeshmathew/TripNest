@@ -7,8 +7,10 @@ import { useAuth } from "../context/AuthContext";
 // "Home" was dropped as a separate link — the brand itself always links
 // to "/". Remaining center links are anchors into homepage sections
 // (still work from other pages via Link's default hash-navigation to
-// "/#..."). The theme toggle lives on /settings (see
-// components/SettingsForm.tsx), not here.
+// "/#..."). Settings only shows once logged in — the settings page's
+// only real content (account details) needs a signed-in user anyway, and
+// the theme toggle living there isn't worth showing a link to when
+// logged out (see components/SettingsForm.tsx).
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
 
@@ -29,20 +31,25 @@ function Navbar() {
         </Link>
       </nav>
       <div className="nav-actions">
-        <Link href="/settings" className="nav-link">
-          Settings
-        </Link>
         {isAuthenticated ? (
           <>
+            <Link href="/settings" className="nav-link">
+              Settings
+            </Link>
             <span className="user-email">{user?.email}</span>
             <button type="button" className="secondary-btn" onClick={logout} data-testid="logout-btn">
               Logout
             </button>
           </>
         ) : (
-          <Link href="/login" className="primary-btn nav-cta">
-            Login
-          </Link>
+          <>
+            <Link href="/login" className="nav-link">
+              Login
+            </Link>
+            <Link href="/signup" className="primary-btn nav-cta" data-testid="signup-nav-link">
+              Sign up
+            </Link>
+          </>
         )}
       </div>
     </header>
