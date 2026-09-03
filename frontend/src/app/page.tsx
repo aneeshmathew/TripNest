@@ -1,11 +1,10 @@
 import ApartmentList from "../components/ApartmentList";
-import ContinentMap from "../components/ContinentMap";
 import DestinationGallery from "../components/DestinationGallery";
+import DestinationsSection from "../components/DestinationsSection";
 import EasyToUseSection from "../components/EasyToUseSection";
 import FaqSection from "../components/FaqSection";
 import FeaturedStays from "../components/FeaturedStays";
 import Hero from "../components/Hero";
-import MapSection from "../components/MapSection";
 import PlanWithFriendsSection from "../components/PlanWithFriendsSection";
 import RecommendationsSection from "../components/RecommendationsSection";
 import SearchFilters from "../components/SearchFilters";
@@ -28,11 +27,12 @@ function hasActiveFilters(filters: ListingFilters): boolean {
 // response for SEO.
 //
 // Two distinct states, deliberately not layered on top of each other:
-// - No search yet: the full marketing front door (hero, map, featured
-//   stays, etc.) — no listing dump, no duplicate search UI.
-// - A search/filter/continent is active: a focused results view
-//   (SearchFilters + map + results), with the marketing sections dropped
-//   so the results aren't buried under them.
+// - No search yet: the full marketing front door (hero, destinations
+//   carousel, featured stays, etc.) — no listing dump, no duplicate
+//   search UI.
+// - A search/filter is active: a focused results view (SearchFilters +
+//   results), with the marketing sections dropped so the results aren't
+//   buried under them.
 export default async function HomePage({ searchParams }: HomePageProps) {
   const filters = await searchParams;
 
@@ -58,7 +58,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     return (
       <>
         <Hero />
-        <MapSection />
+        <DestinationsSection />
         <FeaturedStays listings={featuredListings} />
         <EasyToUseSection visualListing={visualListing} />
         <PlanWithFriendsSection />
@@ -77,7 +77,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     return (
       <>
         <SearchFilters defaultValues={filters} />
-        <ContinentMap selected={filters.continent} />
         <p className="status-text error-text">
           Couldn&apos;t load apartments. Is the backend running?
         </p>
@@ -88,7 +87,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <>
       <SearchFilters defaultValues={filters} />
-      <ContinentMap selected={filters.continent} />
       {listings.length === 0 ? (
         <p className="status-text">No apartments match your search — try adjusting the filters.</p>
       ) : (

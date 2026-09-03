@@ -5,6 +5,8 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { listingsRouter } from "./modules/listings/listings.routes.js";
 import { listingReviewsRouter, reviewsRouter } from "./modules/reviews/reviews.routes.js";
+import { hotelsRouter } from "./modules/hotels/hotels.routes.js";
+import { restaurantsRouter } from "./modules/restaurants/restaurants.routes.js";
 
 export function createApp() {
   const app = express();
@@ -18,6 +20,8 @@ export function createApp() {
   app.use("/api/listings", listingsRouter);
   app.use("/api/listings/:listingId/reviews", listingReviewsRouter);
   app.use("/api/reviews", reviewsRouter);
+  app.use("/api/hotels", hotelsRouter);
+  app.use("/api/restaurants", restaurantsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
