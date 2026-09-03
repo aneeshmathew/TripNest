@@ -18,10 +18,10 @@ enum Role {
   ADMIN
 }
 
-// Coarse geographic region for the continent map (see
-// frontend/src/components/ContinentMap.tsx) — a lightweight click-to-filter
-// selector, not real lat/lng geo data. "Australia" in the UI maps to
-// OCEANIA here, matching the standard 6-continent model.
+// Coarse geographic region. Originally paired with a dedicated map UI
+// (removed — see README.md) but still usable as a plain query filter
+// (`GET /api/listings?continent=...`, same for hotels/restaurants below).
+// "Australia" in the UI maps to OCEANIA here.
 enum Continent {
   NORTH_AMERICA
   SOUTH_AMERICA
@@ -118,4 +118,43 @@ model ReviewPhoto {
   createdAt DateTime @default(now())
 
   @@map("review_photos")
+}
+
+// Hotels and restaurants are separate entity types from Listing
+// (apartments/rentals) — deliberately not folded into Listing with a
+// "type" discriminator, since their attributes genuinely differ
+// (starClass vs. cuisine/priceRange) and neither has review functionality
+// yet (that's still Listing-only — see Review model above). Both are
+// public/read-only for now: no owner-submission workflow, matching how
+// they're populated (curated seed data), not user-generated.
+model Hotel {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  location    String
+  continent   Continent @default(EUROPE)
+  price       Float // per night
+  starClass   Int // official hotel star rating, 1-5 — not review-derived
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([continent])
+  @@map("hotels")
+}
+
+model Restaurant {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  location    String
+  continent   Continent @default(EUROPE)
+  cuisine     String
+  priceRange  Int // 1-4, like $ to $$$$
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([continent])
+  @@map("restaurants")
 }

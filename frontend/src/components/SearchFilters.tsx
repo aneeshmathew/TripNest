@@ -21,9 +21,11 @@ function SearchFilters({ defaultValues }: SearchFiltersProps) {
 
   return (
     <form className="search-filters" method="GET" action="/" data-testid="search-filters-form">
-      {/* Carries forward whatever continent was picked on the map (see
-          ContinentMap) so submitting this form doesn't silently drop it —
-          the two filter UIs write to the same URL query params. */}
+      {/* Preserves a `continent` value if one is already in the URL, so
+          submitting this form doesn't silently drop it. There's no UI
+          that sets this param anymore (the continent-map picker was
+          removed), but the backend filter still supports it — this just
+          avoids losing it if someone links in with ?continent=... set. */}
       {defaultValues.continent && (
         <input type="hidden" name="continent" value={defaultValues.continent} />
       )}

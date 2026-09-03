@@ -22,8 +22,18 @@
   --color-input-border: #c9c1b1;
   --color-star-empty: #ddd6c8;
   --color-star-filled: #ffb162;
-  --color-ocean: #d7e3ea;
-  --color-land: #c9c1b1;
+  /* Translucent, not solid — the navbar is fixed + backdrop-blurred so
+     the hero photo (or page content, once scrolled) shows through it
+     rather than being fully opaque. Same RGB as --color-surface, lower
+     alpha. */
+  --color-navbar-bg: rgba(255, 255, 255, 0.7);
+}
+
+:root {
+  /* Referenced by both .navbar (fixed height) and .container/.hero
+     (compensating padding/negative margin) — see the comment on .navbar
+     for why this pairing exists. */
+  --navbar-height: 76px;
 }
 
 /* Set via an inline script in layout.tsx that runs before paint (see
@@ -49,8 +59,7 @@
   --color-input-border: #3d4f63;
   --color-star-empty: #3d4f63;
   --color-star-filled: #ffb162;
-  --color-ocean: #223140;
-  --color-land: #6b6255;
+  --color-navbar-bg: rgba(44, 59, 77, 0.7);
 }
 
 :root {
@@ -70,15 +79,28 @@ body {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+/* Fixed rather than sticky — sticky still occupies its normal space in
+   flow, which pushes page content down by its height. Fixed removes it
+   from flow entirely so it floats over the hero photo; .container's
+   padding-top and .hero's matching negative margin (below) compensate so
+   non-hero content isn't hidden underneath it while Hero still starts at
+   the true top of the viewport. */
 .navbar {
   align-items: center;
-  background: var(--color-surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: var(--color-navbar-bg);
   border-bottom: 1px solid var(--color-border);
+  box-sizing: border-box;
   display: flex;
+  height: var(--navbar-height);
   justify-content: space-between;
-  padding: 1rem 2rem;
-  position: sticky;
+  left: 0;
+  padding: 0 2rem;
+  position: fixed;
+  right: 0;
   top: 0;
+  z-index: 50;
 }
 
 .brand {
@@ -128,6 +150,7 @@ body {
   margin: 0 auto;
   max-width: 1080px;
   padding: 2rem;
+  padding-top: calc(var(--navbar-height) + 2rem);
 }
 
 .page-title {
@@ -491,60 +514,6 @@ body {
   margin: 0.2rem 0 0;
 }
 
-/* Continent map (home page region selector) */
-.continent-map-wrap {
-  margin: 0 auto 1.5rem;
-  max-width: 1080px;
-}
-
-.continent-map {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  display: block;
-  height: auto;
-  overflow: hidden;
-  width: 100%;
-}
-
-.continent-map-ocean {
-  fill: var(--color-ocean);
-}
-
-.continent-region path {
-  fill: var(--color-land);
-  stroke: var(--color-border);
-  stroke-width: 2;
-  transition: fill 0.15s ease;
-}
-
-.continent-region text {
-  fill: var(--color-text);
-  font-size: 22px;
-  font-weight: 700;
-  paint-order: stroke;
-  pointer-events: none;
-  stroke: var(--color-land);
-  stroke-width: 3px;
-}
-
-.continent-region:hover path,
-.continent-region:focus-visible path,
-.continent-region.selected path {
-  fill: var(--color-primary);
-}
-
-.continent-region:hover text,
-.continent-region:focus-visible text,
-.continent-region.selected text {
-  fill: var(--color-primary-text);
-  stroke: var(--color-primary);
-}
-
-.continent-clear-link {
-  margin-top: 0.6rem;
-}
-
 /* Navbar: logo mark + center nav links (redesign) */
 .brand {
   align-items: center;
@@ -611,6 +580,7 @@ body {
 .hero {
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
+  margin-top: calc(-1 * (var(--navbar-height) + 2rem));
   position: relative;
   width: 100vw;
 }
@@ -622,7 +592,12 @@ body {
 }
 
 .hero-overlay {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.55) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.4) 30%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
   inset: 0;
   position: absolute;
 }
@@ -678,9 +653,101 @@ body {
   white-space: nowrap;
 }
 
-/* Continent map section (replaces the reference's 3-steps section) */
-.map-section .continent-map-wrap {
-  margin-bottom: 0;
+/* Destinations carousel section (replaces the removed continent map) */
+.destinations-carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.destination-tile {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: inherit;
+  display: block;
+  flex: 0 0 200px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.destination-tile:hover,
+.destination-tile:focus-visible {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.destination-tile-image-wrap {
+  height: 130px;
+  position: relative;
+  width: 100%;
+}
+
+.destination-tile-content {
+  padding: 0.7rem 0.85rem;
+}
+
+.destination-tile-name {
+  font-size: 1rem;
+  margin: 0 0 0.15rem;
+}
+
+.destination-tile-location {
+  color: var(--color-text-subtle);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.destinations-attribution {
+  color: var(--color-text-subtle);
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.destinations-attribution a {
+  color: var(--color-primary);
+}
+
+/* Destination detail page */
+.destination-page {
+  margin: 0 auto;
+  max-width: 900px;
+}
+
+.destination-hero-wrap {
+  border-radius: 12px;
+  height: 320px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.destination-location {
+  color: var(--color-text-muted);
+  margin-top: -0.5rem;
+}
+
+.destination-tabs {
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.destination-tab {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  padding-bottom: 0.7rem;
+  text-decoration: none;
+}
+
+.destination-tab.active {
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* Featured stays row */

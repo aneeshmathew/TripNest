@@ -1,8 +1,12 @@
 import Image from "next/image";
+import { natGeoDestinations } from "../data/natGeoDestinations";
 
 // A plain GET form, same pattern as SearchFilters — submitting navigates
 // to /?search=... and the home page (Server Component) re-renders with
-// results. No client JS needed.
+// results. No client JS needed. The <datalist> offers the Nat Geo
+// destinations as native browser autocomplete suggestions, but the input
+// still accepts any free-text location — the datalist doesn't restrict
+// what can be typed/submitted, it's a helper, not a strict enum.
 function Hero() {
   return (
     <section className="hero">
@@ -28,8 +32,14 @@ function Hero() {
             name="search"
             placeholder="Where would you like to go?"
             aria-label="Search listings"
+            list="natgeo-destination-suggestions"
             data-testid="hero-search-input"
           />
+          <datalist id="natgeo-destination-suggestions">
+            {natGeoDestinations.map((destination) => (
+              <option key={destination.slug} value={destination.name} />
+            ))}
+          </datalist>
           <button type="submit" className="primary-btn" data-testid="hero-search-btn">
             Start planning
           </button>

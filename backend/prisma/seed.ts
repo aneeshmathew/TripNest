@@ -182,7 +182,179 @@ async function main() {
     });
   }
 
-  console.log("Seed complete: 1 demo user, 9 listings across 6 continents, 9 reviews.");
+  // Hotels + restaurants for the cities that overlap with the destination
+  // detail pages most likely to be tested (existing apartment cities, plus
+  // Vancouver as a Nat Geo Best of the World 2026 pick with no apartment
+  // listing yet). Not exhaustive across every destination — real curated
+  // rows for the ones that matter for a working demo, not a fabricated
+  // full inventory.
+  const hotels = [
+    {
+      name: "Grand Palais Hotel",
+      location: "Paris, France",
+      continent: Continent.EUROPE,
+      price: 320,
+      starClass: 5,
+      imageUrl:
+        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Riviera Bay Resort",
+      location: "Nice, France",
+      continent: Continent.EUROPE,
+      price: 210,
+      starClass: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Manhattan Central Hotel",
+      location: "New York, USA",
+      continent: Continent.NORTH_AMERICA,
+      price: 380,
+      starClass: 5,
+      imageUrl:
+        "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Copacabana Palace Inn",
+      location: "Rio de Janeiro, Brazil",
+      continent: Continent.SOUTH_AMERICA,
+      price: 250,
+      starClass: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Table Bay Hotel",
+      location: "Cape Town, South Africa",
+      continent: Continent.AFRICA,
+      price: 190,
+      starClass: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Shinjuku Sky Hotel",
+      location: "Tokyo, Japan",
+      continent: Continent.ASIA,
+      price: 220,
+      starClass: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Harbour View Hotel",
+      location: "Sydney, Australia",
+      continent: Continent.OCEANIA,
+      price: 260,
+      starClass: 5,
+      imageUrl:
+        "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Stanley Park Lodge",
+      location: "Vancouver, Canada",
+      continent: Continent.NORTH_AMERICA,
+      price: 240,
+      starClass: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=80"
+    }
+  ];
+
+  const restaurants = [
+    {
+      name: "Le Petit Marché",
+      location: "Paris, France",
+      continent: Continent.EUROPE,
+      cuisine: "French",
+      priceRange: 3,
+      imageUrl:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Côte d'Azur Bistro",
+      location: "Nice, France",
+      continent: Continent.EUROPE,
+      cuisine: "Mediterranean",
+      priceRange: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "The Brooklyn Grill",
+      location: "New York, USA",
+      continent: Continent.NORTH_AMERICA,
+      cuisine: "American",
+      priceRange: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Sabor Carioca",
+      location: "Rio de Janeiro, Brazil",
+      continent: Continent.SOUTH_AMERICA,
+      cuisine: "Brazilian",
+      priceRange: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Cape Kitchen",
+      location: "Cape Town, South Africa",
+      continent: Continent.AFRICA,
+      cuisine: "South African",
+      priceRange: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Izakaya Shibuya",
+      location: "Tokyo, Japan",
+      continent: Continent.ASIA,
+      cuisine: "Japanese",
+      priceRange: 3,
+      imageUrl:
+        "https://images.unsplash.com/photo-1579027989536-b7b1f875659b?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Bondi Fish House",
+      location: "Sydney, Australia",
+      continent: Continent.OCEANIA,
+      cuisine: "Seafood",
+      priceRange: 3,
+      imageUrl:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      name: "Granville Island Market Kitchen",
+      location: "Vancouver, Canada",
+      continent: Continent.NORTH_AMERICA,
+      cuisine: "Canadian",
+      priceRange: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"
+    }
+  ];
+
+  for (const hotel of hotels) {
+    const existing = await prisma.hotel.findFirst({ where: { name: hotel.name } });
+    if (!existing) {
+      await prisma.hotel.create({ data: hotel });
+    }
+  }
+
+  for (const restaurant of restaurants) {
+    const existing = await prisma.restaurant.findFirst({ where: { name: restaurant.name } });
+    if (!existing) {
+      await prisma.restaurant.create({ data: restaurant });
+    }
+  }
+
+  console.log(
+    `Seed complete: 1 demo user, 9 listings across 6 continents, 9 reviews, ${hotels.length} hotels, ${restaurants.length} restaurants.`
+  );
 }
 
 main()
