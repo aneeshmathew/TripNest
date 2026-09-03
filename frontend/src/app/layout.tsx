@@ -13,17 +13,17 @@ export const metadata: Metadata = {
 };
 
 // Runs before React hydrates (and before first paint), so the correct
-// theme — from localStorage, or the OS preference on a first visit —
-// applies immediately with no flash of the wrong theme. It sets
-// data-theme directly via the DOM, which is also why <html> below needs
-// suppressHydrationWarning (see that comment).
+// theme — from localStorage if the user has picked one before, light
+// otherwise — applies immediately with no flash of the wrong theme. Light
+// is the deliberate default regardless of OS/browser dark-mode
+// preference; it only ever changes once the user actually clicks the
+// toggle. Sets data-theme directly via the DOM, which is also why <html>
+// below needs suppressHydrationWarning (see that comment).
 const THEME_INIT_SCRIPT = `
 (function () {
   try {
     var stored = localStorage.getItem("theme");
-    var theme = stored === "dark" || stored === "light"
-      ? stored
-      : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    var theme = stored === "dark" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", theme);
   } catch (e) {}
 })();
