@@ -601,7 +601,7 @@ body {
 .hero-image-wrap {
   /* Full viewport again, per feedback — the empty-gap problem last time
      wasn't really about the height, it was .hero-content being dead
-     centered (top: 50%) in a tall box. Moving content up to top: 40%
+     centered (top: 50%) in a tall box. Moving content up (now top: 33%, tightened further after seeing an actual render)
      (see .hero-content) is what actually fixes that, so this can go back
      to filling the viewport without reopening the gap issue. Known
      trade-off: 100vh can jump around on mobile browsers as their chrome
@@ -630,7 +630,7 @@ body {
   padding: 0 1.5rem;
   position: absolute;
   text-align: center;
-  top: 40%;
+  top: 33%;
   transform: translate(-50%, -50%);
   width: 100%;
 }
@@ -701,15 +701,15 @@ body {
      in the overlap zone comes entirely from .hero-overlay's own
      darkening, not from anything on this element.
      Overlap distance recalculated against the restored 100vh hero (with
-     content now at top: 40% instead of dead-center) — still an estimate
+     content now at top: 33% instead of dead-center) — still an estimate
      for a "typical" ~900px viewport, not pixel-tested against a live
      render, and inherently imprecise since 100vh varies by device while
      this margin is a fixed px value. This pairing (hero height/content
      position + this overlap) is the thing most worth checking once
      actually rendered, especially on short viewports where the min-height
      floor (700px) kicks in. */
-  margin-top: -280px;
-  padding-top: 30px;
+  margin-top: -420px;
+  padding-top: 20px;
   position: relative;
   z-index: 1;
 }
