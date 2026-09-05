@@ -1,3 +1,4 @@
+import ActivitiesSection from "../components/ActivitiesSection";
 import ApartmentList from "../components/ApartmentList";
 import DestinationGallery from "../components/DestinationGallery";
 import DestinationsSection from "../components/DestinationsSection";
@@ -59,6 +60,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <>
         <Hero />
         <DestinationsSection />
+        <ActivitiesSection />
         <FeaturedStays listings={featuredListings} />
         <EasyToUseSection visualListing={visualListing} />
         <PlanWithFriendsSection />
