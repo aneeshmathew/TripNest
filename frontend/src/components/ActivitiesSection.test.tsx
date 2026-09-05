@@ -46,6 +46,22 @@ describe("ActivitiesSection", () => {
     expect(screen.queryByTestId(`activity-${hiddenSlug}`)).not.toBeInTheDocument();
   });
 
+  it("links each tile — including the search-all tile — to its /activities/[slug] page", () => {
+    render(<ActivitiesSection />);
+    const surfing = activityHighlights.find((h) => h.slug === "surfing");
+    const searchAll = activityHighlights.find((h) => h.searchAllLabel);
+    expect(surfing).toBeDefined();
+    expect(searchAll).toBeDefined();
+    expect(screen.getByTestId(`activity-${surfing!.slug}`)).toHaveAttribute(
+      "href",
+      `/activities/${surfing!.slug}`
+    );
+    expect(screen.getByTestId(`activity-${searchAll!.slug}`)).toHaveAttribute(
+      "href",
+      `/activities/${searchAll!.slug}`
+    );
+  });
+
   it("renders a 'Search all' variant tile for the searchAllLabel entry", () => {
     render(<ActivitiesSection />);
     const searchAllEntry = activityHighlights.find((highlight) => highlight.searchAllLabel);

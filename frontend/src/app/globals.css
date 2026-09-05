@@ -79,6 +79,17 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   transition: background-color 0.15s ease, color 0.15s ease;
+  /* The full-bleed hero (.hero below) sizes itself with 100vw plus a
+     calc(-50vw + 50%) negative margin. `vw` is based on the viewport
+     including the scrollbar gutter, which is very slightly wider than
+     the actual visible/scrollable area whenever a vertical scrollbar is
+     present — so that trick overshoots by roughly half the scrollbar's
+     width, and the page's own background (cream in light mode) peeks
+     through as a thin line around the hero photo instead of the trick
+     landing pixel-exact. Clipping horizontal overflow here is the
+     standard fix: the sliver of overshoot is simply cut off instead of
+     shifting layout to reveal what's behind it. */
+  overflow-x: hidden;
 }
 
 /* Fixed rather than sticky — sticky still occupies its normal space in
@@ -880,9 +891,19 @@ body {
    it's meant to hint at more content just off-screen. */
 .activity-tile {
   border-radius: 10px;
+  color: inherit;
+  display: block;
   flex: 0 0 200px;
   overflow: hidden;
   scroll-snap-align: start;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.activity-tile:hover,
+.activity-tile:focus-visible {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
 }
 
 .activity-tile-image-wrap {
@@ -1007,6 +1028,28 @@ body {
 .destination-tab.active {
   border-bottom: 2px solid var(--color-primary);
   color: var(--color-primary);
+}
+
+/* Per-tab search box on /activities/[slug] (and reusable anywhere else a
+   tabbed detail page wants one) — a smaller, inline cousin of
+   .search-filters: one text input plus Search/Clear, not the full
+   price/rating filter set. */
+.tab-search-form {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1.25rem;
+}
+
+.tab-search-form input[type="text"] {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  flex: 1 1 220px;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.7rem;
 }
 
 /* Featured stays row */
