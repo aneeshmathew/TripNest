@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import BrandMark from "./BrandMark";
+import ThemeIcon from "./ThemeIcon";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
@@ -44,7 +45,7 @@ function Navbar() {
           aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
           data-testid="navbar-theme-toggle-btn"
         >
-          {theme === "dark" ? "☀️" : "🌙"}
+          <ThemeIcon theme={theme} />
         </button>
         {isAuthenticated ? (
           <>

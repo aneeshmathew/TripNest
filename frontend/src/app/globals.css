@@ -22,11 +22,13 @@
   --color-input-border: #c9c1b1;
   --color-star-empty: #ddd6c8;
   --color-star-filled: #ffb162;
-  /* Translucent, not solid — the navbar is fixed + backdrop-blurred so
-     the hero photo (or page content, once scrolled) shows through it
-     rather than being fully opaque. Same RGB as --color-surface, lower
-     alpha. */
-  --color-navbar-bg: rgba(255, 255, 255, 0.4);
+  /* Fully transparent (alpha 0), not just translucent — the navbar is
+     fixed + backdrop-blurred, so legibility over whatever's behind it
+     comes entirely from the blur, not from any background tint. Kept as
+     a variable (rather than just `background: transparent` inline) so
+     it's easy to reintroduce a slight tint later if pure blur ever
+     proves insufficient for legibility on some background. */
+  --color-navbar-bg: rgba(255, 255, 255, 0);
 }
 
 :root {
@@ -59,7 +61,7 @@
   --color-input-border: #3d4f63;
   --color-star-empty: #3d4f63;
   --color-star-filled: #ffb162;
-  --color-navbar-bg: rgba(44, 59, 77, 0.4);
+  --color-navbar-bg: rgba(44, 59, 77, 0);
 }
 
 :root {
@@ -551,9 +553,9 @@ body {
   align-items: center;
   background: none;
   border: 0;
+  color: var(--color-text);
   cursor: pointer;
   display: flex;
-  font-size: 1.2rem;
   height: 36px;
   justify-content: center;
   line-height: 1;
