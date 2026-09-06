@@ -72,7 +72,7 @@ function ActivitiesSection() {
   };
 
   return (
-    <section className="section activities-section">
+    <section className="section activities-section" id="trip-inspiration">
       <p className="eyebrow">Trip Inspiration</p>
       <h2 className="section-title">Find the perfect place to go — activities, hotels, and more</h2>
 

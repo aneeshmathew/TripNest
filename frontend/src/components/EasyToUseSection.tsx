@@ -1,24 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
-import type { Listing } from "../types/listing";
+import ExploreCategories from "./ExploreCategories";
 
-interface EasyToUseSectionProps {
-  visualListing: Listing | null;
-}
-
-function EasyToUseSection({ visualListing }: EasyToUseSectionProps) {
+function EasyToUseSection() {
   return (
     <section className="section split-section">
       <div className="split-visual">
-        {visualListing ? (
-          <Image
-            src={visualListing.imageUrl}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            style={{ objectFit: "cover" }}
-          />
-        ) : null}
+        <ExploreCategories />
       </div>
       <div className="split-text">
         <p className="eyebrow">Search, compare, book</p>

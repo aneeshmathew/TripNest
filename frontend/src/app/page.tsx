@@ -54,7 +54,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     }
 
     const galleryListings = featuredListings.slice(0, 6);
-    const visualListing = featuredListings[0] ?? null;
 
     return (
       <>
@@ -62,7 +61,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <DestinationsSection />
         <ActivitiesSection />
         <FeaturedStays listings={featuredListings} />
-        <EasyToUseSection visualListing={visualListing} />
+        <EasyToUseSection />
         <PlanWithFriendsSection />
         <RecommendationsSection />
         <FaqSection />

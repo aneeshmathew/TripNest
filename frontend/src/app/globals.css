@@ -1106,6 +1106,54 @@ body {
   position: relative;
 }
 
+/* Real navigation tiles filling .split-visual — see ExploreCategories.tsx
+   for why this replaced a sometimes-photo/sometimes-empty-box slot. A
+   simple 2x2 grid rather than attempting the circular/ring layout from
+   the original design reference: the ring relies on a decorative
+   laptop-screenshot centerpiece these tiles deliberately don't have, so a
+   plain grid reads more honestly as "four links" than as an illustration
+   missing its middle. */
+.explore-categories {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 100%;
+  /* The 1px gap plus this background shows through as thin dividing
+     lines between tiles, without needing a border on every tile edge
+     (which would double up where two tiles meet). */
+  background: var(--color-border);
+}
+
+.explore-category-tile {
+  align-items: center;
+  background: var(--color-secondary-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.explore-category-tile:hover,
+.explore-category-tile:focus-visible {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.explore-category-label {
+  font-weight: 700;
+}
+
+.explore-category-description {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
 .split-text .section-title.split-title {
   text-align: left;
 }
