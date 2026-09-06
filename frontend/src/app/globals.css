@@ -2,18 +2,22 @@
   color-scheme: light;
 
   /* Palette: Palladian #EEE9DF, Oatmeal #C9C1B1, Blue Fantastic #2C3B4D,
-     Burning Flame #FFB162, Truffle Trouble #A35139, Abyssal Anchorfish
-     Blue #1B2632. Primary uses Truffle Trouble (rust) in light theme and
-     Burning Flame (brighter orange) in dark theme — same warm hue family,
-     just the lighter member for contrast against a dark background,
-     mirroring how the original pink theme handled light/dark contrast. */
-  --color-bg: #eee9df;
+     Abyssal Anchorfish Blue #1B2632. Primary is now a sky/ocean blue
+     (Skylight Cyan #54BEE1 in light theme, Skylight Cyan Bright #88D2EA
+     in dark theme — same hue, just lighter for contrast against a dark
+     background) — replaces the earlier rust/orange (Truffle
+     Trouble/Burning Flame) primary to match the ocean-view hero photo.
+     Light theme's page background is plain white rather than Palladian
+     cream (a deliberate change — cream read as slightly muddy/dated
+     against the rest of the palette); Palladian is still used elsewhere
+     (e.g. as dark theme's --color-text). */
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
   --color-border: #c9c1b1;
   --color-text: #1b2632;
   --color-text-muted: #52606d;
   --color-text-subtle: #7c8894;
-  --color-primary: #a35139;
+  --color-primary: #54bee1;
   --color-primary-text: #ffffff;
   --color-secondary-bg: #e4dfd3;
   --color-secondary-text: #1b2632;
@@ -22,13 +26,19 @@
   --color-input-border: #c9c1b1;
   --color-star-empty: #ddd6c8;
   --color-star-filled: #ffb162;
-  /* Fully transparent (alpha 0), not just translucent — the navbar is
-     fixed + backdrop-blurred, so legibility over whatever's behind it
-     comes entirely from the blur, not from any background tint. Kept as
-     a variable (rather than just `background: transparent` inline) so
-     it's easy to reintroduce a slight tint later if pure blur ever
-     proves insufficient for legibility on some background. */
-  --color-navbar-bg: rgba(255, 255, 255, 0);
+  /* Previously fully transparent (alpha 0) with legibility meant to come
+     entirely from the backdrop-blur — that failed in practice: the navbar
+     is fixed over the Hero photo (dark) at the top of every page, and in
+     light theme --color-text is near-black, so nav links were barely
+     readable against the blurred photo (blur softens the image, it
+     doesn't lighten it). Switched to a real, theme-independent dark tint:
+     the navbar now looks the same in both themes and reads reliably
+     whether it's over the hero photo, a light page, or a dark one — see
+     --color-navbar-text below, used instead of --color-text for
+     everything inside .navbar. Not redefined under [data-theme="dark"]
+     (deliberately theme-independent). */
+  --color-navbar-bg: rgba(27, 38, 50, 0.6);
+  --color-navbar-text: #f5f2ec;
 }
 
 :root {
@@ -52,7 +62,7 @@
   --color-text: #eee9df;
   --color-text-muted: #b7c0c9;
   --color-text-subtle: #8a97a5;
-  --color-primary: #ffb162;
+  --color-primary: #88d2ea;
   --color-primary-text: #1b2632;
   --color-secondary-bg: #34455a;
   --color-secondary-text: #eee9df;
@@ -61,7 +71,6 @@
   --color-input-border: #3d4f63;
   --color-star-empty: #3d4f63;
   --color-star-filled: #ffb162;
-  --color-navbar-bg: rgba(44, 59, 77, 0);
 }
 
 :root {
@@ -121,7 +130,13 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   background: var(--color-navbar-bg);
-  border-bottom: 1px solid var(--color-border);
+  /* A translucent white hairline reads as a deliberate glass edge against
+     the now-consistent dark navbar background. The previous
+     `var(--color-border)` (a solid tan in light theme) looked like a
+     rendering bug rather than a design choice — it was a light,
+     theme-colored line sitting on top of an otherwise-transparent bar
+     over a photo, effectively an unexplained seam. */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   box-sizing: border-box;
   display: flex;
   height: var(--navbar-height);
@@ -141,8 +156,17 @@ body {
   text-decoration: none;
 }
 
+/* Overrides the general .brand-word-secondary rule (var(--color-text))
+   specifically inside the navbar, where BrandMark sits on the same
+   always-dark navbar background as everything else here — elsewhere
+   (e.g. the footer) BrandMark keeps using --color-text, since it's on a
+   normal, theme-following surface there. */
+.navbar .brand-word-secondary {
+  color: var(--color-navbar-text);
+}
+
 .nav-link {
-  color: var(--color-text);
+  color: var(--color-navbar-text);
   font-weight: 600;
   text-decoration: none;
 }
@@ -154,8 +178,9 @@ body {
 }
 
 .user-email {
-  color: var(--color-text-muted);
+  color: var(--color-navbar-text);
   font-size: 0.9rem;
+  opacity: 0.85;
 }
 
 .primary-btn,
@@ -584,7 +609,7 @@ body {
   align-items: center;
   background: none;
   border: 0;
-  color: var(--color-text);
+  color: var(--color-navbar-text);
   cursor: pointer;
   display: flex;
   height: 36px;
@@ -647,11 +672,17 @@ body {
 }
 
 .hero-overlay {
+  /* Lightened from the original (0.55/0.4/0.55) now that the photo itself
+     (blue sky over a valley, not a moody dark mountain range) is already
+     much brighter — a heavy dark overlay would have fought that instead
+     of complementing it. Still dark enough at top/bottom for the white
+     .hero-title and the overlapping .destinations-section content (see
+     that section's own comment) to stay legible. */
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.55) 0%,
-    rgba(0, 0, 0, 0.4) 30%,
-    rgba(0, 0, 0, 0.55) 100%
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.22) 30%,
+    rgba(0, 0, 0, 0.45) 100%
   );
   inset: 0;
   position: absolute;

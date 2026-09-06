@@ -2,6 +2,11 @@
 // two-tone wordmark treatment. The second word uses var(--color-text)
 // rather than a second hardcoded brand color, so it stays legible against
 // var(--color-primary) automatically in both light and dark theme.
+// Exception: inside the navbar, globals.css scopes a
+// `.navbar .brand-word-secondary` override to var(--color-navbar-text)
+// instead — the navbar always sits on the same dark, theme-independent
+// background (see .navbar), not the normal page surface this default is
+// tuned for.
 function BrandMark() {
   return (
     <>

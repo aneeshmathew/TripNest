@@ -12,7 +12,7 @@ function Hero() {
     <section className="hero">
       <div className="hero-image-wrap">
         <Image
-          src="https://images.unsplash.com/photo-1747597197470-08ddb13a160f?auto=format&fit=crop&w=2000&q=80"
+          src="https://images.unsplash.com/photo-1680013993151-696d40f1e0d3?auto=format&fit=crop&w=2000&q=80"
           alt=""
           fill
           priority
