@@ -34,12 +34,6 @@ export interface ActivityHighlight {
   title: string;
   categories: ActivityCategoryId[];
   imageUrl: string;
-  /**
-   * When set, this tile renders as a "Search all <searchAllLabel>" card
-   * instead of a photo + title — a placeholder for the real search-by-
-   * activity flow that doesn't exist yet.
-   */
-  searchAllLabel?: string;
 }
 
 export const activityHighlights: ActivityHighlight[] = [
@@ -78,11 +72,10 @@ export const activityHighlights: ActivityHighlight[] = [
   {
     slug: "kayaking",
     activity: "Kayaking",
-    title: "Search All Kayaking",
+    title: "New Zealand Kayaking Spots Ranging From Calm Coastal Marine Reserves to Dramatic Glacial Fjords",
     categories: ["water-sports"],
     imageUrl:
-      "https://images.unsplash.com/photo-1696469014188-e6d7ea983c56?auto=format&fit=crop&w=600&q=80",
-    searchAllLabel: "Kayaking"
+      "https://images.unsplash.com/photo-1696469014188-e6d7ea983c56?auto=format&fit=crop&w=600&q=80"
   },
   {
     slug: "whale-watching",

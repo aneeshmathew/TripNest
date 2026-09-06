@@ -956,40 +956,6 @@ body {
   right: 0.85rem;
 }
 
-/* "Search all <activity>" variant — same photo tile as the rest of the
-   strip, but with a stronger scrim and a bordered CTA frame centered over
-   it instead of the usual top-badge/bottom-title layout, so it still
-   reads as "do something different here" rather than one more
-   destination-style card. */
-.activity-tile-scrim-strong {
-  background: rgba(0, 0, 0, 0.55);
-}
-
-.activity-tile-search-frame {
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  inset: 1.1rem;
-  justify-content: center;
-  position: absolute;
-}
-
-.activity-tile-search-frame .activity-badge-icon {
-  height: 30px;
-  width: 30px;
-}
-
-.activity-tile-search-label {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
 /* Destination detail page */
 .destination-page {
   margin: 0 auto;

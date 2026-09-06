@@ -201,7 +201,7 @@ export const natGeoDestinations: NatGeoDestination[] = [
     location: "Portugal",
     blurb: "The medieval birthplace of Portugal, remarkably well preserved.",
     imageUrl:
-      "https://images.unsplash.com/photo-1555881981-8db5efbd1c22?auto=format&fit=crop&w=900&q=80"
+      "https://images.unsplash.com/photo-1662149191062-68917c79bbd6?auto=format&fit=crop&w=900&q=80"
   },
   {
     slug: "khiva-uzbekistan",

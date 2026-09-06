@@ -26,40 +26,10 @@ function ActivityBadgeIcon() {
   );
 }
 
-// Every tile — including the "Search all" variant — links to
-// /activities/[slug], a tabbed page (Apartments/Hotels/Restaurants/
-// Reviews) built from our own real data, the same pattern as
-// DestinationsCarousel's tiles linking to /destinations/[slug].
+// Every tile links to /activities/[slug], a tabbed page (Apartments/
+// Hotels/Restaurants/Reviews) built from our own real data, the same
+// pattern as DestinationsCarousel's tiles linking to /destinations/[slug].
 function ActivityTile({ highlight }: { highlight: ActivityHighlight }) {
-  if (highlight.searchAllLabel) {
-    return (
-      <Link
-        href={`/activities/${highlight.slug}`}
-        className="activity-tile activity-tile-search"
-        data-testid={`activity-${highlight.slug}`}
-      >
-        <div className="activity-tile-image-wrap">
-          <Image
-            src={highlight.imageUrl}
-            alt=""
-            fill
-            sizes="220px"
-            style={{ objectFit: "cover" }}
-          />
-          <div className="activity-tile-scrim activity-tile-scrim-strong" />
-          <div className="activity-tile-search-frame">
-            <ActivityBadgeIcon />
-            <span className="activity-tile-search-label">
-              Search all
-              <br />
-              {highlight.searchAllLabel}
-            </span>
-          </div>
-        </div>
-      </Link>
-    );
-  }
-
   return (
     <Link
       href={`/activities/${highlight.slug}`}

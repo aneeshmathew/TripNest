@@ -46,29 +46,30 @@ describe("ActivitiesSection", () => {
     expect(screen.queryByTestId(`activity-${hiddenSlug}`)).not.toBeInTheDocument();
   });
 
-  it("links each tile — including the search-all tile — to its /activities/[slug] page", () => {
+  it("links every tile — including Kayaking — to its /activities/[slug] page", () => {
     render(<ActivitiesSection />);
     const surfing = activityHighlights.find((h) => h.slug === "surfing");
-    const searchAll = activityHighlights.find((h) => h.searchAllLabel);
+    const kayaking = activityHighlights.find((h) => h.slug === "kayaking");
     expect(surfing).toBeDefined();
-    expect(searchAll).toBeDefined();
+    expect(kayaking).toBeDefined();
     expect(screen.getByTestId(`activity-${surfing!.slug}`)).toHaveAttribute(
       "href",
       `/activities/${surfing!.slug}`
     );
-    expect(screen.getByTestId(`activity-${searchAll!.slug}`)).toHaveAttribute(
+    expect(screen.getByTestId(`activity-${kayaking!.slug}`)).toHaveAttribute(
       "href",
-      `/activities/${searchAll!.slug}`
+      `/activities/${kayaking!.slug}`
     );
   });
 
-  it("renders a 'Search all' variant tile for the searchAllLabel entry, with a background photo", () => {
+  it("renders the Kayaking tile the same shape as every other tile — badge, photo, title", () => {
     render(<ActivitiesSection />);
-    const searchAllEntry = activityHighlights.find((highlight) => highlight.searchAllLabel);
-    expect(searchAllEntry).toBeDefined();
-    const tile = screen.getByTestId(`activity-${searchAllEntry!.slug}`);
-    expect(tile).toHaveTextContent(`Search all${searchAllEntry!.searchAllLabel}`);
-    expect(tile.querySelector("img")).toHaveAttribute("src", searchAllEntry!.imageUrl);
+    const kayaking = activityHighlights.find((highlight) => highlight.slug === "kayaking");
+    expect(kayaking).toBeDefined();
+    const tile = screen.getByTestId(`activity-${kayaking!.slug}`);
+    expect(tile).toHaveTextContent(kayaking!.activity);
+    expect(tile).toHaveTextContent(kayaking!.title);
+    expect(tile.querySelector("img")).toHaveAttribute("src", kayaking!.imageUrl);
   });
 
   it("renders Previous/Next controls that scroll the track", async () => {

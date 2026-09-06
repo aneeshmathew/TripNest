@@ -9,19 +9,23 @@ test.describe("Activities carousel", () => {
     await expect(page.getByRole("heading", { name: "Surfing trips" })).toBeVisible();
   });
 
-  test("clicking the 'Search all' tile also navigates to its activity page", async ({ page }) => {
+  test("clicking the Kayaking tile navigates to its activity page", async ({ page }) => {
     await page.goto("/");
     await page.getByTestId("activity-kayaking").click();
 
     await expect(page).toHaveURL("/activities/kayaking");
   });
 
-  test("the 'Search all Kayaking' tile renders a background photo, not just an empty frame", async ({
+  test("the Kayaking tile renders like every other tile — badge, photo, and title", async ({
     page
   }) => {
     await page.goto("/");
     const tile = page.getByTestId("activity-kayaking");
+    await expect(tile.getByText("Kayaking")).toBeVisible();
     await expect(tile.locator("img")).toBeVisible();
+    await expect(
+      tile.getByText(/New Zealand Kayaking Spots Ranging From Calm Coastal Marine Reserves/i)
+    ).toBeVisible();
   });
 
   test("filtering by category narrows the visible tiles", async ({ page }) => {
