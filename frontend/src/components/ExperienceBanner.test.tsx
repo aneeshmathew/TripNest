@@ -13,4 +13,11 @@ describe("ExperienceBanner", () => {
     render(<ExperienceBanner />);
     expect(screen.getByAltText(/the value for experience/i)).toBeInTheDocument();
   });
+
+  it("overlays a real link on the baked-in 'Start planning' button, pointing at the same place the navbar's link does", () => {
+    render(<ExperienceBanner />);
+    const cta = screen.getByTestId("experience-banner-cta");
+    expect(cta).toHaveAttribute("href", "/#featured-stays");
+    expect(cta).toHaveAccessibleName("Start planning");
+  });
 });

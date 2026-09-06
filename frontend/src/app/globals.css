@@ -1162,27 +1162,6 @@ body {
   color: var(--color-text-muted);
 }
 
-.avatar-cluster {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  justify-content: center;
-}
-
-.avatar-circle {
-  align-items: center;
-  background: var(--color-primary);
-  border-radius: 999px;
-  color: var(--color-primary-text);
-  display: flex;
-  font-size: 0.85rem;
-  font-weight: 700;
-  height: 56px;
-  justify-content: center;
-  width: 56px;
-}
-
 .recommendations-visual {
   align-items: center;
   display: flex;
@@ -1305,11 +1284,33 @@ body {
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
   margin-top: 2rem;
+  position: relative;
   width: 100vw;
 }
 
 .experience-banner img {
   display: block;
+}
+
+/* Invisible overlay matching the "START PLANNING" button baked into the
+   banner image — see ExperienceBanner.tsx for how these percentages were
+   measured. Percentage-based (not fixed px) so it tracks the image
+   correctly as it scales with viewport width. A subtle hover/focus
+   affordance (rather than staying completely inert) hints that it's
+   actually clickable, since nothing about a flat image otherwise
+   suggests part of it is interactive. */
+.experience-banner-cta {
+  left: 42.95%;
+  top: 51.03%;
+  width: 14.58%;
+  height: 10.7%;
+  position: absolute;
+}
+
+.experience-banner-cta:hover,
+.experience-banner-cta:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
 }
 
 /* Footer */

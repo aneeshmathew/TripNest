@@ -6,7 +6,6 @@ import EasyToUseSection from "../components/EasyToUseSection";
 import FaqSection from "../components/FaqSection";
 import FeaturedStays from "../components/FeaturedStays";
 import Hero from "../components/Hero";
-import PlanWithFriendsSection from "../components/PlanWithFriendsSection";
 import RecommendationsSection from "../components/RecommendationsSection";
 import SearchFilters from "../components/SearchFilters";
 import TestimonialSection from "../components/TestimonialSection";
@@ -62,7 +61,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <ActivitiesSection />
         <FeaturedStays listings={featuredListings} />
         <EasyToUseSection />
-        <PlanWithFriendsSection />
         <RecommendationsSection />
         <FaqSection />
         <TestimonialSection reviews={featuredReviews} />

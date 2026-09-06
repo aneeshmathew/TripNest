@@ -1,5 +1,5 @@
-// "Trip Inspiration" browse-by-activity strip. Like PlanWithFriendsSection/
-// RecommendationsSection, this is curated illustrative content, not backend
+// "Trip Inspiration" browse-by-activity strip. Like RecommendationsSection,
+// this is curated illustrative content, not backend
 // data — there's no Attraction/Activity model yet (see README, Feature Gaps
 // 2.1: "an attractions/things to do type" is still open). Filtering here is
 // a client-side taste-narrowing tool over this static set, not a live query
