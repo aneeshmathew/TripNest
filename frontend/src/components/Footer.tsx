@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Instagram, Linkedin, Twitter } from "lucide-react";
 import BrandMark from "./BrandMark";
 
 // Social links are decorative placeholders (no real social presence
@@ -38,9 +39,15 @@ function Footer() {
         <div className="footer-column">
           <h3 className="footer-heading">Follow</h3>
           <div className="footer-social" aria-hidden="true">
-            <span className="footer-social-icon">✕</span>
-            <span className="footer-social-icon">◎</span>
-            <span className="footer-social-icon">in</span>
+            <span className="footer-social-icon">
+              <Twitter size={18} />
+            </span>
+            <span className="footer-social-icon">
+              <Instagram size={18} />
+            </span>
+            <span className="footer-social-icon">
+              <Linkedin size={18} />
+            </span>
           </div>
         </div>
       </div>

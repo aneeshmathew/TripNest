@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { natGeoDestinations } from "../data/natGeoDestinations";
 
 const AUTO_ADVANCE_MS = 2000;
@@ -110,7 +111,7 @@ function DestinationsCarousel() {
         aria-label="Previous destination"
         data-testid="destinations-carousel-prev"
       >
-        ‹
+        <ChevronLeft size={20} aria-hidden="true" />
       </button>
 
       <div className="destinations-carousel" ref={trackRef}>
@@ -129,7 +130,7 @@ function DestinationsCarousel() {
         aria-label="Next destination"
         data-testid="destinations-carousel-next"
       >
-        ›
+        <ChevronRight size={20} aria-hidden="true" />
       </button>
     </div>
   );

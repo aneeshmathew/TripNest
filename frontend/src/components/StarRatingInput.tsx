@@ -1,5 +1,7 @@
 "use client";
 
+import { Star } from "lucide-react";
+
 interface StarRatingInputProps {
   value: number;
   onChange: (value: number) => void;
@@ -20,7 +22,7 @@ function StarRatingInput({ value, onChange, label }: StarRatingInputProps) {
             aria-label={`${star} star${star > 1 ? "s" : ""}`}
             data-testid={`star-input-${label.toLowerCase()}-${star}`}
           >
-            ★
+            <Star size={20} fill={star <= value ? "currentColor" : "none"} aria-hidden="true" />
           </button>
         ))}
       </div>

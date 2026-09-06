@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Star } from "lucide-react";
 import type { Hotel } from "../types/hospitality";
 
 interface HotelCardProps {
@@ -21,7 +22,12 @@ function HotelCard({ hotel }: HotelCardProps) {
         <h3>{hotel.name}</h3>
         <p>{hotel.location}</p>
         <p>${hotel.price} / night</p>
-        <p>{"★".repeat(hotel.starClass)} hotel</p>
+        <p className="star-rating" aria-label={`${hotel.starClass}-star hotel`}>
+          {Array.from({ length: hotel.starClass }, (_, i) => (
+            <Star key={i} size={16} className="star filled" fill="currentColor" aria-hidden="true" />
+          ))}{" "}
+          hotel
+        </p>
       </div>
     </article>
   );

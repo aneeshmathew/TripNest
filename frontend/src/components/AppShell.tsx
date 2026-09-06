@@ -5,6 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import ExperienceBanner from "./ExperienceBanner";
 
 // This is the one client-side boundary for the whole app: auth state,
 // theme state, and the navbar live here. `children` is whatever Server
@@ -17,7 +18,8 @@ import Footer from "./Footer";
 // settings, apartment detail, and the non-hero parts of home). The Hero
 // component breaks back out to full viewport width via a CSS full-bleed
 // trick (see .hero in globals.css) rather than restructuring this shell
-// per-route.
+// per-route — ExperienceBanner below uses the same trick, and sits
+// outside `.container` (site-wide, on every page) for the same reason.
 export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
@@ -25,6 +27,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div className="app">
           <Navbar />
           <main className="container">{children}</main>
+          <ExperienceBanner />
           <Footer />
         </div>
       </AuthProvider>

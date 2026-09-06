@@ -136,6 +136,12 @@ export default async function DestinationPage({ params, searchParams }: Destinat
       <h1>{destination.name}</h1>
       <p className="destination-location">{destination.location}</p>
       <p>{destination.blurb}</p>
+      <p className="destinations-attribution">
+        Featured in{" "}
+        <a href={NAT_GEO_SOURCE_URL} target="_blank" rel="noopener noreferrer">
+          National Geographic&apos;s Best of the World 2026
+        </a>
+      </p>
 
       <nav className="destination-tabs">
         {TABS.map((t) => (

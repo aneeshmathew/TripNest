@@ -68,7 +68,7 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 **Navbar**
 - Brand (`BrandMark`) is the only way back to `/` — no separate "Home" link. Center links anchor into homepage sections (`#featured-stays`, `#testimonials`, `#contact`).
 - Right side, in order: theme toggle icon (plain, no circle/pill background), then logged out shows `Login` + `Sign up`; logged in shows `Settings`, the current user's email, and `Logout`.
-- The toggle icon (`ThemeIcon`) is an SVG, not an emoji, so its look doesn't depend on the OS's emoji font: the sun is a hardcoded yellow (deliberately not recolored to the brand's terracotta `--color-primary`, so it reads as "sun" not "branded icon"); the moon uses `currentColor` and follows `--color-text`.
+- The toggle icon (`ThemeIcon`) is a `lucide-react` `Sun`/`Moon` icon, not an emoji, so its look doesn't depend on the OS's emoji font — genuinely monochrome (both use `currentColor`, following `--color-text`), unlike the earlier hand-drawn version whose sun was hardcoded yellow regardless of theme. Shows the icon for the state a click would switch *to* (Sun while dark, Moon while light), not the current state.
 - Fixed (not sticky — sticky still occupies flow space) with a fully transparent (`--color-navbar-bg`, alpha 0) backdrop-blurred background — legibility comes entirely from the blur, not from any background tint.
 - `.container`'s `padding-top` and `.hero`'s matching negative `margin-top` are what let Hero start at the true top of the viewport behind the nav, while every other page still gets pushed down correctly below it.
 - The transparency is constant, not scroll-triggered — a "more opaque once scrolled" effect would need a small client-side scroll listener, which hasn't been added.
@@ -79,7 +79,13 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 
 **Color theme**: CSS custom properties in `globals.css` use a warm neutral + navy palette — Palladian/Oatmeal cream-tan, Abyssal Anchorfish Blue/Blue Fantastic navy, Truffle Trouble rust as light-theme primary, Burning Flame orange as dark-theme primary (same warm hue family, just the brighter member for contrast on a dark background).
 
+**Typography**: `next/font/google` in `app/layout.tsx` self-hosts two fonts at build time (no runtime request to Google Fonts) — Space Grotesk for headings/brand (`h1`–`h6`, `.section-title`, `.page-title`, `.brand-text`) and Inter for body copy. Exposed as CSS variables (`--font-heading`/`--font-body`) set on `<html>`'s `className`, so `globals.css` stays the single place that decides which elements use which font.
+
+**Icons**: all interface icons are `lucide-react` (`Sun`/`Moon` in `ThemeIcon`, `ChevronLeft`/`ChevronRight` on both carousels, `Compass` on activity badges, `Star` in `StarRating`/`StarRatingInput`/`HotelCard`, `Twitter`/`Instagram`/`Linkedin` in the footer) — genuinely monochrome via `currentColor`/`fill` rather than the mix of hand-drawn SVGs, unicode glyphs (★, ‹, ›, ✕, ◎), and a literal "in" string used previously. `BrandMark` (the logo) is deliberately excluded — it's brand identity, not a generic UI icon, so it keeps its own custom two-tone mark rather than becoming a stock icon.
+
 **Footer**: contact/about/social columns (no blog column — out of scope for now), real internal links (`/`, `/settings`, `/login`); social icons are decorative placeholders since there's no real social presence yet.
+
+**Experience banner**: `ExperienceBanner` renders a static marketing image (`/public/images/value-for-experience-banner.png`) full-bleed, site-wide, directly above the footer (mounted in `AppShell`, not `page.tsx`, so it shows on every route) — the project's first locally-hosted image; everything else is a hotlinked Unsplash URL. It's a design export, not rebuilt in code, since the illustration doesn't correspond to any real content model to make honest data out of (unlike `FeaturedStays`/`TestimonialSection`).
 
 **Theming**: CSS custom properties in `globals.css` (`--color-*`, redefined under `[data-theme="dark"]`) — components use `var(--color-*)`, not hardcoded colors.
 - `app/layout.tsx` inlines a small blocking script (`THEME_INIT_SCRIPT`) that sets `data-theme` on `<html>` from `localStorage` *before* React hydrates, avoiding a flash of the wrong theme on load — this is also why `<html>` has `suppressHydrationWarning`.
@@ -125,7 +131,7 @@ TripNest is a travel discovery platform: browse listings (stays, and eventually 
 - `app.test.ts` uses supertest against the assembled Express app for request-level checks (health check, 404s, validation errors, auth-required routes) — all chosen to not need a live DB.
 - `vitest.setup.ts` stubs the env vars `config/env.ts` requires at import time, so tests don't need a real `.env`.
 
-**Frontend** (`frontend/vitest.config.ts`): Vitest + React Testing Library component tests, co-located with components (`StarRating`, `StarRatingInput`, `SearchFilters`, `ApartmentCard`, `DestinationsCarousel`, `ThemeIcon`, `BrandMark`, `FaqSection`, `TestimonialSection`, `DestinationGallery`, `SettingsForm`).
+**Frontend** (`frontend/vitest.config.ts`): Vitest + React Testing Library component tests, co-located with components (`StarRating`, `StarRatingInput`, `SearchFilters`, `ApartmentCard`, `DestinationsCarousel`, `ThemeIcon`, `BrandMark`, `FaqSection`, `TestimonialSection`, `DestinationGallery`, `SettingsForm`, `ActivitiesSection`, `ExperienceBanner`).
 - `DestinationsCarousel.test.tsx` covers the circular-loop snap-back specifically (simulates `scrollLeft` past one full set's width, then asserts it's corrected before the next scroll call) and confirms the duplicated loop-clone tiles are excluded from accessibility role queries.
 - `SettingsForm.test.tsx` mocks `AuthContext`/`ThemeContext` directly (`vi.mock`) rather than wrapping in real providers, to test its auth-gating branches in isolation.
 - `vitest.setup.tsx` mocks `next/image` and `next/link`, since both assume a full Next.js runtime (image optimization pipeline, App Router context) that doesn't exist under plain Vitest+jsdom.

@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight, Compass } from "lucide-react";
 import {
   ACTIVITY_CATEGORY_FILTERS,
   activityHighlights,
@@ -11,20 +12,6 @@ import {
 } from "../data/activityHighlights";
 
 const FALLBACK_TILE_STEP_PX = 216; // 200px tile + 16px (1rem) gap, if measurement fails
-
-// Small circular brand mark used as the badge icon on every tile, echoing
-// BrandMark's icon so this reads as "part of TripNest" without pulling in
-// the full two-tone wordmark (there's no room for it at this size).
-function ActivityBadgeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="activity-badge-icon" aria-hidden="true">
-      <path
-        d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 3.2 5.4 3.1-5.4 3.1-5.4-3.1L12 5.2Zm-6.8 5 5.6 3.2v5.9l-5.6-3.2v-5.9Zm7.6 9.1v-5.9l5.6-3.2v5.9l-5.6 3.2Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 // Every tile links to /activities/[slug], a tabbed page (Apartments/
 // Hotels/Restaurants/Reviews) built from our own real data, the same
@@ -46,7 +33,7 @@ function ActivityTile({ highlight }: { highlight: ActivityHighlight }) {
         />
         <div className="activity-tile-scrim" />
         <div className="activity-tile-badge">
-          <ActivityBadgeIcon />
+          <Compass size={18} className="activity-badge-icon" aria-hidden="true" />
           <span>{highlight.activity}</span>
         </div>
         <p className="activity-tile-title">{highlight.title}</p>
@@ -112,7 +99,7 @@ function ActivitiesSection() {
           aria-label="Previous activity"
           data-testid="activities-carousel-prev"
         >
-          ‹
+          <ChevronLeft size={20} aria-hidden="true" />
         </button>
 
         <div className="activities-carousel" ref={trackRef}>
@@ -132,7 +119,7 @@ function ActivitiesSection() {
           aria-label="Next activity"
           data-testid="activities-carousel-next"
         >
-          ›
+          <ChevronRight size={20} aria-hidden="true" />
         </button>
       </div>
     </section>

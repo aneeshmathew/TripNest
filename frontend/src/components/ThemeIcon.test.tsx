@@ -3,15 +3,16 @@ import { describe, expect, it } from "vitest";
 import ThemeIcon from "./ThemeIcon";
 
 describe("ThemeIcon", () => {
-  it("renders a hardcoded yellow sun when in dark mode (not the brand's terracotta primary)", () => {
+  it("renders a monochrome sun (lucide, currentColor) when in dark mode", () => {
     const { container } = render(<ThemeIcon theme="dark" />);
-    const circle = container.querySelector("circle");
-    expect(circle).toHaveAttribute("fill", "#f5c542");
+    const svg = container.querySelector("svg");
+    expect(svg).toHaveClass("lucide-sun");
+    expect(svg).not.toHaveAttribute("fill", "#f5c542");
   });
 
-  it("renders a monochrome (currentColor) moon when in light mode", () => {
+  it("renders a monochrome moon (lucide, currentColor) when in light mode", () => {
     const { container } = render(<ThemeIcon theme="light" />);
-    const path = container.querySelector("path");
-    expect(path).toHaveAttribute("fill", "currentColor");
+    const svg = container.querySelector("svg");
+    expect(svg).toHaveClass("lucide-moon");
   });
 });
