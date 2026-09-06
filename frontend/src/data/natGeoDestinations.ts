@@ -121,7 +121,7 @@ export const natGeoDestinations: NatGeoDestination[] = [
     location: "Pennsylvania, USA",
     blurb: "A former steel city turned tech and culture hub of three rivers.",
     imageUrl:
-      "https://images.unsplash.com/photo-1577086664693-894d8405334a?auto=format&fit=crop&w=900&q=80"
+      "https://images.unsplash.com/photo-1756752094596-cfb831a76aaa?auto=format&fit=crop&w=900&q=80"
   },
   {
     slug: "quebec-canada",

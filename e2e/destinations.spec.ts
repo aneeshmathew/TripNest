@@ -41,7 +41,27 @@ test.describe("Destination detail page tabs", () => {
   }) => {
     // The Dolomites has no seeded apartments/hotels/restaurants.
     await page.goto("/destinations/dolomites-italy");
-    await expect(page.getByText(/no apartments listed in the dolomites yet/i)).toBeVisible();
+    await expect(page.getByText(/no apartments match "the dolomites" yet/i)).toBeVisible();
+  });
+
+  test("each non-Reviews tab has its own search box, with no box on Reviews", async ({ page }) => {
+    await page.goto("/destinations/rio-de-janeiro-brazil");
+    await expect(page.getByTestId("destination-tab-search-input")).toHaveAttribute(
+      "placeholder",
+      "Search for Apartments nearby here"
+    );
+
+    await page.getByTestId("destination-tab-reviews").click();
+    await expect(page.getByTestId("destination-tab-search-form")).toHaveCount(0);
+  });
+
+  test("the search box can override the destination's default keyword", async ({ page }) => {
+    await page.goto("/destinations/dolomites-italy");
+    await page.getByTestId("destination-tab-search-input").fill("Rio");
+    await page.getByTestId("destination-tab-search-btn").click();
+
+    await expect(page).toHaveURL(/q=Rio/);
+    await expect(page.getByText("Copacabana Beachfront Flat")).toBeVisible();
   });
 
   test("404s for an unknown destination slug", async ({ page }) => {

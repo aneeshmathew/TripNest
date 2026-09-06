@@ -62,12 +62,13 @@ describe("ActivitiesSection", () => {
     );
   });
 
-  it("renders a 'Search all' variant tile for the searchAllLabel entry", () => {
+  it("renders a 'Search all' variant tile for the searchAllLabel entry, with a background photo", () => {
     render(<ActivitiesSection />);
     const searchAllEntry = activityHighlights.find((highlight) => highlight.searchAllLabel);
     expect(searchAllEntry).toBeDefined();
     const tile = screen.getByTestId(`activity-${searchAllEntry!.slug}`);
     expect(tile).toHaveTextContent(`Search all${searchAllEntry!.searchAllLabel}`);
+    expect(tile.querySelector("img")).toHaveAttribute("src", searchAllEntry!.imageUrl);
   });
 
   it("renders Previous/Next controls that scroll the track", async () => {

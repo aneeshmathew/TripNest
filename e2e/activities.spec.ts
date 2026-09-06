@@ -16,6 +16,14 @@ test.describe("Activities carousel", () => {
     await expect(page).toHaveURL("/activities/kayaking");
   });
 
+  test("the 'Search all Kayaking' tile renders a background photo, not just an empty frame", async ({
+    page
+  }) => {
+    await page.goto("/");
+    const tile = page.getByTestId("activity-kayaking");
+    await expect(tile.locator("img")).toBeVisible();
+  });
+
   test("filtering by category narrows the visible tiles", async ({ page }) => {
     await page.goto("/");
     await page.getByTestId("activity-filter-history-culture").click();
@@ -49,6 +57,20 @@ test.describe("Activity detail page tabs", () => {
 
     await expect(page).toHaveURL(/q=Rio/);
     await expect(page.getByText("Copacabana Beachfront Flat")).toBeVisible();
+  });
+
+  test("the search box placeholder reads 'Search for <Tab> nearby here'", async ({ page }) => {
+    await page.goto("/activities/surfing");
+    await expect(page.getByTestId("activity-tab-search-input")).toHaveAttribute(
+      "placeholder",
+      "Search for Apartments nearby here"
+    );
+
+    await page.getByTestId("activity-tab-hotels").click();
+    await expect(page.getByTestId("activity-tab-search-input")).toHaveAttribute(
+      "placeholder",
+      "Search for Hotels nearby here"
+    );
   });
 
   test("switching tabs does not carry over the previous tab's search text", async ({ page }) => {

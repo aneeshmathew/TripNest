@@ -22,7 +22,7 @@ const TABS: { key: TabKey; label: string }[] = [
 
 interface DestinationPageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; q?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: DestinationPageProps): Promis
 
 export default async function DestinationPage({ params, searchParams }: DestinationPageProps) {
   const { slug } = await params;
-  const { tab: rawTab } = await searchParams;
+  const { tab: rawTab, q: rawQuery } = await searchParams;
   const destination = natGeoDestinations.find((d) => d.slug === slug);
 
   if (!destination) {
@@ -53,26 +53,31 @@ export default async function DestinationPage({ params, searchParams }: Destinat
   }
 
   const activeTab: TabKey = TABS.some((t) => t.key === rawTab) ? (rawTab as TabKey) : "apartments";
+  const trimmedQuery = rawQuery?.trim();
+  // Apartments/Hotels/Restaurants each have their own search box below
+  // that replaces this destination's name with whatever the visitor
+  // types — Reviews has no search box and always uses destination.name.
+  const effectiveKeyword = trimmedQuery || destination.name;
 
-  // All four tabs filter OUR real data by this destination's name — none
-  // of this is National Geographic content. Empty tabs are expected and
-  // honest for destinations we don't have listings/hotels/restaurants
+  // All four tabs filter OUR real data by this keyword — none of this is
+  // National Geographic content. Empty tabs are expected and honest for
+  // destinations (or searches) we don't have listings/hotels/restaurants
   // for yet, rather than showing fabricated inventory.
   let tabContent;
   try {
     if (activeTab === "apartments") {
-      const listings = await getListings({ search: destination.name });
+      const listings = await getListings({ search: effectiveKeyword });
       tabContent =
         listings.length === 0 ? (
-          <p className="status-text">No apartments listed in {destination.name} yet.</p>
+          <p className="status-text">No apartments match &quot;{effectiveKeyword}&quot; yet.</p>
         ) : (
           <ApartmentList apartments={listings} />
         );
     } else if (activeTab === "hotels") {
-      const hotels = await getHotels(destination.name);
+      const hotels = await getHotels(effectiveKeyword);
       tabContent =
         hotels.length === 0 ? (
-          <p className="status-text">No hotels listed in {destination.name} yet.</p>
+          <p className="status-text">No hotels match &quot;{effectiveKeyword}&quot; yet.</p>
         ) : (
           <div className="grid">
             {hotels.map((hotel) => (
@@ -81,10 +86,10 @@ export default async function DestinationPage({ params, searchParams }: Destinat
           </div>
         );
     } else if (activeTab === "restaurants") {
-      const restaurants = await getRestaurants(destination.name);
+      const restaurants = await getRestaurants(effectiveKeyword);
       tabContent =
         restaurants.length === 0 ? (
-          <p className="status-text">No restaurants listed in {destination.name} yet.</p>
+          <p className="status-text">No restaurants match &quot;{effectiveKeyword}&quot; yet.</p>
         ) : (
           <div className="grid">
             {restaurants.map((restaurant) => (
@@ -150,6 +155,39 @@ export default async function DestinationPage({ params, searchParams }: Destinat
           </Link>
         ))}
       </nav>
+
+      {/* No search box on Reviews — reviews are looked up by the
+          destination itself, not by free-text keyword. */}
+      {activeTab !== "reviews" && (
+        <form
+          className="tab-search-form"
+          method="GET"
+          action={`/destinations/${slug}`}
+          data-testid="destination-tab-search-form"
+        >
+          <input type="hidden" name="tab" value={activeTab} />
+          <input
+            type="text"
+            name="q"
+            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label} nearby here`}
+            defaultValue={trimmedQuery ?? ""}
+            aria-label={`Search ${activeTab}`}
+            data-testid="destination-tab-search-input"
+          />
+          <button type="submit" className="primary-btn" data-testid="destination-tab-search-btn">
+            Search
+          </button>
+          {trimmedQuery && (
+            <Link
+              href={`/destinations/${slug}?tab=${activeTab}`}
+              className="secondary-btn clear-filters-link"
+              data-testid="destination-tab-search-clear"
+            >
+              Clear
+            </Link>
+          )}
+        </form>
+      )}
 
       <div className="destination-tab-content">{tabContent}</div>
     </section>

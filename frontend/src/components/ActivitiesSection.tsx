@@ -39,6 +39,14 @@ function ActivityTile({ highlight }: { highlight: ActivityHighlight }) {
         data-testid={`activity-${highlight.slug}`}
       >
         <div className="activity-tile-image-wrap">
+          <Image
+            src={highlight.imageUrl}
+            alt=""
+            fill
+            sizes="220px"
+            style={{ objectFit: "cover" }}
+          />
+          <div className="activity-tile-scrim activity-tile-scrim-strong" />
           <div className="activity-tile-search-frame">
             <ActivityBadgeIcon />
             <span className="activity-tile-search-label">

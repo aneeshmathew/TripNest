@@ -81,7 +81,7 @@ export const activityHighlights: ActivityHighlight[] = [
     title: "Search All Kayaking",
     categories: ["water-sports"],
     imageUrl:
-      "https://images.unsplash.com/photo-1580541631950-7282082b53ce?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1696469014188-e6d7ea983c56?auto=format&fit=crop&w=600&q=80",
     searchAllLabel: "Kayaking"
   },
   {

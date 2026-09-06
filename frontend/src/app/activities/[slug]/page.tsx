@@ -169,7 +169,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
           <input
             type="text"
             name="q"
-            placeholder={`Search ${activeTab} for "${highlight.activity}"`}
+            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label} nearby here`}
             defaultValue={trimmedQuery ?? ""}
             aria-label={`Search ${activeTab}`}
             data-testid="activity-tab-search-input"

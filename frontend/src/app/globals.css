@@ -956,19 +956,18 @@ body {
   right: 0.85rem;
 }
 
-/* "Search all <activity>" variant — no photo, just a bordered frame over a
-   dark fill, so it visually reads as a call-to-action rather than one more
-   destination photo. */
-.activity-tile-search .activity-tile-image-wrap {
-  align-items: center;
-  background: linear-gradient(160deg, var(--color-secondary-text), var(--color-text));
-  display: flex;
-  justify-content: center;
+/* "Search all <activity>" variant — same photo tile as the rest of the
+   strip, but with a stronger scrim and a bordered CTA frame centered over
+   it instead of the usual top-badge/bottom-title layout, so it still
+   reads as "do something different here" rather than one more
+   destination-style card. */
+.activity-tile-scrim-strong {
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .activity-tile-search-frame {
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   color: #fff;
   display: flex;
   flex-direction: column;
