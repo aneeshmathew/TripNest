@@ -1130,12 +1130,42 @@ body {
   gap: 0.6rem;
 }
 
-.plan-find-form select {
+/* Custom-styled trigger around a real, plain <select> — kept as a native
+   select (not a JS-driven custom listbox) since this whole page works
+   with zero client JS via plain GET forms, and native selects already
+   give correct keyboard/screen-reader behavior for free. `appearance:
+   none` strips the browser's own default arrow so the lucide ChevronDown
+   icon can replace it without doubling up. */
+.plan-find-select-wrap {
+  position: relative;
+}
+
+.plan-find-select-wrap select {
+  appearance: none;
   background: var(--color-input-bg);
   border: 1px solid var(--color-input-border);
-  border-radius: 8px;
+  border-radius: 999px;
   color: var(--color-text);
-  padding: 0.5rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.6rem 2.2rem 0.6rem 1.1rem;
+  transition: border-color 0.15s ease;
+}
+
+.plan-find-select-wrap select:hover,
+.plan-find-select-wrap select:focus-visible {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.plan-find-select-icon {
+  color: var(--color-text-subtle);
+  pointer-events: none;
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Featured stays row */
@@ -1373,6 +1403,8 @@ body {
 .trip-illustration-banner {
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
+  margin-top: 2rem;
+  position: relative;
   width: 100vw;
 }
 
@@ -1380,11 +1412,44 @@ body {
   display: block;
 }
 
+/* Positioned over the image's empty middle area (see the image's own
+   large blank strip above the illustration figures). Colors are
+   hardcoded, not theme variables — this image has a fixed white/light
+   background always, regardless of site theme, so text needs fixed dark
+   colors to stay legible rather than following --color-text (which would
+   turn light/invisible in dark theme). */
+.trip-illustration-banner-text {
+  left: 50%;
+  position: absolute;
+  text-align: center;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+}
+
+.trip-illustration-banner-heading {
+  color: #3a3a3a;
+  /* clamp(), not a fixed size — this image has a fixed aspect ratio and
+     scales full-bleed with viewport width, so its rendered height (and
+     therefore how much room the text has) shrinks a lot on narrow
+     screens. Scaling with vw keeps the text proportional to the image
+     instead of overflowing a very short banner on mobile. */
+  font-size: clamp(0.7rem, 3.2vw, 1.8rem);
+  letter-spacing: 0.06em;
+  margin: 0 0 0.3em;
+  text-transform: uppercase;
+}
+
+.trip-illustration-banner-subheading {
+  color: #6b6b6b;
+  font-size: clamp(0.55rem, 1.4vw, 1rem);
+  margin: 0;
+}
+
 /* Footer */
 .site-footer {
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
-  margin-top: 2rem;
   padding: 3rem 2rem 1.5rem;
 }
 

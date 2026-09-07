@@ -1,14 +1,17 @@
 import Image from "next/image";
-import { natGeoDestinations } from "../data/natGeoDestinations";
 
 // A plain GET form, same no-JS pattern as SearchFilters — submitting
 // navigates to /plan?q=... (see app/plan/page.tsx), which parses the
 // free text for a destination and/or an activity rather than treating it
 // as a plain listings keyword (that plain search still exists — see
-// SearchFilters — this is a separate, richer entry point). The
-// <datalist> offers the Nat Geo destinations as native browser
-// autocomplete suggestions, but the input still accepts any free text —
-// the datalist doesn't restrict what can be typed/submitted.
+// SearchFilters — this is a separate, richer entry point).
+//
+// No <datalist> here (there used to be one, suggesting the 25 Nat Geo
+// destination names) — removed by request: /plan reads intent out of
+// free text ("surfing in Fiji"), and a dropdown of exact destination
+// names suggested the opposite, that only those specific names were
+// valid input. The browser's own autocomplete-indicator arrow that came
+// with the datalist is gone too, along with the datalist itself.
 function Hero() {
   return (
     <section className="hero">
@@ -34,14 +37,8 @@ function Hero() {
             name="q"
             placeholder="e.g. Start with a destination or activity."
             aria-label="Describe the trip you want"
-            list="natgeo-destination-suggestions"
             data-testid="hero-search-input"
           />
-          <datalist id="natgeo-destination-suggestions">
-            {natGeoDestinations.map((destination) => (
-              <option key={destination.slug} value={destination.name} />
-            ))}
-          </datalist>
           <button type="submit" className="primary-btn" data-testid="hero-search-btn">
             Start planning
           </button>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ChevronDown } from "lucide-react";
 import { natGeoDestinations, type NatGeoDestination } from "../../data/natGeoDestinations";
 import { activityHighlights, type ActivityHighlight } from "../../data/activityHighlights";
 import { destinationActivitySlugs } from "../../data/destinationActivities";
@@ -151,10 +152,13 @@ function PlanGroupCard({
           action={`/destinations/${destination.slug}`}
           data-testid={`plan-find-form-${destination.slug}`}
         >
-          <select name="tab" aria-label="Stay type" data-testid={`plan-find-select-${destination.slug}`}>
-            <option value="apartments">Apartment</option>
-            <option value="hotels">Hotel</option>
-          </select>
+          <div className="plan-find-select-wrap">
+            <select name="tab" aria-label="Stay type" data-testid={`plan-find-select-${destination.slug}`}>
+              <option value="apartments">Apartment</option>
+              <option value="hotels">Hotel</option>
+            </select>
+            <ChevronDown size={16} className="plan-find-select-icon" aria-hidden="true" />
+          </div>
           <button type="submit" className="primary-btn" data-testid={`plan-find-btn-${destination.slug}`}>
             Find
           </button>
