@@ -210,6 +210,7 @@ body {
 }
 
 .page-title {
+  font-size: 2rem;
   margin-bottom: 0.3rem;
   text-align: center;
 }
@@ -1052,6 +1053,91 @@ body {
   padding: 0.55rem 0.7rem;
 }
 
+/* /plan — natural-language trip search results (app/plan/page.tsx). Each
+   group is a real destination with its curated activities; no live
+   backend query happens on this page itself (see that file's comment) —
+   the Find form below is what hands off to a real query, on
+   /destinations/[slug]. */
+.plan-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.plan-group {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.plan-group-photo-wrap {
+  border-radius: 10px;
+  flex: 0 0 120px;
+  height: 120px;
+  overflow: hidden;
+  position: relative;
+}
+
+.plan-group-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.plan-group-title {
+  margin: 0 0 0.15rem;
+}
+
+.plan-group-location {
+  color: var(--color-text-subtle);
+  margin: 0 0 0.75rem;
+}
+
+.plan-unavailable-note {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.plan-activity-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.plan-activity-chip {
+  background: var(--color-secondary-bg);
+  border-radius: 999px;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+}
+
+.plan-activity-chip-requested {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-weight: 700;
+}
+
+.plan-find-form {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.plan-find-form select {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  padding: 0.5rem 0.6rem;
+}
+
 /* Featured stays row */
 .featured-stays-row {
   display: flex;
@@ -1259,41 +1345,39 @@ body {
   right: 0;
 }
 
-/* Experience banner — full-bleed marketing image, site-wide, directly
-   above the footer. Same width: 100vw + calc(-50vw + 50%) trick as .hero,
-   but no navbar-height compensation (unlike .hero, this isn't at the top
-   of the page, so there's no padding above it to cancel out). */
-.experience-banner {
+/* Search results intro (app/page.tsx's SearchResultsIntro) — real text
+   replacing the old ExperienceBanner PNG's heading, shown once, above
+   SearchFilters, only in the active-search state. Plain centered block,
+   not full-bleed like the banner it replaced — this lives inside
+   `.container` alongside SearchFilters and the results below it, not
+   breaking out to the full viewport width. */
+.search-results-intro {
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+
+.search-results-heading {
+  margin: 0 0 0.3rem;
+  text-transform: uppercase;
+}
+
+.search-results-subheading {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Trip illustration banner — full-bleed decorative image, site-wide,
+   directly above the footer. Same width: 100vw + calc(-50vw + 50%) trick
+   as .hero, but no navbar-height compensation (unlike .hero, this isn't
+   at the top of the page, so there's no padding above it to cancel out). */
+.trip-illustration-banner {
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  margin-top: 2rem;
-  position: relative;
   width: 100vw;
 }
 
-.experience-banner img {
+.trip-illustration-banner img {
   display: block;
-}
-
-/* Invisible overlay matching the "START PLANNING" button baked into the
-   banner image — see ExperienceBanner.tsx for how these percentages were
-   measured. Percentage-based (not fixed px) so it tracks the image
-   correctly as it scales with viewport width. A subtle hover/focus
-   affordance (rather than staying completely inert) hints that it's
-   actually clickable, since nothing about a flat image otherwise
-   suggests part of it is interactive. */
-.experience-banner-cta {
-  left: 42.95%;
-  top: 51.03%;
-  width: 14.58%;
-  height: 10.7%;
-  position: absolute;
-}
-
-.experience-banner-cta:hover,
-.experience-banner-cta:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.8);
-  outline-offset: 2px;
 }
 
 /* Footer */
@@ -1389,6 +1473,15 @@ body {
 }
 
 @media (max-width: 768px) {
+  .plan-group {
+    flex-direction: column;
+  }
+
+  .plan-group-photo-wrap {
+    flex-basis: auto;
+    width: 100%;
+  }
+
   .container {
     padding: 1.25rem;
     padding-top: calc(var(--navbar-height) + 1.25rem);

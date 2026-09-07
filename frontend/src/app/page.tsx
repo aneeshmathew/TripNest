@@ -75,6 +75,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   } catch {
     return (
       <>
+        <SearchResultsIntro />
         <SearchFilters defaultValues={filters} />
         <p className="status-text error-text">
           Couldn&apos;t load apartments. Is the backend running?
@@ -85,6 +86,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <>
+      <SearchResultsIntro />
       <SearchFilters defaultValues={filters} />
       {listings.length === 0 ? (
         <p className="status-text">No apartments match your search — try adjusting the filters.</p>
@@ -92,5 +94,19 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <ApartmentList apartments={listings} />
       )}
     </>
+  );
+}
+
+// Real text (not the flat PNG this used to live inside — see
+// AppShell.tsx) shown once, right above the search UI, only in the
+// active-search state — the marketing front door already has Hero for
+// this same "here's what TripNest is" role, so this would be redundant
+// there.
+function SearchResultsIntro() {
+  return (
+    <div className="search-results-intro">
+      <h1 className="search-results-heading">The Value For Experience</h1>
+      <p className="search-results-subheading">Relax&hellip; You&apos;re with us! We make it simple.</p>
+    </div>
   );
 }

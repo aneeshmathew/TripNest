@@ -1,12 +1,14 @@
 import Image from "next/image";
 import { natGeoDestinations } from "../data/natGeoDestinations";
 
-// A plain GET form, same pattern as SearchFilters — submitting navigates
-// to /?search=... and the home page (Server Component) re-renders with
-// results. No client JS needed. The <datalist> offers the Nat Geo
-// destinations as native browser autocomplete suggestions, but the input
-// still accepts any free-text location — the datalist doesn't restrict
-// what can be typed/submitted, it's a helper, not a strict enum.
+// A plain GET form, same no-JS pattern as SearchFilters — submitting
+// navigates to /plan?q=... (see app/plan/page.tsx), which parses the
+// free text for a destination and/or an activity rather than treating it
+// as a plain listings keyword (that plain search still exists — see
+// SearchFilters — this is a separate, richer entry point). The
+// <datalist> offers the Nat Geo destinations as native browser
+// autocomplete suggestions, but the input still accepts any free text —
+// the datalist doesn't restrict what can be typed/submitted.
 function Hero() {
   return (
     <section className="hero">
@@ -26,12 +28,12 @@ function Hero() {
         <p className="hero-subtitle">
           Browse real, reviewed apartments and vacation rentals around the world.
         </p>
-        <form className="hero-search" method="GET" action="/" data-testid="hero-search-form">
+        <form className="hero-search" method="GET" action="/plan" data-testid="hero-search-form">
           <input
             type="text"
-            name="search"
-            placeholder="Where would you like to go?"
-            aria-label="Search listings"
+            name="q"
+            placeholder="e.g. Start with a destination or activity."
+            aria-label="Describe the trip you want"
             list="natgeo-destination-suggestions"
             data-testid="hero-search-input"
           />

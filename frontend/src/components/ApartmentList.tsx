@@ -8,7 +8,7 @@ interface ApartmentListProps {
 function ApartmentList({ apartments }: ApartmentListProps) {
   return (
     <section>
-      <h1 className="page-title">Featured Apartments</h1>
+      <h2 className="page-title">Featured Apartments</h2>
       <p className="subtitle">Handpicked accommodations just for you</p>
       <div className="grid">
         {apartments.map((apartment) => (

@@ -5,7 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import ExperienceBanner from "./ExperienceBanner";
+import TripIllustrationBanner from "./TripIllustrationBanner";
 
 // This is the one client-side boundary for the whole app: auth state,
 // theme state, and the navbar live here. `children` is whatever Server
@@ -18,8 +18,16 @@ import ExperienceBanner from "./ExperienceBanner";
 // settings, apartment detail, and the non-hero parts of home). The Hero
 // component breaks back out to full viewport width via a CSS full-bleed
 // trick (see .hero in globals.css) rather than restructuring this shell
-// per-route — ExperienceBanner below uses the same trick, and sits
-// outside `.container` (site-wide, on every page) for the same reason.
+// per-route. (A similar full-bleed marketing banner, ExperienceBanner,
+// used to sit here between `<main>` and `<Footer>` — removed by request:
+// its "START PLANNING" button was redundant with other CTAs already on
+// the page, and since it was baked into a single flat PNG alongside the
+// banner's heading text, there was no way to remove just the button
+// without also retiring the whole image. Its heading text now lives
+// above the search results view instead — see app/page.tsx. The
+// illustration itself came back afterward as TripIllustrationBanner, a
+// cleaned version of the same asset with the text/button removed from
+// the image, so it's purely decorative now.)
 export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
@@ -27,7 +35,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div className="app">
           <Navbar />
           <main className="container">{children}</main>
-          <ExperienceBanner />
+          <TripIllustrationBanner />
           <Footer />
         </div>
       </AuthProvider>
