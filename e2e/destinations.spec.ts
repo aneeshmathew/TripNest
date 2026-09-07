@@ -36,12 +36,34 @@ test.describe("Destination detail page tabs", () => {
     await expect(page.getByText("Sabor Carioca")).toBeVisible();
   });
 
-  test("a destination with no matching data shows honest empty states, not fabricated content", async ({
+  test("a second destination (not Rio) also has real seeded data across all three tabs", async ({
     page
   }) => {
-    // The Dolomites has no seeded apartments/hotels/restaurants.
+    // Confirms seed coverage isn't just Rio de Janeiro — all 25 Nat Geo
+    // destinations have an apartment/hotel/restaurant now (see
+    // backend/prisma/seed.ts's destinationSeeds).
     await page.goto("/destinations/dolomites-italy");
-    await expect(page.getByText(/no apartments match "the dolomites" yet/i)).toBeVisible();
+    await expect(page.getByText("Alpine Chalet Retreat")).toBeVisible();
+
+    await page.getByTestId("destination-tab-hotels").click();
+    await expect(page.getByText("Dolomiti Peak Lodge")).toBeVisible();
+
+    await page.getByTestId("destination-tab-restaurants").click();
+    await expect(page.getByText("Rifugio delle Alpi")).toBeVisible();
+  });
+
+  test("a search matching no data shows honest empty states, not fabricated content", async ({
+    page
+  }) => {
+    // All 25 Nat Geo destinations have real seed coverage now (see
+    // backend/prisma/seed.ts), so there's no destination left to browse
+    // to for a naturally-empty tab — trigger the same empty-state code
+    // path via the search box instead, with a query that matches nothing.
+    await page.goto("/destinations/dolomites-italy");
+    await page.getByTestId("destination-tab-search-input").fill("zzznotarealplacezzzz");
+    await page.getByTestId("destination-tab-search-btn").click();
+
+    await expect(page.getByText(/no apartments match "zzznotarealplacezzzz" yet/i)).toBeVisible();
   });
 
   test("each non-Reviews tab has its own search box, with no box on Reviews", async ({ page }) => {

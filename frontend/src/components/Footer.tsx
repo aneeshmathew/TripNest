@@ -5,6 +5,9 @@ import BrandMark from "./BrandMark";
 // Social links are decorative placeholders (no real social presence
 // exists yet) — marked aria-hidden and non-navigating rather than linking
 // to nowhere. Contact email is a placeholder pending a real support inbox.
+// The "Reviews" link here (and Contact, via this column's own id="contact")
+// used to be duplicated in the navbar too — the navbar copies were
+// removed by request, so this is now the only way to reach either.
 function Footer() {
   return (
     <footer className="site-footer">
@@ -26,6 +29,9 @@ function Footer() {
           <ul className="footer-links">
             <li>
               <Link href="/">Browse stays</Link>
+            </li>
+            <li>
+              <Link href="/#testimonials">Reviews</Link>
             </li>
             <li>
               <Link href="/settings">Settings</Link>

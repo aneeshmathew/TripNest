@@ -1,4 +1,5 @@
 import Image from "next/image";
+import StarRating from "./StarRating";
 import type { Restaurant } from "../types/hospitality";
 
 interface RestaurantCardProps {
@@ -26,6 +27,10 @@ function RestaurantCard({ restaurant }: RestaurantCardProps) {
         <p>{restaurant.location}</p>
         <p>
           {restaurant.cuisine} · {priceRangeLabel(restaurant.priceRange)}
+        </p>
+        <p className="rating-line" aria-label={`${restaurant.rating.toFixed(1)} out of 5 (curated rating)`}>
+          <StarRating rating={restaurant.rating} />
+          <span>{restaurant.rating.toFixed(1)}</span>
         </p>
       </div>
     </article>

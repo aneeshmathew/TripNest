@@ -15,6 +15,9 @@ export interface NatGeoDestination {
   imageUrl: string;
 }
 
+// This URL isn't rendered anywhere in the UI anymore (the on-page
+// attribution links were removed by request), but it's kept here as a
+// record of where this list actually came from.
 export const NAT_GEO_SOURCE_URL =
   "https://www.nationalgeographic.com/travel/article/best-of-the-world-2026";
 

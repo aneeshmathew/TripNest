@@ -595,12 +595,6 @@ body {
   color: var(--color-text);
 }
 
-.nav-links {
-  align-items: center;
-  display: flex;
-  gap: 1.6rem;
-}
-
 .nav-cta {
   padding: 0.5rem 1.1rem;
 }
@@ -868,17 +862,6 @@ body {
   color: var(--color-text-subtle);
   font-size: 0.85rem;
   margin: 0;
-}
-
-.destinations-attribution {
-  color: var(--color-text-subtle);
-  font-size: 0.85rem;
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.destinations-attribution a {
-  color: var(--color-primary);
 }
 
 /* Activities ("Trip Inspiration") browse strip — curated illustrative
@@ -1395,10 +1378,6 @@ body {
 }
 
 @media (max-width: 900px) {
-  .nav-links {
-    display: none;
-  }
-
   .split-section,
   .split-reverse {
     grid-template-columns: 1fr;

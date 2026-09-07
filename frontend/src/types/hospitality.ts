@@ -21,6 +21,7 @@ export interface Restaurant {
   continent: Continent;
   cuisine: string;
   priceRange: number;
+  rating: number;
   imageUrl: string;
   createdAt: string;
   updatedAt: string;

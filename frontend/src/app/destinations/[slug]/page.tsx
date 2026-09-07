@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { natGeoDestinations, NAT_GEO_SOURCE_URL } from "../../../data/natGeoDestinations";
+import { natGeoDestinations } from "../../../data/natGeoDestinations";
 import { getListings } from "../../../lib/listings";
 import { getHotels } from "../../../lib/hotels";
 import { getRestaurants } from "../../../lib/restaurants";
@@ -136,12 +136,6 @@ export default async function DestinationPage({ params, searchParams }: Destinat
       <h1>{destination.name}</h1>
       <p className="destination-location">{destination.location}</p>
       <p>{destination.blurb}</p>
-      <p className="destinations-attribution">
-        Featured in{" "}
-        <a href={NAT_GEO_SOURCE_URL} target="_blank" rel="noopener noreferrer">
-          National Geographic&apos;s Best of the World 2026
-        </a>
-      </p>
 
       <nav className="destination-tabs">
         {TABS.map((t) => (

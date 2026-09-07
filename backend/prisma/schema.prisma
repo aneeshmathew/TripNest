@@ -123,10 +123,11 @@ model ReviewPhoto {
 // Hotels and restaurants are separate entity types from Listing
 // (apartments/rentals) — deliberately not folded into Listing with a
 // "type" discriminator, since their attributes genuinely differ
-// (starClass vs. cuisine/priceRange) and neither has review functionality
-// yet (that's still Listing-only — see Review model above). Both are
-// public/read-only for now: no owner-submission workflow, matching how
-// they're populated (curated seed data), not user-generated.
+// (starClass vs. cuisine/priceRange/rating) and neither has review
+// functionality yet (that's still Listing-only — see Review model
+// above). Both are public/read-only for now: no owner-submission
+// workflow, matching how they're populated (curated seed data), not
+// user-generated.
 model Hotel {
   id          String    @id @default(uuid())
   name        String
@@ -151,6 +152,10 @@ model Restaurant {
   continent   Continent @default(EUROPE)
   cuisine     String
   priceRange  Int // 1-4, like $ to $$$$
+  // Curated rating out of 5 (e.g. 4.5) — same caveat as Hotel.starClass:
+  // authored seed data, not derived from guest reviews (no review system
+  // for restaurants yet, see Review model above).
+  rating      Float     @default(0)
   imageUrl    String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
