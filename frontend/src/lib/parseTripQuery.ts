@@ -3,7 +3,7 @@ import { activityHighlights, type ActivityHighlight } from "../data/activityHigh
 
 // Powers the Hero search ("Start planning") on app/plan. This is plain
 // keyword matching against two small, known vocabularies (25 curated
-// destinations, 12 curated activities) — not real NLP, no external
+// destinations, 14 curated activities) — not real NLP, no external
 // service. That's a deliberate, honest limit: a query mentioning a real
 // place we simply don't have curated (e.g. "Chile") will correctly find
 // no destination match rather than guessing at one. Matching a *wrong*
@@ -30,6 +30,8 @@ const ACTIVITY_KEYWORDS: ActivityKeywords[] = [
   { slug: "whale-watching", keywords: ["whale watching", "whales", "whale"] },
   { slug: "nightlife", keywords: ["nightlife", "party", "clubbing", "clubs"] },
   { slug: "rock-climbing", keywords: ["rock climbing", "climbing"] },
+  { slug: "mountaineering", keywords: ["mountaineering", "mountaineer", "alpinism", "summit climb"] },
+  { slug: "skiing", keywords: ["skiing", "ski"] },
   { slug: "skydiving", keywords: ["skydiving", "skydive"] },
   { slug: "ancient-ruins", keywords: ["ancient ruins", "ruins", "silk road", "history"] },
   { slug: "temple-trail", keywords: ["temple trail", "temples", "temple"] },

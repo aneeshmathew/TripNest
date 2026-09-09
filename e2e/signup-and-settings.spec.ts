@@ -11,7 +11,7 @@ test.describe("Signup", () => {
     await page.getByTestId("signup-submit-btn").click();
 
     await expect(page).toHaveURL("/");
-    await expect(page.getByText(email)).toBeVisible();
+    await expect(page.getByTestId("account-menu-trigger")).toHaveText(/Hello E2E Signup Tester/);
   });
 
   test("Navbar shows Login and Sign up when logged out", async ({ page }) => {
@@ -22,11 +22,9 @@ test.describe("Signup", () => {
 });
 
 test.describe("Settings gating", () => {
-  test("prompts a logged-out visitor to log in, and hides the Settings nav link", async ({
-    page
-  }) => {
+  test("prompts a logged-out visitor to log in, and hides the account menu", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("link", { name: "Settings" })).not.toBeVisible();
+    await expect(page.getByTestId("account-menu-trigger")).not.toBeVisible();
 
     await page.goto("/settings");
     await expect(page.getByRole("link", { name: "Log in" })).toBeVisible();
@@ -39,7 +37,8 @@ test.describe("Settings gating", () => {
     await page.getByTestId("login-submit-btn").click();
     await expect(page).toHaveURL("/");
 
-    await page.getByRole("link", { name: "Settings" }).click();
+    await page.getByTestId("account-menu-trigger").click();
+    await page.getByRole("menuitem", { name: "Settings" }).click();
     await expect(page).toHaveURL("/settings");
     await expect(page.getByText("user1@mail.com")).toBeVisible();
   });

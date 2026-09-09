@@ -49,4 +49,22 @@ describe("parseTripQuery", () => {
     expect(result.destination?.slug).toBe("maui-usa");
     expect(result.activity?.slug).toBe("surfing");
   });
+
+  it("matches skiing, including near the Dolomites where it's actually curated", () => {
+    const result = parseTripQuery("skiing in the dolomites");
+    expect(result.activity?.slug).toBe("skiing");
+    expect(result.destination?.slug).toBe("dolomites-italy");
+  });
+
+  it("matches mountaineering via a synonym (alpinism)", () => {
+    const result = parseTripQuery("interested in alpinism");
+    expect(result.activity?.slug).toBe("mountaineering");
+  });
+
+  it("doesn't confuse 'mountaineering' with rock-climbing's 'climbing' keyword", () => {
+    // "mountaineering" doesn't contain the substring "climbing", so this
+    // should resolve to mountaineering specifically, not rock-climbing.
+    const result = parseTripQuery("mountaineering trip");
+    expect(result.activity?.slug).toBe("mountaineering");
+  });
 });

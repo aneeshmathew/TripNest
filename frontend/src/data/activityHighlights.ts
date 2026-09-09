@@ -43,7 +43,7 @@ export const activityHighlights: ActivityHighlight[] = [
     title: "An Ultimate Luxury Ireland Journey",
     categories: ["adventure"],
     imageUrl:
-      "https://images.unsplash.com/photo-1551524559-8af4e6624178?auto=format&fit=crop&w=600&q=80"
+      "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80"
   },
   {
     slug: "animal-watching",
@@ -59,7 +59,7 @@ export const activityHighlights: ActivityHighlight[] = [
     title: "Chasing Sunset Breaks on Mexico's Pacific Coast",
     categories: ["water-sports", "high-adrenaline"],
     imageUrl:
-      "https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80"
+      "https://images.unsplash.com/photo-1671387572483-096ea6d3c069?auto=format&fit=crop&w=600&q=80"
   },
   {
     slug: "cycling",
@@ -67,7 +67,7 @@ export const activityHighlights: ActivityHighlight[] = [
     title: "The Ultimate Croatian Epicurean Journey",
     categories: ["adventure"],
     imageUrl:
-      "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=600&q=80"
+      "https://images.unsplash.com/photo-1471506480208-91b3a4cc78be?auto=format&fit=crop&w=600&q=80"
   },
   {
     slug: "kayaking",
@@ -132,5 +132,21 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["water-sports"],
     imageUrl:
       "https://images.unsplash.com/photo-1542259009477-d625272157b7?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    slug: "skiing",
+    activity: "Skiing",
+    title: "Carving Fresh Powder Across the Dolomites' Alpine Slopes",
+    categories: ["adventure", "high-adrenaline"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1708607487609-45758252b5ee?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    slug: "mountaineering",
+    activity: "Mountaineering",
+    title: "Roped Ascents Along the Alps' Highest Ridgelines",
+    categories: ["adventure", "high-adrenaline"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1597250861267-429663f244a8?auto=format&fit=crop&w=600&q=80"
   }
 ];

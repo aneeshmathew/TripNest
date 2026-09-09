@@ -1,28 +1,53 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import BrandMark from "./BrandMark";
 import ThemeIcon from "./ThemeIcon";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-
-// "Home" was dropped as a separate link — the brand itself always links
-// to "/". The center nav-links (Start planning/Reviews/Contact) were
-// removed by request — Reviews now lives as a link in the footer's About
-// column (see Footer.tsx) and Contact was already duplicated there (the
-// footer's "Get in touch" column has had id="contact" since it was
-// built) - the navbar versions were redundant, not the only way to reach
-// either. Settings only shows once logged in — the settings page's other
-// real content (account details) needs a signed-in user anyway. The
-// theme toggle is duplicated here (icon-only, always visible) AND on
-// /settings (SettingsForm, with a full label) — same ThemeContext either
-// way, just a quicker path to it for anyone who doesn't want to log in
-// first. Testid is prefixed "navbar-" specifically so it can't collide
-// with SettingsForm's own theme-toggle-btn when both are mounted at once
-// (e.g. an authenticated user on /settings).
+//
+// Logged-in state is a "Hello <name>" dropdown trigger (real data —
+// User.name from the backend, not previously shown anywhere in the
+// navbar) rather than the flat row of links it used to be. Only Settings
+// and Logout are in the menu — both real, working destinations. This
+// was originally asked to also include Account/Chart/Wishlist/Bookings/
+// Saved Plans/Estimates/Favorites, but none of those exist as actual
+// pages or features yet (no booking system, no wishlist, no saved-plans
+// concept anywhere in the app — see README, Feature Gaps). Adding menu
+// entries for them would mean dead links or blank pages, which the rest
+// of this app deliberately avoids (see e.g. the destinations/activities
+// pages' honest-empty-state pattern) — so the dropdown mechanism is built
+// and ready, but only populated with what's real today.
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
 
   return (
     <header className="navbar">
@@ -40,15 +65,43 @@ function Navbar() {
           <ThemeIcon theme={theme} />
         </button>
         {isAuthenticated ? (
-          <>
-            <Link href="/settings" className="nav-link">
-              Settings
-            </Link>
-            <span className="user-email">{user?.email}</span>
-            <button type="button" className="secondary-btn" onClick={logout} data-testid="logout-btn">
-              Logout
+          <div className="account-menu" ref={menuRef}>
+            <button
+              type="button"
+              className="account-menu-trigger"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+              data-testid="account-menu-trigger"
+            >
+              Hello {user?.name}
+              <ChevronDown size={16} aria-hidden="true" />
             </button>
-          </>
+            {menuOpen && (
+              <div className="account-menu-dropdown" role="menu" data-testid="account-menu-dropdown">
+                <Link
+                  href="/settings"
+                  role="menuitem"
+                  className="account-menu-item"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Settings
+                </Link>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="account-menu-item"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    logout();
+                  }}
+                  data-testid="logout-btn"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <Link href="/login" className="nav-link">

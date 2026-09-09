@@ -35,7 +35,7 @@ function Hero() {
           <input
             type="text"
             name="q"
-            placeholder="e.g. Start with a destination or activity."
+            placeholder="Start with a destination or activity."
             aria-label="Describe the trip you want"
             data-testid="hero-search-input"
           />

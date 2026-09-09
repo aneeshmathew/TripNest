@@ -177,10 +177,51 @@ body {
   gap: 1.1rem;
 }
 
-.user-email {
+.account-menu {
+  position: relative;
+}
+
+.account-menu-trigger {
+  align-items: center;
+  background: none;
+  border: 0;
   color: var(--color-navbar-text);
-  font-size: 0.9rem;
-  opacity: 0.85;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.95rem;
+  font-weight: 600;
+  gap: 0.35rem;
+}
+
+.account-menu-dropdown {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.6rem);
+  z-index: 60;
+}
+
+.account-menu-item {
+  background: none;
+  border: 0;
+  color: var(--color-text);
+  cursor: pointer;
+  display: block;
+  font-size: 0.95rem;
+  padding: 0.7rem 1rem;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+}
+
+.account-menu-item:hover,
+.account-menu-item:focus-visible {
+  background: var(--color-secondary-bg);
 }
 
 .primary-btn,
@@ -190,6 +231,7 @@ body {
   cursor: pointer;
   font-weight: 600;
   padding: 0.6rem 1rem;
+  text-decoration: none;
 }
 
 .primary-btn {
@@ -846,8 +888,20 @@ body {
 
 .destination-tile-image-wrap {
   height: 130px;
+  overflow: hidden;
   position: relative;
   width: 100%;
+}
+
+/* Hover/focus zoom — scales the photo, not the tile itself, so
+   neighboring tiles in the row never shift or overlap. */
+.destination-tile-image-wrap img {
+  transition: transform 0.35s ease;
+}
+
+.destination-tile:hover .destination-tile-image-wrap img,
+.destination-tile:focus-visible .destination-tile-image-wrap img {
+  transform: scale(1.08);
 }
 
 .destination-tile-content {
@@ -870,12 +924,17 @@ body {
    .carousel-nav-btn from the destinations carousel rather than inventing a
    second nav-button style, for visual consistency between the two
    carousels on the homepage. */
+.activities-section {
+  padding-bottom: 5rem;
+  padding-top: 5rem;
+}
+
 .activity-filter-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   justify-content: center;
-  margin: 0 0 2rem;
+  margin: 0 0 2.75rem;
 }
 
 .activity-filter-pill {
@@ -945,8 +1004,19 @@ body {
 .activity-tile-image-wrap {
   aspect-ratio: 3 / 5;
   background: var(--color-secondary-bg);
+  overflow: hidden;
   position: relative;
   width: 100%;
+}
+
+/* Hover/focus zoom — same pattern as .destination-tile-image-wrap img. */
+.activity-tile-image-wrap img {
+  transition: transform 0.35s ease;
+}
+
+.activity-tile:hover .activity-tile-image-wrap img,
+.activity-tile:focus-visible .activity-tile-image-wrap img {
+  transform: scale(1.08);
 }
 
 .activity-tile-scrim {
@@ -1601,10 +1671,6 @@ body {
 
   .search-filters input[type="number"] {
     width: 90px;
-  }
-
-  .user-email {
-    display: none;
   }
 }
 
