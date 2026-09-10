@@ -15,13 +15,13 @@ Core Features
 
 Technology Stack
 
-    Language: TypeScript, Python
+    Language: TypeScript (frontend and backend)
+    Framework: Next.js 15 / App Router (Frontend), Express (Backend)
+    API Layer: RESTful JSON endpoints over HTTP 
+    Database & ORM: PostgreSQL + Prisma
+    Auth: bcrypt password hashing, JWT access tokens, rotating/revocable refresh tokens
+    Testing: Vitest + React Testing Library (unit/component), Playwright (e2e), Supertest (backend request tests)
 
-    Framework: Next.js (Frontend), FastAPI / Node.js (Backend)
-
-    API Layer: GraphQL, RESTful APIs, WebSockets (Real-Time Sync)
-
-    Database & ORM: PostgreSQL, MongoDB, Redis (Caching); Prisma / SQLAlchemy
     
 Engineering Highlights
 
