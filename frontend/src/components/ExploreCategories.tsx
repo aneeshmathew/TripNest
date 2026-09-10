@@ -10,11 +10,19 @@ import { Building2, Compass, Hotel as HotelIcon, UtensilsCrossed } from "lucide-
 // of the app follows (see README, Destinations/Activities sections)
 // applies here too. No "Driving"/"Flights"/"Meals" tiles for the same
 // reason: TripNest doesn't do those (yet).
+//
+// Each tile links to a standalone, search-ready page (app/apartments,
+// app/hotels, app/restaurants, app/activities) — the same
+// keyword-search-replaces-default pattern, and the same tab name, as the
+// Apartments/Hotels/Restaurants/Activities tabs on /destinations/[slug],
+// just without a destination pre-selected. Previously "Apartments" linked
+// to "/" (the marketing homepage, not search-ready) and "Activities"
+// anchor-scrolled to the homepage carousel instead of a real page.
 const CATEGORIES = [
   {
     label: "Apartments",
     description: "Browse & search stays",
-    href: "/",
+    href: "/apartments",
     icon: Building2
   },
   {
@@ -32,7 +40,7 @@ const CATEGORIES = [
   {
     label: "Activities",
     description: "Find things to do",
-    href: "/#trip-inspiration",
+    href: "/activities",
     icon: Compass
   }
 ];

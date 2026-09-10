@@ -40,7 +40,7 @@ export default async function RestaurantsPage({ searchParams }: RestaurantsPageP
         <input
           type="text"
           name="q"
-          placeholder="Search restaurants by name, cuisine, or location"
+          placeholder="Search for restaurants nearby location"
           defaultValue={trimmedQuery ?? ""}
           aria-label="Search restaurants"
           data-testid="restaurants-search-input"

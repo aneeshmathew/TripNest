@@ -202,7 +202,7 @@ export default async function DestinationPage({ params, searchParams }: Destinat
           <input
             type="text"
             name="q"
-            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label} nearby here`}
+            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label.toLowerCase()} nearby`}
             defaultValue={trimmedQuery ?? ""}
             aria-label={`Search ${activeTab}`}
             data-testid="destination-tab-search-input"

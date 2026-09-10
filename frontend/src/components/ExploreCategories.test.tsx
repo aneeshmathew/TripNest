@@ -14,11 +14,11 @@ describe("ExploreCategories", () => {
     expect(screen.queryByText(/driving/i)).not.toBeInTheDocument();
   });
 
-  it("links each tile to a real, working route", () => {
+  it("links each tile to a real, search-ready route", () => {
     render(<ExploreCategories />);
-    expect(screen.getByTestId("explore-apartments")).toHaveAttribute("href", "/");
+    expect(screen.getByTestId("explore-apartments")).toHaveAttribute("href", "/apartments");
     expect(screen.getByTestId("explore-hotels")).toHaveAttribute("href", "/hotels");
     expect(screen.getByTestId("explore-restaurants")).toHaveAttribute("href", "/restaurants");
-    expect(screen.getByTestId("explore-activities")).toHaveAttribute("href", "/#trip-inspiration");
+    expect(screen.getByTestId("explore-activities")).toHaveAttribute("href", "/activities");
   });
 });

@@ -39,7 +39,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
         <input
           type="text"
           name="q"
-          placeholder="Search hotels by name or location"
+          placeholder="Search for hotels nearby location"
           defaultValue={trimmedQuery ?? ""}
           aria-label="Search hotels"
           data-testid="hotels-search-input"

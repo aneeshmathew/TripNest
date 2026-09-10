@@ -84,7 +84,7 @@ test.describe("Destination detail page tabs", () => {
     await page.goto("/destinations/rio-de-janeiro-brazil");
     await expect(page.getByTestId("destination-tab-search-input")).toHaveAttribute(
       "placeholder",
-      "Search for Apartments nearby here"
+      "Search for apartments nearby"
     );
 
     await page.getByTestId("destination-tab-activities").click();
