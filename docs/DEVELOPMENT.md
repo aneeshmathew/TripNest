@@ -1,6 +1,77 @@
 # TripNest — Product & Engineering Plan
 
-TripNest is a travel discovery platform: browse listings (stays, and eventually restaurants/attractions), read and leave reviews, search and filter by location and preferences, and book. This document is the living plan — architecture, tech stack, and roadmap — for building it out.
+---
+
+## Table of Contents
+0. [Status Snapshot](#0-status-snapshot)
+1. [Architecture](#1-architecture)
+2. [Feature Gaps to Close](#2-feature-gaps-to-close)
+3. [Tech Stack](#3-tech-stack)
+4. [Domain Model](#4-domain-model)
+5. [Roadmap](#5-roadmap)
+
+---
+
+## 0. Status Snapshot
+
+**One-line status**: Core browse/search/review loop is real and working end-to-end (Postgres-backed, tested, deployed-shape); Hotels/Restaurants/Destinations/Activities/trip-planning are real curated-content features on top of it. Nothing beyond this is built yet — no bookings, no payments, no owner accounts, no map, no dedicated search engine, no CI gate, no uploaded media.
+
+### ✅ Completed / Working today
+- [x] TypeScript across frontend (Next.js App Router) and backend (Express)
+- [x] PostgreSQL + Prisma, migrations, seed script covering all 25 curated Nat Geo destinations
+- [x] Auth: bcrypt password hashing, short-lived JWT access tokens, rotating/revocable refresh tokens (hashed in DB) — `signup`/`login`/`refresh`/`logout`/`me`
+- [x] Listings: public read endpoints with keyword/price-range/min-rating/continent filters (Postgres `ILIKE`/range/equality, not full-text or geo)
+- [x] Hotels & Restaurants: real read-only entities (`GET /api/hotels`, `GET /api/restaurants`) with full seed coverage, own detail attributes (`starClass`, `cuisine`/`priceRange`/`rating`)
+- [x] Reviews: full CRUD, one review per user per listing, optional sub-ratings (cleanliness/service/value/location), `Listing.averageRating`/`reviewCount` recomputed from real rows, featured-reviews endpoint for homepage testimonials
+- [x] Next.js SSR/ISR on listing, destination, and activity pages (`generateMetadata` + `generateStaticParams`)
+- [x] Destinations: 25 curated Nat Geo places, tabbed detail pages (Apartments/Hotels/Restaurants/Activities/Reviews), circular-loop carousel
+- [x] Activities ("Trip Inspiration"): 14 curated activity types with category-pill filtering and their own tabbed detail pages
+- [x] `/plan` free-text trip planner — plain keyword matching (no NLP/external service) across the two curated vocabularies, grouped-by-destination results
+- [x] Standalone `/hotels` and `/restaurants` browse pages (previously only reachable via a destination/activity tab)
+- [x] Theming (light/dark via CSS vars, no-flash-of-wrong-theme init script, light is the default), responsive breakpoints without a UI framework
+- [x] Navbar account dropdown (Settings/Logout only — deliberately not populated with unbuilt features), `/settings` page
+- [x] Test scaffolding with real examples per layer: Vitest unit tests (backend), Vitest + RTL component tests (frontend), Playwright e2e — see [Testing](#testing) — pattern established, **not comprehensive coverage**
+
+### 🟡 Partially done / honest approximations
+- [ ] "Activities" are a keyword-search approximation against existing Listings/Hotels/Restaurants — no real `Attraction`/`Activity` model or tagging yet
+- [ ] Restaurant/Hotel ratings are curated seed values, not guest-review-derived (neither has a review system yet)
+- [ ] Category-pill filtering on the Activities strip is static client-side array filtering, not a real faceted backend query
+- [ ] `continent` filter exists and works but has no UI entry point anymore (the old `ContinentMap` was removed)
+- [ ] Automated tests exist but nothing enforces them — no CI gate blocks a merge on failing tests yet
+
+### ⛔ Not started
+- [ ] Real geo data (`lat`/`lng`), map view, "near me" / radius search
+- [ ] Dedicated search engine (Meilisearch/Elasticsearch), faceted search, relevance ranking beyond plain filters
+- [ ] Wishlist/saved listings, user profile pages (trip history, review history, badges)
+- [ ] Owner accounts, claim-a-listing flow, owner responses to reviews
+- [ ] Review moderation/flagging, spam detection, verified-stay badges, helpful votes
+- [ ] Photo upload/storage pipeline (all photos are URL-only today — no S3/Cloudinary)
+- [ ] Booking flow, availability calendars, Stripe payments, confirmation emails
+- [ ] Admin/moderation dashboard
+- [ ] Redis caching layer, background jobs (BullMQ)
+- [ ] Observability (Sentry, structured logging, metrics/dashboards)
+- [ ] SEO extras: sitemap, schema.org structured data, canonical URLs (basic metadata only today)
+- [ ] Destination/search autocomplete against the live catalog (removed the old static `<datalist>`, no replacement yet)
+- [ ] Personalized recommendations (homepage section is illustrative marketing copy only, no engine behind it)
+- [ ] Accessibility (a11y) audit and internationalization (i18n)
+- [ ] OAuth/social login, email verification, password reset
+
+### Smaller known gaps (called out inline in Architecture, easy to miss)
+- [ ] No in-UI path to a plain, unfiltered "browse every apartment" view — `/?search=` still works but nothing links to it anymore (Hero used to)
+- [ ] `/plan` doesn't carry the matched activity keyword into a destination tab's own search box yet (left for later by request)
+- [ ] Navbar translucency is constant, not scroll-triggered (would need a small client-side scroll listener)
+- [ ] Hero/destinations overlap spacing (`top: 33%`, `-420px`) is a fixed-px approximation against a `100vh` hero — worth re-checking on very short viewports
+- [ ] `AuthContext`, `ReviewItem`, `ReviewForm`, `LoginForm`, `SignupForm`, `HotelCard`/`RestaurantCard`, `Hero`, `EasyToUseSection`, `RecommendationsSection`, `Footer` have no unit tests yet (mocking `next/navigation`'s `useRouter` is the next piece needed for the auth-dependent ones)
+
+### Suggested next steps (in priority order)
+1. **Close the CI gap** — wire up GitHub Actions to actually run `npm test`/`typecheck`/`test:e2e` on PRs; today nothing blocks a merge on failure even though the tests exist.
+2. **Wishlist/saved listings + user profile pages** — smallest of the Discovery-phase items, no new infra required, high perceived value.
+3. **Real `Attraction`/`Activity` model** — replaces the keyword-search approximation and unblocks genuine faceted browsing later.
+4. **Image storage pipeline** (S3/R2 + Sharp) — currently a hard blocker for user-submitted review photos and for moving off hotlinked Unsplash URLs.
+5. **Owner accounts + claim-a-listing** — unlocks the whole Trust & Business phase (owner responses, business info updates).
+6. Everything else follows the phase order in [Roadmap](#5-roadmap) below — Discovery → Trust & Business → Transactions, with the Platform-concerns items in [§2.5](#25-platform-concerns) picked up opportunistically alongside whichever feature touches them.
+
+See [§2](#2-feature-gaps-to-close) for the detailed, prose rationale behind each gap above, and [§5](#5-roadmap) for how they're phased.
 
 ---
 
