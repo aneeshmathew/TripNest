@@ -342,6 +342,25 @@ body {
   text-decoration: none;
 }
 
+.back-button {
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-weight: 600;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 0;
+  text-decoration: none;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
 .modal-actions {
   display: flex;
   gap: 0.6rem;
@@ -1438,31 +1457,59 @@ body {
   font-size: 0.9rem;
 }
 
-/* Destination gallery */
-.gallery-grid {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+/* Destination gallery ("Explore more destinations") — a scrollable strip
+   of 50+ destinations with manual prev/next buttons. Tiles use the exact
+   same .destination-tile / .destination-tile-image-wrap /
+   .destination-tile-content classes as the top DestinationsCarousel, so
+   the hover-zoom effect (see .destination-tile:hover above) is identical
+   between the two sections. */
+.gallery-carousel-wrap {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
 }
 
-.gallery-item {
-  border-radius: 10px;
-  display: block;
-  height: 160px;
-  overflow: hidden;
-  position: relative;
+.gallery-carousel {
+  --carousel-visible: 5;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 12px 4px 0.5rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
 }
 
-.gallery-item-label {
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
-  bottom: 0;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 600;
-  left: 0;
-  padding: 1.5rem 0.7rem 0.6rem;
-  position: absolute;
-  right: 0;
+.gallery-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery-dots {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.gallery-dot {
+  background: var(--color-border);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  height: 10px;
+  padding: 0;
+  transition: background 0.15s ease, width 0.15s ease;
+  width: 10px;
+}
+
+.gallery-dot:hover {
+  background: var(--color-text-subtle);
+}
+
+.gallery-dot.active {
+  background: var(--color-primary);
+  width: 28px;
 }
 
 /* Search results intro (app/page.tsx's SearchResultsIntro) — real text
@@ -1611,7 +1658,8 @@ body {
    ========================================================================== */
 
 @media (max-width: 1024px) {
-  .destinations-carousel {
+  .destinations-carousel,
+  .gallery-carousel {
     --carousel-visible: 4;
   }
 }
@@ -1622,7 +1670,8 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .destinations-carousel {
+  .destinations-carousel,
+  .gallery-carousel {
     --carousel-visible: 3;
   }
 }
@@ -1685,7 +1734,8 @@ body {
 }
 
 @media (max-width: 560px) {
-  .destinations-carousel {
+  .destinations-carousel,
+  .gallery-carousel {
     --carousel-visible: 2;
   }
 
@@ -1695,7 +1745,8 @@ body {
 }
 
 @media (max-width: 420px) {
-  .destinations-carousel {
+  .destinations-carousel,
+  .gallery-carousel {
     --carousel-visible: 1;
   }
 

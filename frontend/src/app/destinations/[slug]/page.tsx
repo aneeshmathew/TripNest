@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { natGeoDestinations } from "../../../data/natGeoDestinations";
+import { allDestinations } from "../../../data/allDestinations";
 import { destinationActivitySlugs } from "../../../data/destinationActivities";
 import { activityHighlights } from "../../../data/activityHighlights";
 import { getListings } from "../../../lib/listings";
@@ -13,6 +13,7 @@ import ApartmentList from "../../../components/ApartmentList";
 import HotelCard from "../../../components/HotelCard";
 import RestaurantCard from "../../../components/RestaurantCard";
 import ReviewItem from "../../../components/ReviewItem";
+import BackButton from "../../../components/BackButton";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "activities" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
@@ -29,12 +30,12 @@ interface DestinationPageProps {
 }
 
 export async function generateStaticParams() {
-  return natGeoDestinations.map((destination) => ({ slug: destination.slug }));
+  return allDestinations.map((destination) => ({ slug: destination.slug }));
 }
 
 export async function generateMetadata({ params }: DestinationPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const destination = natGeoDestinations.find((d) => d.slug === slug);
+  const destination = allDestinations.find((d) => d.slug === slug);
 
   if (!destination) {
     return { title: "Destination not found" };
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: DestinationPageProps): Promis
 export default async function DestinationPage({ params, searchParams }: DestinationPageProps) {
   const { slug } = await params;
   const { tab: rawTab, q: rawQuery } = await searchParams;
-  const destination = natGeoDestinations.find((d) => d.slug === slug);
+  const destination = allDestinations.find((d) => d.slug === slug);
 
   if (!destination) {
     notFound();
@@ -158,6 +159,7 @@ export default async function DestinationPage({ params, searchParams }: Destinat
 
   return (
     <section className="destination-page">
+      <BackButton />
       <div className="destination-hero-wrap">
         <Image
           src={destination.imageUrl}

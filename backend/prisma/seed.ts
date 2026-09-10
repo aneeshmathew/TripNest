@@ -742,6 +742,416 @@ async function main() {
     }
   }
 
+
+  // 50 household-name destinations (frontend/data/worldDestinations.ts)
+  // shown in the homepage "Explore more destinations" gallery — same
+  // pattern as `destinationSeeds` above (name/region combine into
+  // `location` so the destination page's keyword search, which searches
+  // for the destination's exact `name`, actually matches). These are
+  // clearly-labeled dummy placeholder listings/hotels/restaurants (one of
+  // each per destination, plus a single demo review) rather than real
+  // inventory — enough that each of the 50 new destination pages isn't
+  // empty, not a claim that this is real accommodation data.
+  interface WorldDestinationSeed {
+    name: string;
+    region: string;
+    continent: Continent;
+    imageUrl: string;
+    cuisine: string;
+  }
+
+  const worldDestinationSeeds: WorldDestinationSeed[] = [
+  {
+    name: "Paris",
+    region: "France",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/paris-france/1200/800",
+    cuisine: "French"
+  },
+  {
+    name: "London",
+    region: "England",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/london-england/1200/800",
+    cuisine: "British"
+  },
+  {
+    name: "Rome",
+    region: "Italy",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/rome-italy/1200/800",
+    cuisine: "Italian"
+  },
+  {
+    name: "New York City",
+    region: "USA",
+    continent: Continent.NORTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/new-york-usa/1200/800",
+    cuisine: "American"
+  },
+  {
+    name: "Tokyo",
+    region: "Japan",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/tokyo-japan/1200/800",
+    cuisine: "Japanese"
+  },
+  {
+    name: "Dubai",
+    region: "United Arab Emirates",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/dubai-uae/1200/800",
+    cuisine: "Middle Eastern"
+  },
+  {
+    name: "Bangkok",
+    region: "Thailand",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/bangkok-thailand/1200/800",
+    cuisine: "Thai"
+  },
+  {
+    name: "Singapore",
+    region: "Singapore",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/singapore/1200/800",
+    cuisine: "Singaporean"
+  },
+  {
+    name: "Istanbul",
+    region: "Türkiye",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/istanbul-turkiye/1200/800",
+    cuisine: "Turkish"
+  },
+  {
+    name: "Barcelona",
+    region: "Spain",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/barcelona-spain/1200/800",
+    cuisine: "Spanish"
+  },
+  {
+    name: "Amsterdam",
+    region: "Netherlands",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/amsterdam-netherlands/1200/800",
+    cuisine: "Dutch"
+  },
+  {
+    name: "Prague",
+    region: "Czechia",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/prague-czechia/1200/800",
+    cuisine: "Czech"
+  },
+  {
+    name: "Venice",
+    region: "Italy",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/venice-italy/1200/800",
+    cuisine: "Italian"
+  },
+  {
+    name: "Santorini",
+    region: "Greece",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/santorini-greece/1200/800",
+    cuisine: "Greek"
+  },
+  {
+    name: "Bali",
+    region: "Indonesia",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/bali-indonesia/1200/800",
+    cuisine: "Indonesian"
+  },
+  {
+    name: "Sydney",
+    region: "Australia",
+    continent: Continent.OCEANIA,
+    imageUrl: "https://picsum.photos/seed/sydney-australia/1200/800",
+    cuisine: "Australian"
+  },
+  {
+    name: "Cairo",
+    region: "Egypt",
+    continent: Continent.AFRICA,
+    imageUrl: "https://picsum.photos/seed/cairo-egypt/1200/800",
+    cuisine: "Egyptian"
+  },
+  {
+    name: "Marrakech",
+    region: "Morocco",
+    continent: Continent.AFRICA,
+    imageUrl: "https://picsum.photos/seed/marrakech-morocco/1200/800",
+    cuisine: "Moroccan"
+  },
+  {
+    name: "Kyoto",
+    region: "Japan",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/kyoto-japan/1200/800",
+    cuisine: "Japanese"
+  },
+  {
+    name: "Seoul",
+    region: "South Korea",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/seoul-south-korea/1200/800",
+    cuisine: "Korean"
+  },
+  {
+    name: "Hong Kong",
+    region: "Hong Kong",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/hong-kong/1200/800",
+    cuisine: "Cantonese"
+  },
+  {
+    name: "Machu Picchu",
+    region: "Peru",
+    continent: Continent.SOUTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/machu-picchu-peru/1200/800",
+    cuisine: "Peruvian"
+  },
+  {
+    name: "Cape Town",
+    region: "South Africa",
+    continent: Continent.AFRICA,
+    imageUrl: "https://picsum.photos/seed/cape-town-south-africa/1200/800",
+    cuisine: "South African"
+  },
+  {
+    name: "Reykjavík",
+    region: "Iceland",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/reykjavik-iceland/1200/800",
+    cuisine: "Icelandic"
+  },
+  {
+    name: "Vienna",
+    region: "Austria",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/vienna-austria/1200/800",
+    cuisine: "Austrian"
+  },
+  {
+    name: "Budapest",
+    region: "Hungary",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/budapest-hungary/1200/800",
+    cuisine: "Hungarian"
+  },
+  {
+    name: "Florence",
+    region: "Italy",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/florence-italy/1200/800",
+    cuisine: "Italian"
+  },
+  {
+    name: "Athens",
+    region: "Greece",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/athens-greece/1200/800",
+    cuisine: "Greek"
+  },
+  {
+    name: "Lisbon",
+    region: "Portugal",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/lisbon-portugal/1200/800",
+    cuisine: "Portuguese"
+  },
+  {
+    name: "Phuket",
+    region: "Thailand",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/phuket-thailand/1200/800",
+    cuisine: "Thai"
+  },
+  {
+    name: "Los Angeles",
+    region: "California, USA",
+    continent: Continent.NORTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/los-angeles-usa/1200/800",
+    cuisine: "Californian"
+  },
+  {
+    name: "San Francisco",
+    region: "California, USA",
+    continent: Continent.NORTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/san-francisco-usa/1200/800",
+    cuisine: "Californian"
+  },
+  {
+    name: "Las Vegas",
+    region: "Nevada, USA",
+    continent: Continent.NORTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/las-vegas-usa/1200/800",
+    cuisine: "American"
+  },
+  {
+    name: "Toronto",
+    region: "Canada",
+    continent: Continent.NORTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/toronto-canada/1200/800",
+    cuisine: "Canadian"
+  },
+  {
+    name: "Cancún",
+    region: "Mexico",
+    continent: Continent.NORTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/cancun-mexico/1200/800",
+    cuisine: "Mexican"
+  },
+  {
+    name: "Buenos Aires",
+    region: "Argentina",
+    continent: Continent.SOUTH_AMERICA,
+    imageUrl: "https://picsum.photos/seed/buenos-aires-argentina/1200/800",
+    cuisine: "Argentinian"
+  },
+  {
+    name: "Agra",
+    region: "India",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/agra-india/1200/800",
+    cuisine: "Indian"
+  },
+  {
+    name: "Jaipur",
+    region: "India",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/jaipur-india/1200/800",
+    cuisine: "Indian"
+  },
+  {
+    name: "Petra",
+    region: "Jordan",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/petra-jordan/1200/800",
+    cuisine: "Jordanian"
+  },
+  {
+    name: "Zürich",
+    region: "Switzerland",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/zurich-switzerland/1200/800",
+    cuisine: "Swiss"
+  },
+  {
+    name: "Edinburgh",
+    region: "Scotland",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/edinburgh-scotland/1200/800",
+    cuisine: "Scottish"
+  },
+  {
+    name: "Dublin",
+    region: "Ireland",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/dublin-ireland/1200/800",
+    cuisine: "Irish"
+  },
+  {
+    name: "Copenhagen",
+    region: "Denmark",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/copenhagen-denmark/1200/800",
+    cuisine: "Danish"
+  },
+  {
+    name: "Stockholm",
+    region: "Sweden",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/stockholm-sweden/1200/800",
+    cuisine: "Swedish"
+  },
+  {
+    name: "Seville",
+    region: "Spain",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/seville-spain/1200/800",
+    cuisine: "Spanish"
+  },
+  {
+    name: "Munich",
+    region: "Germany",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/munich-germany/1200/800",
+    cuisine: "German"
+  },
+  {
+    name: "Kuala Lumpur",
+    region: "Malaysia",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/kuala-lumpur-malaysia/1200/800",
+    cuisine: "Malaysian"
+  },
+  {
+    name: "Doha",
+    region: "Qatar",
+    continent: Continent.ASIA,
+    imageUrl: "https://picsum.photos/seed/doha-qatar/1200/800",
+    cuisine: "Qatari"
+  },
+  {
+    name: "Queenstown",
+    region: "New Zealand",
+    continent: Continent.OCEANIA,
+    imageUrl: "https://picsum.photos/seed/queenstown-new-zealand/1200/800",
+    cuisine: "New Zealand"
+  },
+  {
+    name: "Dubrovnik",
+    region: "Croatia",
+    continent: Continent.EUROPE,
+    imageUrl: "https://picsum.photos/seed/dubrovnik-croatia/1200/800",
+    cuisine: "Croatian"
+  }
+  ];
+
+  for (const [i, dest] of worldDestinationSeeds.entries()) {
+    const location = dest.region === dest.name ? dest.name : `${dest.name}, ${dest.region}`;
+    const listingTitle = `${dest.name} City Center Stay`;
+    const hotelName = `${dest.name} Grand Hotel`;
+    const restaurantName = `${dest.name} Local Kitchen`;
+
+    listings.push({
+      title: listingTitle,
+      price: 90 + (i % 9) * 15,
+      location,
+      continent: dest.continent,
+      imageUrl: dest.imageUrl
+    });
+    reviewsByListingTitle[listingTitle] = {
+      rating: 4 + (i % 2),
+      title: `Great home base in ${dest.name}`,
+      body: `Central, comfortable, and an easy walk to the main sights in ${dest.name}. Would book again.`
+    };
+
+    hotels.push({
+      name: hotelName,
+      location,
+      continent: dest.continent,
+      price: 180 + (i % 6) * 25,
+      starClass: 3 + (i % 3),
+      imageUrl: dest.imageUrl
+    });
+
+    restaurants.push({
+      name: restaurantName,
+      location,
+      continent: dest.continent,
+      cuisine: dest.cuisine,
+      priceRange: 1 + (i % 3),
+      rating: 4.2 + (i % 5) * 0.1,
+      imageUrl: dest.imageUrl
+    });
+  }
+
   const createdListings = [];
   for (const listing of listings) {
     const existing = await prisma.listing.findFirst({ where: { title: listing.title } });
@@ -798,7 +1208,7 @@ async function main() {
   }
 
   console.log(
-    `Seed complete: 1 demo user, ${listings.length} listings across 6 continents, ${createdListings.length} reviews, ${hotels.length} hotels, ${restaurants.length} restaurants.`
+    `Seed complete: 1 demo user, ${listings.length} listings across 6 continents (includes 25 Nat Geo + 50 world destinations), ${createdListings.length} reviews, ${hotels.length} hotels, ${restaurants.length} restaurants.`
   );
 }
 

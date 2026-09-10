@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com"
+      },
+      {
+        // Seeded placeholder photos for data/worldDestinations.ts — see
+        // that file's header comment for why these aren't real
+        // per-destination Unsplash photos yet.
+        protocol: "https",
+        hostname: "picsum.photos"
       }
     ]
   }

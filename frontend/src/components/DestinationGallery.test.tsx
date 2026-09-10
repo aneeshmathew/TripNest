@@ -1,74 +1,61 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import DestinationGallery from "./DestinationGallery";
-import type { Listing } from "../types/listing";
-
-const listings: Listing[] = [
-  {
-    id: "listing-1",
-    title: "Eiffel View Loft",
-    description: null,
-    location: "Paris, France",
-    continent: "EUROPE",
-    price: 210,
-    averageRating: 4.8,
-    reviewCount: 12,
-    imageUrl: "https://images.unsplash.com/photo-example-1",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "listing-2",
-    title: "Shibuya Sky Suite",
-    description: null,
-    location: "Tokyo, Japan",
-    continent: "ASIA",
-    price: 190,
-    averageRating: 4.0,
-    reviewCount: 5,
-    imageUrl: "https://images.unsplash.com/photo-example-2",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
+import { worldDestinations } from "../data/worldDestinations";
+import { natGeoDestinations } from "../data/natGeoDestinations";
 
 describe("DestinationGallery", () => {
-  it("links each item to its real listing detail page when the location isn't a curated destination", () => {
-    render(<DestinationGallery listings={listings} />);
+  it("renders exactly the 50 world destinations", () => {
+    render(<DestinationGallery />);
+    expect(worldDestinations.length).toBe(50);
+    expect(screen.getAllByTestId(/^gallery-destination-/)).toHaveLength(50);
+  });
 
-    expect(screen.getByRole("link", { name: /Eiffel View Loft/i })).toHaveAttribute(
+  it("doesn't repeat any of the 25 curated Nat Geo destinations shown in the top carousel", () => {
+    const natGeoSlugs = new Set(natGeoDestinations.map((d) => d.slug));
+    const overlap = worldDestinations.filter((d) => natGeoSlugs.has(d.slug));
+    expect(overlap).toHaveLength(0);
+  });
+
+  it("links every tile straight to its /destinations/[slug] page, never /apartments", () => {
+    render(<DestinationGallery />);
+    const links = screen.getAllByTestId(/^gallery-destination-/);
+    for (const link of links) {
+      const href = link.getAttribute("href") ?? "";
+      expect(href.startsWith("/destinations/")).toBe(true);
+    }
+  });
+
+  it("links a well-known world destination to its detail page", () => {
+    render(<DestinationGallery />);
+    expect(screen.getByRole("link", { name: /Explore Paris/i })).toHaveAttribute(
       "href",
-      "/apartments/listing-1"
-    );
-    expect(screen.getByRole("link", { name: /Shibuya Sky Suite/i })).toHaveAttribute(
-      "href",
-      "/apartments/listing-2"
+      "/destinations/paris-france"
     );
   });
 
-  it("links to /destinations/[slug] instead when the location matches a curated Nat Geo destination", () => {
-    const curatedListing: Listing = {
-      ...listings[0],
-      id: "listing-3",
-      title: "Coal Harbour Waterfront Suite",
-      location: "Vancouver, British Columbia, Canada"
-    };
-    render(<DestinationGallery listings={[curatedListing]} />);
-
-    expect(screen.getByRole("link", { name: /Explore Vancouver/i })).toHaveAttribute(
-      "href",
-      "/destinations/vancouver-canada"
-    );
+  it("shows each destination's location as a label", () => {
+    render(<DestinationGallery />);
+    expect(screen.getByText("France")).toBeInTheDocument();
+    expect(screen.getByText("Peru")).toBeInTheDocument();
   });
 
-  it("shows each listing's location as a label", () => {
-    render(<DestinationGallery listings={listings} />);
-    expect(screen.getByText("Paris, France")).toBeInTheDocument();
-    expect(screen.getByText("Tokyo, Japan")).toBeInTheDocument();
+  it("has previous/next navigation buttons for browsing the full list", () => {
+    render(<DestinationGallery />);
+    expect(screen.getByTestId("gallery-carousel-prev")).toBeInTheDocument();
+    expect(screen.getByTestId("gallery-carousel-next")).toBeInTheDocument();
   });
 
-  it("renders nothing when there are no listings", () => {
-    const { container } = render(<DestinationGallery listings={[]} />);
-    expect(container).toBeEmptyDOMElement();
+  it("has exactly 5 pagination dots for jumping to a section of the list", () => {
+    render(<DestinationGallery />);
+    for (let i = 0; i < 5; i++) {
+      expect(screen.getByTestId(`gallery-dot-${i}`)).toBeInTheDocument();
+    }
+    expect(screen.queryByTestId("gallery-dot-5")).not.toBeInTheDocument();
+  });
+
+  it("marks the first dot active by default", () => {
+    render(<DestinationGallery />);
+    expect(screen.getByTestId("gallery-dot-0")).toHaveAttribute("aria-selected", "true");
   });
 });

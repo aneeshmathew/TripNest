@@ -11,6 +11,7 @@ import ApartmentList from "../../../components/ApartmentList";
 import HotelCard from "../../../components/HotelCard";
 import RestaurantCard from "../../../components/RestaurantCard";
 import ReviewItem from "../../../components/ReviewItem";
+import BackButton from "../../../components/BackButton";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
@@ -130,6 +131,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
 
   return (
     <section className="destination-page">
+      <BackButton />
       <div className="destination-hero-wrap">
         <Image
           src={highlight.imageUrl}

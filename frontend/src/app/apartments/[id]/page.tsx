@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getListing, getListingIds } from "../../../lib/listings";
 import { getReviews } from "../../../lib/reviews";
 import StarRating from "../../../components/StarRating";
 import ReviewsSection from "../../../components/ReviewsSection";
+import BackButton from "../../../components/BackButton";
 
 interface ApartmentPageProps {
   params: Promise<{ id: string }>;
@@ -54,6 +54,7 @@ export default async function ApartmentPage({ params }: ApartmentPageProps) {
 
   return (
     <section className="details">
+      <BackButton />
       <h2>{apartment.title}</h2>
       <div className="details-image-wrap">
         <Image
@@ -74,9 +75,6 @@ export default async function ApartmentPage({ params }: ApartmentPageProps) {
           {apartment.reviewCount === 1 ? "review" : "reviews"}
         </span>
       </p>
-      <Link href="/" className="details-link">
-        Back to home
-      </Link>
 
       <ReviewsSection listingId={apartment.id} reviews={reviews} />
     </section>
