@@ -971,6 +971,7 @@ body {
 }
 
 .activities-carousel {
+  --carousel-visible: 5;
   display: flex;
   gap: 1rem;
   overflow-x: auto;
@@ -985,14 +986,16 @@ body {
   display: none;
 }
 
-/* Fixed tile width (unlike .destination-tile's computed flex-basis) —
-   this strip doesn't need an exact "no partial tile cut off" fit, since
-   it's meant to hint at more content just off-screen. */
+/* flex-basis as a percentage of .activities-carousel's own (already
+   width-constrained, thanks to its overflow-x: auto) box — not a fixed
+   px value — so exactly --carousel-visible tiles fit edge to edge with
+   no partial tile cut off, at whatever width the carousel actually
+   renders at. Same approach as .destination-tile below. */
 .activity-tile {
   border-radius: 10px;
   color: inherit;
   display: block;
-  flex: 0 0 200px;
+  flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
   overflow: hidden;
   position: relative;
   scroll-snap-align: start;
@@ -1247,6 +1250,7 @@ body {
 }
 
 .featured-stays-row {
+  --carousel-visible: 4;
   display: flex;
   gap: 1rem;
   overflow-x: auto;
@@ -1260,9 +1264,32 @@ body {
   display: none;
 }
 
+/* flex-basis computed the same way as .destination-tile/.activity-tile,
+   so exactly --carousel-visible cards fit edge to edge with no partial
+   card cut off. Also gets the same whole-tile hover zoom as those two —
+   applied here on the wrapper (rather than relying on .card's own
+   hover, see the override below) so it matches exactly. */
 .featured-stay-item {
   display: flex;
-  flex: 0 0 260px;
+  flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.featured-stay-item:hover,
+.featured-stay-item:focus-within {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  transform: scale(1.06);
+  z-index: 2;
+}
+
+/* Suppress the base .card hover lift (translateY + soft shadow) inside
+   this carousel specifically, so hovering a featured stay only plays the
+   one zoom animation above rather than that plus a second, different
+   animation on the nested .card. */
+.featured-stay-item .card:hover,
+.featured-stay-item .card:focus-visible {
+  box-shadow: none;
+  transform: none;
 }
 
 /* Equal-height cards regardless of how many lines the title wraps to —
@@ -1659,8 +1686,13 @@ body {
 
 @media (max-width: 1024px) {
   .destinations-carousel,
-  .gallery-carousel {
+  .gallery-carousel,
+  .activities-carousel {
     --carousel-visible: 4;
+  }
+
+  .featured-stays-row {
+    --carousel-visible: 3;
   }
 }
 
@@ -1671,8 +1703,13 @@ body {
   }
 
   .destinations-carousel,
-  .gallery-carousel {
+  .gallery-carousel,
+  .activities-carousel {
     --carousel-visible: 3;
+  }
+
+  .featured-stays-row {
+    --carousel-visible: 2;
   }
 }
 
@@ -1735,8 +1772,13 @@ body {
 
 @media (max-width: 560px) {
   .destinations-carousel,
-  .gallery-carousel {
+  .gallery-carousel,
+  .activities-carousel {
     --carousel-visible: 2;
+  }
+
+  .featured-stays-row {
+    --carousel-visible: 1;
   }
 
   .search-filters input[type="number"] {
@@ -1746,7 +1788,9 @@ body {
 
 @media (max-width: 420px) {
   .destinations-carousel,
-  .gallery-carousel {
+  .gallery-carousel,
+  .activities-carousel,
+  .featured-stays-row {
     --carousel-visible: 1;
   }
 

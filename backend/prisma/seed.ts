@@ -21,6 +21,41 @@ async function main() {
     }
   });
 
+  // Separate from demoUser (the account e2e/docs log in as — see
+  // e2e/auth.spec.ts) so that account isn't the sole author of every
+  // seeded review. Without this, "What our guests are saying" on the
+  // homepage showed the same name ("User 1") under every testimonial,
+  // which reads as fake even though the underlying reviews/ratings are
+  // real database rows, not hardcoded marketing copy. Real, if invented,
+  // guest names instead — assigned round-robin below.
+  const reviewerNames = [
+    "Ava Chen",
+    "Marcus Johnson",
+    "Priya Sharma",
+    "Liam O'Connor",
+    "Sofia Rossi",
+    "Noah Williams",
+    "Yuki Tanaka",
+    "Elena Petrova",
+    "Omar Haddad",
+    "Grace Kim"
+  ];
+
+  const reviewers = [];
+  for (const name of reviewerNames) {
+    const email = `${name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z]+/g, ".")}@mail.com`;
+    const reviewer = await prisma.user.upsert({
+      where: { email },
+      update: {},
+      create: { email, passwordHash, name, role: Role.TRAVELER }
+    });
+    reviewers.push(reviewer);
+  }
+
   const listings = [
     {
       title: "Eiffel View Loft",
@@ -1159,19 +1194,22 @@ async function main() {
     createdListings.push(record);
   }
 
-  // One review per listing from the demo user (the unique [listingId,
-  // userId] constraint allows exactly one), so each listing shows real
-  // aggregated rating data rather than a hardcoded 0.
-  for (const listing of createdListings) {
+  // One review per listing, from a rotating reviewer (not demoUser — see
+  // the reviewers pool above) so each listing shows real aggregated
+  // rating data rather than a hardcoded 0, and testimonials pulled from
+  // these reviews don't all share one author name.
+  for (const [i, listing] of createdListings.entries()) {
     const seedReview = reviewsByListingTitle[listing.title];
     if (!seedReview) continue;
 
+    const reviewer = reviewers[i % reviewers.length];
+
     await prisma.review.upsert({
-      where: { listingId_userId: { listingId: listing.id, userId: demoUser.id } },
+      where: { listingId_userId: { listingId: listing.id, userId: reviewer.id } },
       update: {},
       create: {
         listingId: listing.id,
-        userId: demoUser.id,
+        userId: reviewer.id,
         rating: seedReview.rating,
         title: seedReview.title,
         body: seedReview.body
@@ -1208,7 +1246,7 @@ async function main() {
   }
 
   console.log(
-    `Seed complete: 1 demo user, ${listings.length} listings across 6 continents (includes 25 Nat Geo + 50 world destinations), ${createdListings.length} reviews, ${hotels.length} hotels, ${restaurants.length} restaurants.`
+    `Seed complete: demo login ${demoUser.email}, ${reviewers.length} named reviewer accounts, ${listings.length} listings across 6 continents (includes 25 Nat Geo + 50 world destinations), ${createdListings.length} reviews, ${hotels.length} hotels, ${restaurants.length} restaurants.`
   );
 }
 

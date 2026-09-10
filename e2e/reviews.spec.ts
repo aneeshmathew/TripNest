@@ -17,8 +17,10 @@ test.describe("Reviews", () => {
 
     // There's no signup page in the UI yet (see README — signup exists as
     // a backend endpoint only). Hit the API directly to create a
-    // throwaway user, since the seeded demo user has already reviewed
-    // every seeded listing and can't submit another.
+    // throwaway user — every seeded listing already has a seeded review
+    // (one per listing, from the reviewer pool in prisma/seed.ts), and
+    // the one-review-per-user constraint means only a fresh account can
+    // submit a new one.
     const signupResponse = await page.request.post("http://localhost:5001/api/auth/signup", {
       data: { email, password: "password123", name: "E2E Tester" }
     });
