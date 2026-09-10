@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronDown } from "lucide-react";
-import { natGeoDestinations, type NatGeoDestination } from "../../data/natGeoDestinations";
+import { allDestinations } from "../../data/allDestinations";
+import type { NatGeoDestination } from "../../data/natGeoDestinations";
 import { activityHighlights, type ActivityHighlight } from "../../data/activityHighlights";
 import { destinationActivitySlugs } from "../../data/destinationActivities";
 import { parseTripQuery } from "../../lib/parseTripQuery";
@@ -62,7 +63,7 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
       }
     ];
   } else if (activity) {
-    groups = natGeoDestinations
+    groups = allDestinations
       .filter((d) => (destinationActivitySlugs[d.slug] ?? []).includes(activity.slug))
       .map((d) => ({ destination: d, activities: activitiesFor(d.slug), requestedIncluded: true }));
   }

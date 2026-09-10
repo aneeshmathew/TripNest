@@ -1,15 +1,17 @@
-import { natGeoDestinations, type NatGeoDestination } from "../data/natGeoDestinations";
+import { allDestinations } from "../data/allDestinations";
+import type { NatGeoDestination } from "../data/natGeoDestinations";
 import { activityHighlights, type ActivityHighlight } from "../data/activityHighlights";
 
 // Powers the Hero search ("Start planning") on app/plan. This is plain
-// keyword matching against two small, known vocabularies (25 curated
-// destinations, 14 curated activities) — not real NLP, no external
-// service. That's a deliberate, honest limit: a query mentioning a real
-// place we simply don't have curated (e.g. "Chile") will correctly find
-// no destination match rather than guessing at one. Matching a *wrong*
-// destination (e.g. treating "French Alps" as a match for "The
-// Dolomites", which are Italian, not French) would be worse than an
-// honest miss, so this never fuzzy-matches place names — only exact
+// keyword matching against two small, known vocabularies (75 curated
+// destinations — the 25 Nat Geo picks plus the 50 world destinations in
+// data/worldDestinations.ts — and 14 curated activities) — not real NLP,
+// no external service. That's a deliberate, honest limit: a query
+// mentioning a real place we simply don't have curated (e.g. "Chile")
+// will correctly find no destination match rather than guessing at one.
+// Matching a *wrong* destination (e.g. treating "French Alps" as a match
+// for "The Dolomites", which are Italian, not French) would be worse than
+// an honest miss, so this never fuzzy-matches place names — only exact
 // name/alias substrings.
 interface ActivityKeywords {
   slug: string;
@@ -44,9 +46,7 @@ export interface ParsedTripQuery {
 }
 
 function findDestination(lowerQuery: string): NatGeoDestination | null {
-  return (
-    natGeoDestinations.find((destination) => lowerQuery.includes(destination.name.toLowerCase())) ?? null
-  );
+  return allDestinations.find((destination) => lowerQuery.includes(destination.name.toLowerCase())) ?? null;
 }
 
 function findActivity(lowerQuery: string): ActivityHighlight | null {

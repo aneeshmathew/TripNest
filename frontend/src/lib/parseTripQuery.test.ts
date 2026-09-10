@@ -67,4 +67,12 @@ describe("parseTripQuery", () => {
     const result = parseTripQuery("mountaineering trip");
     expect(result.activity?.slug).toBe("mountaineering");
   });
+
+  it("matches a world destination (not just the 25 curated Nat Geo picks)", () => {
+    // Regression test: Paris lives in data/worldDestinations.ts, not
+    // data/natGeoDestinations.ts, but should still resolve here since the
+    // homepage search promises to cover it.
+    const result = parseTripQuery("Paris");
+    expect(result.destination?.slug).toBe("paris-france");
+  });
 });
