@@ -7,19 +7,6 @@ import BrandMark from "./BrandMark";
 import ThemeIcon from "./ThemeIcon";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-//
-// Logged-in state is a "Hello <name>" dropdown trigger (real data —
-// User.name from the backend, not previously shown anywhere in the
-// navbar) rather than the flat row of links it used to be. Only Settings
-// and Logout are in the menu — both real, working destinations. This
-// was originally asked to also include Account/Chart/Wishlist/Bookings/
-// Saved Plans/Estimates/Favorites, but none of those exist as actual
-// pages or features yet (no booking system, no wishlist, no saved-plans
-// concept anywhere in the app — see README, Feature Gaps). Adding menu
-// entries for them would mean dead links or blank pages, which the rest
-// of this app deliberately avoids (see e.g. the destinations/activities
-// pages' honest-empty-state pattern) — so the dropdown mechanism is built
-// and ready, but only populated with what's real today.
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();

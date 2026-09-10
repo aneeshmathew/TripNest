@@ -73,9 +73,9 @@ function ActivitiesSection() {
 
   return (
     <section className="section activities-section" id="trip-inspiration">
-      <p className="eyebrow">Trip Inspiration</p>
-      <h2 className="section-title">Find the perfect place to go — activities, hotels, and more</h2>
-
+      <h2 className="section-title">Trip Inspiration</h2>
+      <p className="section-subtitle">Find the perfect place to go - activities, hotels, and more</p>
+      <p style={{ margin: '1rem 0' }}></p>
       <div className="activity-filter-pills" role="group" aria-label="Filter activities by category">
         {ACTIVITY_CATEGORY_FILTERS.map((filter) => (
           <button

@@ -1,3 +1,7 @@
+"use client";
+
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ApartmentCard from "./ApartmentCard";
 import type { Listing } from "../types/listing";
 
@@ -5,24 +9,57 @@ interface FeaturedStaysProps {
   listings: Listing[];
 }
 
-// Repurposes the reference design's "trip inspiration" card row to show
-// real, highest-rated listings instead of fabricated activity categories
-// TripNest doesn't have data for.
+const FALLBACK_TILE_STEP_PX = 276; // 260px card + 16px (1rem) gap, if measurement fails
+
 function FeaturedStays({ listings }: FeaturedStaysProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
+
   if (listings.length === 0) {
     return null;
   }
 
+  const getCardStep = () => {
+    const track = trackRef.current;
+    const firstCard = track?.querySelector<HTMLElement>(".featured-stay-item");
+    return firstCard ? firstCard.offsetWidth + 16 : FALLBACK_TILE_STEP_PX;
+  };
+
+  const scrollByOneCard = (direction: 1 | -1) => {
+    trackRef.current?.scrollBy({ left: direction * getCardStep(), behavior: "smooth" });
+  };
+
   return (
-    <section className="section featured-stays" id="featured-stays">
+    <section className="section featured-stays-section" id="featured-stays">
       <h2 className="section-title">Featured stays</h2>
       <p className="section-subtitle">Our highest-rated apartments, picked by real guests</p>
-      <div className="featured-stays-row">
-        {listings.map((listing) => (
-          <div className="featured-stay-item" key={listing.id}>
-            <ApartmentCard apartment={listing} />
-          </div>
-        ))}
+      <div className="featured-stays-carousel-wrap">
+        <button
+          type="button"
+          className="carousel-nav-btn carousel-nav-prev"
+          onClick={() => scrollByOneCard(-1)}
+          aria-label="Previous stay"
+          data-testid="featured-stays-prev"
+        >
+          <ChevronLeft size={20} aria-hidden="true" />
+        </button>
+
+        <div className="featured-stays-row" ref={trackRef}>
+          {listings.map((listing) => (
+            <div className="featured-stay-item" key={listing.id}>
+              <ApartmentCard apartment={listing} />
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className="carousel-nav-btn carousel-nav-next"
+          onClick={() => scrollByOneCard(1)}
+          aria-label="Next stay"
+          data-testid="featured-stays-next"
+        >
+          <ChevronRight size={20} aria-hidden="true" />
+        </button>
       </div>
     </section>
   );

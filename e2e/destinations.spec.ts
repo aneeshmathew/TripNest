@@ -66,12 +66,29 @@ test.describe("Destination detail page tabs", () => {
     await expect(page.getByText(/no apartments match "zzznotarealplacezzzz" yet/i)).toBeVisible();
   });
 
-  test("each non-Reviews tab has its own search box, with no box on Reviews", async ({ page }) => {
+  test("the Activities tab shows curated activities linking to their own activity pages", async ({
+    page
+  }) => {
+    await page.goto("/destinations/dolomites-italy");
+    await page.getByTestId("destination-tab-activities").click();
+
+    await expect(page).toHaveURL(/tab=activities/);
+    const hikingCard = page.getByTestId("destination-activity-hiking");
+    await expect(hikingCard).toBeVisible();
+    await expect(hikingCard).toHaveAttribute("href", "/activities/hiking");
+  });
+
+  test("each non-Reviews, non-Activities tab has its own search box; neither Reviews nor Activities has one", async ({
+    page
+  }) => {
     await page.goto("/destinations/rio-de-janeiro-brazil");
     await expect(page.getByTestId("destination-tab-search-input")).toHaveAttribute(
       "placeholder",
       "Search for Apartments nearby here"
     );
+
+    await page.getByTestId("destination-tab-activities").click();
+    await expect(page.getByTestId("destination-tab-search-form")).toHaveCount(0);
 
     await page.getByTestId("destination-tab-reviews").click();
     await expect(page.getByTestId("destination-tab-search-form")).toHaveCount(0);

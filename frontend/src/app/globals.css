@@ -834,7 +834,7 @@ body {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 0.5rem;
+  padding: 12px 4px 0.5rem;
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
@@ -875,15 +875,17 @@ body {
   display: block;
   flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
   overflow: hidden;
+  position: relative;
   scroll-snap-align: start;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .destination-tile:hover,
 .destination-tile:focus-visible {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  transform: scale(1.06);
+  z-index: 2;
 }
 
 .destination-tile-image-wrap {
@@ -891,17 +893,6 @@ body {
   overflow: hidden;
   position: relative;
   width: 100%;
-}
-
-/* Hover/focus zoom — scales the photo, not the tile itself, so
-   neighboring tiles in the row never shift or overlap. */
-.destination-tile-image-wrap img {
-  transition: transform 0.35s ease;
-}
-
-.destination-tile:hover .destination-tile-image-wrap img,
-.destination-tile:focus-visible .destination-tile-image-wrap img {
-  transform: scale(1.08);
 }
 
 .destination-tile-content {
@@ -919,11 +910,6 @@ body {
   margin: 0;
 }
 
-/* Activities ("Trip Inspiration") browse strip — curated illustrative
-   content, see data/activityHighlights.ts. Deliberately reuses
-   .carousel-nav-btn from the destinations carousel rather than inventing a
-   second nav-button style, for visual consistency between the two
-   carousels on the homepage. */
 .activities-section {
   padding-bottom: 5rem;
   padding-top: 5rem;
@@ -947,7 +933,6 @@ body {
   font-weight: 600;
   letter-spacing: 0.03em;
   padding: 0.5rem 1.1rem;
-  text-transform: uppercase;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -970,7 +955,7 @@ body {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 0.5rem;
+  padding: 12px 4px 0.5rem;
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
@@ -990,15 +975,17 @@ body {
   display: block;
   flex: 0 0 200px;
   overflow: hidden;
+  position: relative;
   scroll-snap-align: start;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .activity-tile:hover,
 .activity-tile:focus-visible {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  transform: scale(1.06);
+  z-index: 2;
 }
 
 .activity-tile-image-wrap {
@@ -1007,16 +994,6 @@ body {
   overflow: hidden;
   position: relative;
   width: 100%;
-}
-
-/* Hover/focus zoom — same pattern as .destination-tile-image-wrap img. */
-.activity-tile-image-wrap img {
-  transition: transform 0.35s ease;
-}
-
-.activity-tile:hover .activity-tile-image-wrap img,
-.activity-tile:focus-visible .activity-tile-image-wrap img {
-  transform: scale(1.08);
 }
 
 .activity-tile-scrim {
@@ -1238,16 +1215,59 @@ body {
   transform: translateY(-50%);
 }
 
+.featured-stays-section {
+  padding-bottom: 5rem;
+  padding-top: 0;
+}
+
 /* Featured stays row */
+.featured-stays-carousel-wrap {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
 .featured-stays-row {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 0.5rem;
+  padding: 4px 4px 0.5rem;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  width: 100%;
+}
+
+.featured-stays-row::-webkit-scrollbar {
+  display: none;
 }
 
 .featured-stay-item {
+  display: flex;
   flex: 0 0 260px;
+}
+
+/* Equal-height cards regardless of how many lines the title wraps to —
+   without this, a longer title (e.g. "Table Mountain View House"
+   wrapping to two lines) pushed that one card's "View details" link
+   down, making it visibly taller than its siblings. Scoped to this
+   carousel specifically rather than changing the shared .card/
+   .card-content rules every other card grid (hotels, restaurants,
+   apartment lists) also uses. */
+.featured-stay-item .card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.featured-stay-item .card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.featured-stay-item .details-link {
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 /* Split sections (easy-to-use, recommendations, plan-with-friends) */

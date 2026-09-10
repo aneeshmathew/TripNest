@@ -33,7 +33,7 @@ const listings: Listing[] = [
 ];
 
 describe("DestinationGallery", () => {
-  it("links each item to its real listing detail page", () => {
+  it("links each item to its real listing detail page when the location isn't a curated destination", () => {
     render(<DestinationGallery listings={listings} />);
 
     expect(screen.getByRole("link", { name: /Eiffel View Loft/i })).toHaveAttribute(
@@ -43,6 +43,21 @@ describe("DestinationGallery", () => {
     expect(screen.getByRole("link", { name: /Shibuya Sky Suite/i })).toHaveAttribute(
       "href",
       "/apartments/listing-2"
+    );
+  });
+
+  it("links to /destinations/[slug] instead when the location matches a curated Nat Geo destination", () => {
+    const curatedListing: Listing = {
+      ...listings[0],
+      id: "listing-3",
+      title: "Coal Harbour Waterfront Suite",
+      location: "Vancouver, British Columbia, Canada"
+    };
+    render(<DestinationGallery listings={[curatedListing]} />);
+
+    expect(screen.getByRole("link", { name: /Explore Vancouver/i })).toHaveAttribute(
+      "href",
+      "/destinations/vancouver-canada"
     );
   });
 

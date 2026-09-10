@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { natGeoDestinations } from "../../../data/natGeoDestinations";
+import { destinationActivitySlugs } from "../../../data/destinationActivities";
+import { activityHighlights } from "../../../data/activityHighlights";
 import { getListings } from "../../../lib/listings";
 import { getHotels } from "../../../lib/hotels";
 import { getRestaurants } from "../../../lib/restaurants";
@@ -12,11 +14,12 @@ import HotelCard from "../../../components/HotelCard";
 import RestaurantCard from "../../../components/RestaurantCard";
 import ReviewItem from "../../../components/ReviewItem";
 
-type TabKey = "apartments" | "hotels" | "restaurants" | "reviews";
+type TabKey = "apartments" | "hotels" | "restaurants" | "activities" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
   { key: "apartments", label: "Apartments" },
   { key: "hotels", label: "Hotels" },
   { key: "restaurants", label: "Restaurants" },
+  { key: "activities", label: "Activities" },
   { key: "reviews", label: "Reviews" }
 ];
 
@@ -97,6 +100,38 @@ export default async function DestinationPage({ params, searchParams }: Destinat
             ))}
           </div>
         );
+    } else if (activeTab === "activities") {
+      const slugs = destinationActivitySlugs[destination.slug] ?? [];
+      const activities = activityHighlights.filter((a) => slugs.includes(a.slug));
+      tabContent =
+        activities.length === 0 ? (
+          <p className="status-text">No curated activities for {destination.name} yet.</p>
+        ) : (
+          <div className="grid">
+            {activities.map((activity) => (
+              <Link
+                key={activity.slug}
+                href={`/activities/${activity.slug}`}
+                className="card"
+                data-testid={`destination-activity-${activity.slug}`}
+              >
+                <div className="card-image-wrap">
+                  <Image
+                    src={activity.imageUrl}
+                    alt={activity.activity}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+                <div className="card-content">
+                  <h3>{activity.activity}</h3>
+                  <p>{activity.title}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        );
     } else {
       // Reviews tab: reviews of OUR apartment listings that match this
       // destination — there's no separate hotel/restaurant review system
@@ -150,9 +185,11 @@ export default async function DestinationPage({ params, searchParams }: Destinat
         ))}
       </nav>
 
-      {/* No search box on Reviews — reviews are looked up by the
-          destination itself, not by free-text keyword. */}
-      {activeTab !== "reviews" && (
+      {/* No search box on Activities or Reviews — Activities is a fixed
+          curated list (see the "activities" branch above), and Reviews
+          is looked up by the destination itself, not by free-text
+          keyword. */}
+      {activeTab !== "reviews" && activeTab !== "activities" && (
         <form
           className="tab-search-form"
           method="GET"
