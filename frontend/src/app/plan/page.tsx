@@ -80,7 +80,7 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
             &quot;{query}&quot; didn&apos;t match a destination or activity we cover yet.
           </p>
           <p className="status-text">
-            Try browsing <Link href="/">destinations</Link> or <Link href="/#trip-inspiration">activities</Link>{" "}
+            Try browsing <Link href="/">destinations</Link> or <Link href="/activities">activities</Link>{" "}
             instead.
           </p>
         </>
