@@ -2,6 +2,7 @@
 // the continent map (frontend/src/components/ContinentMap.tsx) — the
 // original 4 were all France/Europe, which would leave 5 of 6 continents
 // empty and make that feature untestable.
+import "dotenv/config";
 import { Continent, PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 

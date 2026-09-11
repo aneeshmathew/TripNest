@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
+import type { StringValue } from "ms";
 import { env } from "../../config/env.js";
 
 interface TokenUser {
@@ -12,7 +13,7 @@ interface TokenUser {
 // auth.middleware.ts, no DB round trip needed on every request.
 export function signAccessToken(user: TokenUser): string {
   return jwt.sign({ sub: user.id, email: user.email, role: user.role }, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.ACCESS_TOKEN_TTL
+    expiresIn: env.ACCESS_TOKEN_TTL as StringValue
   });
 }
 
