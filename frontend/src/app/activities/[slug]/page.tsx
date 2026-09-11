@@ -48,12 +48,14 @@ export async function generateMetadata({ params }: ActivityPageProps): Promise<M
 // no Attraction/Activity model in the backend yet (see README, Feature Gaps
 // 2.1), so "browsing by activity" here means running our existing keyword
 // search (title/location/description ILIKE) against real listings, hotels,
-// and restaurants — using the activity's name as the default keyword, or
-// whatever the visitor types into a tab's own search box instead. That's
-// an honest approximation, not a real tagged category: most seed data
-// won't mention a given activity by name, so empty tabs are the expected,
-// honest result for most activities today, the same way most destinations
-// show empty tabs until real inventory overlaps with them.
+// and restaurants — using the activity's real-world location
+// (highlight.location, e.g. "Dublin, Ireland" for hiking) as the default
+// keyword, or whatever the visitor types into a tab's own search box
+// instead. Each activity is pinned to a location where we do have real
+// seeded inventory (see data/activityHighlights.ts), so — unlike an
+// earlier version of this page that defaulted to searching for the
+// activity's own name (e.g. "Hiking"), which never matched anything — the
+// tabs show genuine results by default, not an empty state.
 export default async function ActivityPage({ params, searchParams }: ActivityPageProps) {
   const { slug } = await params;
   const { tab: rawTab, q: rawQuery } = await searchParams;
@@ -67,7 +69,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   const trimmedQuery = rawQuery?.trim();
   // Reviews has no search box of its own (see below) — it always follows
   // whatever the Apartments tab's effective keyword is.
-  const effectiveKeyword = trimmedQuery || highlight.activity;
+  const effectiveKeyword = trimmedQuery || highlight.location;
 
   let tabContent;
   try {
@@ -105,11 +107,12 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
         );
     } else {
       // Reviews tab: reviews of OUR apartment listings that match this
-      // activity's default keyword — no search box on this tab (see the
-      // conditional render below), and no separate hotel/restaurant review
-      // system yet (see README.md), same constraints as the destination
-      // page's Reviews tab.
-      const listings = await getListings({ search: highlight.activity });
+      // activity's effective keyword (its real location, or the visitor's
+      // own search from the Apartments tab) — no search box on this tab
+      // (see the conditional render below), and no separate hotel/
+      // restaurant review system yet (see README.md), same constraints as
+      // the destination page's Reviews tab.
+      const listings = await getListings({ search: effectiveKeyword });
       const reviewLists = await Promise.all(listings.map((listing) => getReviews(listing.id)));
       const reviews = reviewLists.flat();
       tabContent =
@@ -144,6 +147,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
       </div>
       <h1>{highlight.activity} trips</h1>
       <p className="destination-location">{highlight.title}</p>
+      <p className="activity-highlight-location">Featured location: {highlight.location}</p>
 
       <nav className="destination-tabs">
         {TABS.map((t) => (

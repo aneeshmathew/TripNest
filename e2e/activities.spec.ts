@@ -43,11 +43,16 @@ test.describe("Activity detail page tabs", () => {
     await expect(page.getByTestId("activity-tab-apartments")).toHaveClass(/active/);
   });
 
-  test("an activity with no keyword overlap in seed data shows an honest empty state", async ({
+  test("defaults to showing real results for the activity's real-world location", async ({
     page
   }) => {
+    // Surfing is pinned to Coastal Oaxaca, Mexico (see
+    // data/activityHighlights.ts), which has a real seeded listing —
+    // "Puerto Escondido Beach Bungalow" (backend/prisma/seed.ts) — so
+    // landing here with no search of your own should already show it,
+    // not an empty state from searching for the word "Surfing" itself.
     await page.goto("/activities/surfing");
-    await expect(page.getByText(/no apartments match "surfing" yet/i)).toBeVisible();
+    await expect(page.getByText("Puerto Escondido Beach Bungalow")).toBeVisible();
   });
 
   test("searching a tab for a real seeded term surfaces real results", async ({ page }) => {
