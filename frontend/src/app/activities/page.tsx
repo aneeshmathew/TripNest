@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { activityHighlights } from "../../data/activityHighlights";
+import BackButton from "../../components/BackButton";
 
 export const metadata: Metadata = {
   title: "Activities",
@@ -33,6 +34,7 @@ export default async function ActivitiesPage({ searchParams }: ActivitiesPagePro
 
   return (
     <section>
+      <BackButton />
       <h1 className="page-title">Activities</h1>
       <p className="subtitle">Browse every curated activity on TripNest.</p>
 

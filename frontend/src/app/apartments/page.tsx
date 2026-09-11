@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getListings } from "../../lib/listings";
 import ApartmentCard from "../../components/ApartmentCard";
+import BackButton from "../../components/BackButton";
 
 export const metadata: Metadata = {
   title: "Apartments",
@@ -31,6 +32,7 @@ export default async function ApartmentsPage({ searchParams }: ApartmentsPagePro
 
   return (
     <section>
+      <BackButton />
       <h1 className="page-title">Apartments</h1>
       <p className="subtitle">Browse every apartment on TripNest.</p>
 

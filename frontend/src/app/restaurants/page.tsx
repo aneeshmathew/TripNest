@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getRestaurants } from "../../lib/restaurants";
 import RestaurantCard from "../../components/RestaurantCard";
+import BackButton from "../../components/BackButton";
 
 export const metadata: Metadata = {
   title: "Restaurants",
@@ -28,6 +29,7 @@ export default async function RestaurantsPage({ searchParams }: RestaurantsPageP
 
   return (
     <section>
+      <BackButton />
       <h1 className="page-title">Restaurants</h1>
       <p className="subtitle">Browse every restaurant on TripNest.</p>
 

@@ -226,22 +226,33 @@ body {
 
 .primary-btn,
 .secondary-btn {
-  border: 0;
+  background: transparent;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   padding: 0.6rem 1rem;
   text-decoration: none;
+  transition: background 0.15s ease;
 }
 
 .primary-btn {
-  background: var(--color-primary);
-  color: var(--color-primary-text);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.primary-btn:hover,
+.primary-btn:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
 .secondary-btn {
-  background: var(--color-secondary-bg);
-  color: var(--color-secondary-text);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.secondary-btn:hover,
+.secondary-btn:focus-visible {
+  background: color-mix(in srgb, var(--color-border) 20%, transparent);
 }
 
 .container {
@@ -1260,7 +1271,14 @@ body {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding: 4px 4px 0.5rem;
+  /* Needs noticeably more top/bottom room than the 12px/8px used by the
+     other carousels above: featured-stay cards are taller (image +
+     title/price/rating text) than a plain destination/activity tile, so
+     the same scale(1.06) hover grows them by more pixels — with only
+     4px of top padding, the top of the card was getting clipped by this
+     container's own overflow-x: auto (which implicitly clips overflow-y
+     too, per the CSS spec, rather than leaving it visible). */
+  padding: 20px 4px 24px;
   scroll-behavior: smooth;
   scrollbar-width: none;
   width: 100%;
