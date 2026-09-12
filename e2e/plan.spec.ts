@@ -23,7 +23,7 @@ test.describe("/plan — natural language trip search", () => {
     await page.goto("/plan?q=kayaking near Vancouver");
 
     await expect(page.getByText(/unavailable|not available/i)).toHaveCount(0);
-    await expect(page.getByText("Kayaking")).toBeVisible();
+    await expect(page.getByText("Kayaking", { exact: true })).toBeVisible();
   });
 
   test("destination + an activity it does NOT offer shows the honest fallback message", async ({

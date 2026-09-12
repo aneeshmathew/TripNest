@@ -21,7 +21,7 @@ test.describe("Activities carousel", () => {
   }) => {
     await page.goto("/");
     const tile = page.getByTestId("activity-kayaking");
-    await expect(tile.getByText("Kayaking")).toBeVisible();
+    await expect(tile.getByText("Kayaking", { exact: true })).toBeVisible();
     await expect(tile.locator("img")).toBeVisible();
     await expect(
       tile.getByText(/New Zealand Kayaking Spots Ranging From Calm Coastal Marine Reserves/i)

@@ -12,7 +12,13 @@ test.describe("Home page", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Find the perfect place to stay" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Frequently asked questions" })).toBeVisible();
-    await expect(page.getByText("Eiffel View Loft")).not.toBeVisible();
+    // Not "no listing text visible anywhere" — Featured Stays legitimately
+    // shows real, top-rated listings on the marketing front door by
+    // design (see FeaturedStays.tsx), and which listings rank into it
+    // shifts as seed data/ratings change. What "not a listing dump"
+    // actually means here is: the full search-results view (its own
+    // intro heading + filters form) isn't what's showing.
+    await expect(page.getByTestId("search-filters-form")).not.toBeVisible();
   });
 
   test("a hero search now goes to /plan, not the plain listings search", async ({ page }) => {
@@ -32,7 +38,13 @@ test.describe("Home page", () => {
     // via a direct URL instead, since it's still real, working code.
     await page.goto("/?search=Eiffel");
 
-    await expect(page.getByRole("heading", { name: "The Value For Experience" })).toBeVisible();
+    // level: 1 disambiguates from TripIllustrationBanner's <h2> further
+    // down the page, which reuses this same "Value For Experience"
+    // wording on every page by design (see that component's own
+    // comment) — this h1 is the search-results-specific one.
+    await expect(
+      page.getByRole("heading", { name: "The Value For Experience", level: 1 })
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Featured Apartments" })).toBeVisible();
     await expect(page.getByText("Eiffel View Loft")).toBeVisible();
     await expect(page.getByText("Beachside Villa")).not.toBeVisible();

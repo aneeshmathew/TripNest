@@ -764,6 +764,19 @@ body {
   top: 33%;
   transform: translate(-50%, -50%);
   width: 100%;
+  /* Must beat .destinations-section's z-index: 1 — that section
+     deliberately overlaps -420px up into the tail of this hero (see its
+     own comment), and without an explicit z-index here .hero-content
+     had no stacking context of its own, so the later, explicitly-
+     elevated .destinations-section painted (and hit-tested) on top of
+     it wherever they overlapped — silently swallowing every click on
+     .hero-search whenever that overlap zone reached down to it (a short
+     viewport, or .hero-content sitting lower than ~top: 33% is common
+     enough to hit consistently, not just an edge case). Only this text
+     block needs to win, not the whole .hero — the photo itself should
+     stay visually behind .destinations-section's transparent overlap
+     zone, which is the whole point of that overlap. */
+  z-index: 2;
 }
 
 .hero-title {

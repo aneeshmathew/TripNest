@@ -1,6 +1,5 @@
 # TripNest — Product & Engineering Plan
 
----
 
 ## Table of Contents
 0. [Status Snapshot](#0-status-snapshot)
