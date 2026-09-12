@@ -9,7 +9,21 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
-  retries: 1,
+  // Capped rather than left at Playwright's CPU-count default (8 on a
+  // typical dev machine): `webServer` below runs `npm run dev`, which
+  // compiles each route on first visit — 8 workers all hitting
+  // never-before-compiled routes on that one shared dev server at once
+  // can genuinely exceed even a 30s test timeout, not just look "slow".
+  // Fewer concurrent workers means less compilation queued up at once.
+  workers: 4,
+  // Not retries: a retry re-runs the whole test, and tests that mutate
+  // real, persistent DB state (e.g. reviews.spec.ts creating a real user
+  // + review) can leave that data behind if the first attempt got far
+  // enough before failing for an unrelated reason — the retry then
+  // collides with its own leftover data instead of getting a clean
+  // slate. Fixing the actual slowness (workers, above) is the real fix;
+  // retrying just papers over it and risks compounding stateful tests.
+  retries: 0,
   reporter: "list",
   expect: {
     timeout: 10_000

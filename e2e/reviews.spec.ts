@@ -13,7 +13,14 @@ test.describe("Reviews", () => {
   });
 
   test("a newly registered user can write a review", async ({ page }) => {
-    const email = `e2e-${Date.now()}@example.com`;
+    const unique = Date.now();
+    const email = `e2e-${unique}@example.com`;
+    // Unique per run, not just "Wonderful stay" — this test mutates a
+    // real, persistent DB (creates a real user + review), so a generic
+    // title would collide with a leftover review from any prior run that
+    // got this far before failing/being retried for an unrelated reason,
+    // making this exact assertion ambiguous ("resolved to 2 elements").
+    const reviewTitle = `Wonderful stay ${unique}`;
 
     // There's no signup page in the UI yet (see README — signup exists as
     // a backend endpoint only). Hit the API directly to create a
@@ -34,10 +41,10 @@ test.describe("Reviews", () => {
 
     await page.goto("/?search=Eiffel");
     await page.getByTestId(/^apartment-card-/).first().click();
-    await page.getByTestId("review-title-input").fill("Wonderful stay");
+    await page.getByTestId("review-title-input").fill(reviewTitle);
     await page.getByTestId("review-body-input").fill("Everything was perfect, would recommend.");
     await page.getByTestId("submit-review-btn").click();
 
-    await expect(page.getByText("Wonderful stay")).toBeVisible();
+    await expect(page.getByText(reviewTitle)).toBeVisible();
   });
 });

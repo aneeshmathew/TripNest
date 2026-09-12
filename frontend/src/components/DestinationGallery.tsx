@@ -55,7 +55,7 @@ function DestinationGallery() {
   const getTileStep = () => {
     const track = trackRef.current;
     const firstTile = track?.querySelector<HTMLElement>(".destination-tile");
-    return firstTile ? firstTile.offsetWidth + 16 : FALLBACK_TILE_STEP_PX;
+    return firstTile?.offsetWidth ? firstTile.offsetWidth + 16 : FALLBACK_TILE_STEP_PX;
   };
 
   const scrollByOneTile = (direction: 1 | -1) => {

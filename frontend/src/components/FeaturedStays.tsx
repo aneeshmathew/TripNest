@@ -21,7 +21,7 @@ function FeaturedStays({ listings }: FeaturedStaysProps) {
   const getCardStep = () => {
     const track = trackRef.current;
     const firstCard = track?.querySelector<HTMLElement>(".featured-stay-item");
-    return firstCard ? firstCard.offsetWidth + 16 : FALLBACK_TILE_STEP_PX;
+    return firstCard?.offsetWidth ? firstCard.offsetWidth + 16 : FALLBACK_TILE_STEP_PX;
   };
 
   const scrollByOneCard = (direction: 1 | -1) => {

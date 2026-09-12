@@ -19,6 +19,15 @@ const REVALIDATE_SECONDS = 60;
 // Values as they arrive from Next's `searchParams` (always strings, or
 // undefined/empty when a form field was left blank) — the backend's zod
 // schema (listings.schemas.ts) handles coercion and treats "" as unset.
+// Bounds how long a single request can hang — without this, a slow or
+// stuck backend/DB connection stalls fetch() indefinitely, which in turn
+// stalls the whole page navigation (Next won't commit a client-side nav
+// until the new route's data resolves, so the URL just never changes).
+// Bounding it converts "hangs forever" into "shows a real error state
+// within a few seconds" (see the try/catch around getListings() in
+// callers like app/apartments/page.tsx).
+const FETCH_TIMEOUT_MS = 8_000;
+
 export interface ListingFilters {
   search?: string;
   minPrice?: string;
@@ -40,7 +49,8 @@ function buildQueryString(filters: ListingFilters): string {
 
 export async function getListings(filters: ListingFilters = {}): Promise<Listing[]> {
   const response = await fetch(`${API_BASE_URL}/api/listings${buildQueryString(filters)}`, {
-    next: { revalidate: REVALIDATE_SECONDS }
+    next: { revalidate: REVALIDATE_SECONDS },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
   });
 
   if (!response.ok) {
@@ -52,7 +62,8 @@ export async function getListings(filters: ListingFilters = {}): Promise<Listing
 
 export async function getListing(id: string): Promise<Listing | null> {
   const response = await fetch(`${API_BASE_URL}/api/listings/${id}`, {
-    next: { revalidate: REVALIDATE_SECONDS }
+    next: { revalidate: REVALIDATE_SECONDS },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
   });
 
   if (response.status === 404) {
