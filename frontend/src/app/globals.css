@@ -26,19 +26,6 @@
   --color-input-border: #c9c1b1;
   --color-star-empty: #ddd6c8;
   --color-star-filled: #ffb162;
-  /* Previously fully transparent (alpha 0) with legibility meant to come
-     entirely from the backdrop-blur — that failed in practice: the navbar
-     is fixed over the Hero photo (dark) at the top of every page, and in
-     light theme --color-text is near-black, so nav links were barely
-     readable against the blurred photo (blur softens the image, it
-     doesn't lighten it). Switched to a real, theme-independent dark tint:
-     the navbar now looks the same in both themes and reads reliably
-     whether it's over the hero photo, a light page, or a dark one — see
-     --color-navbar-text below, used instead of --color-text for
-     everything inside .navbar. Not redefined under [data-theme="dark"]
-     (deliberately theme-independent). */
-  --color-navbar-bg: rgba(27, 38, 50, 0.6);
-  --color-navbar-text: #f5f2ec;
 }
 
 :root {
@@ -127,16 +114,15 @@ body {
    the true top of the viewport. */
 .navbar {
   align-items: center;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background: var(--color-navbar-bg);
-  /* A translucent white hairline reads as a deliberate glass edge against
-     the now-consistent dark navbar background. The previous
-     `var(--color-border)` (a solid tan in light theme) looked like a
-     rendering bug rather than a design choice — it was a light,
-     theme-colored line sitting on top of an otherwise-transparent bar
-     over a photo, effectively an unexplained seam. */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  /* Deliberately transparent — no background/blur/border, so the bar
+     itself is invisible; only its contents (logo, buttons) show. This
+     previously had a translucent dark tint + always-light text
+     specifically because plain theme text was unreadable over the hero
+     photo in light theme (near-black text on a dark photo). The
+     text-shadow below is this pass's mitigation for the same problem —
+     it should keep light-theme text legible over the photo, but if it
+     isn't enough in practice, that's the tradeoff to revisit. */
+  background: transparent;
   box-sizing: border-box;
   display: flex;
   height: var(--navbar-height);
@@ -149,6 +135,17 @@ body {
   z-index: 50;
 }
 
+.brand,
+.nav-link,
+.account-menu-trigger,
+.theme-toggle-icon-btn {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.navbar svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
 .brand {
   font-size: 1.85rem;
   font-weight: 800;
@@ -156,19 +153,19 @@ body {
   text-decoration: none;
 }
 
-/* Overrides the general .brand-word-secondary rule (var(--color-text))
-   specifically inside the navbar, where BrandMark sits on the same
-   always-dark navbar background as everything else here — elsewhere
-   (e.g. the footer) BrandMark keeps using --color-text, since it's on a
-   normal, theme-following surface there. */
-.navbar .brand-word-secondary {
-  color: var(--color-navbar-text);
+.nav-link {
+  border: 1.5px solid var(--color-primary);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  text-decoration: none;
+  transition: background 0.15s ease;
 }
 
-.nav-link {
-  color: var(--color-navbar-text);
-  font-weight: 600;
-  text-decoration: none;
+.nav-link:hover,
+.nav-link:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
 .nav-actions {
@@ -184,13 +181,15 @@ body {
 .account-menu-trigger {
   align-items: center;
   background: none;
-  border: 0;
-  color: var(--color-navbar-text);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 8px;
+  color: var(--color-text);
   cursor: pointer;
   display: flex;
   font-size: 0.95rem;
   font-weight: 600;
   gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
 }
 
 .account-menu-dropdown {
@@ -742,11 +741,20 @@ body {
   padding: 0.5rem 1.1rem;
 }
 
+/* Nav buttons keep the site-wide outline shape (border colored, background
+   transparent) but use plain theme text rather than .primary-btn's brand-
+   colored text elsewhere on the site — scoped to .navbar so the rest of
+   the app's primary buttons (hero search, forms, etc.) are unaffected. */
+.navbar .primary-btn {
+  color: var(--color-text);
+}
+
 .theme-toggle-icon-btn {
   align-items: center;
   background: none;
-  border: 0;
-  color: var(--color-navbar-text);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 50%;
+  color: var(--color-text);
   cursor: pointer;
   display: flex;
   height: 36px;

@@ -1,12 +1,10 @@
 // "Trip" and "Nest" are deliberately two different colors — a simple
 // two-tone wordmark treatment. The second word uses var(--color-text)
 // rather than a second hardcoded brand color, so it stays legible against
-// var(--color-primary) automatically in both light and dark theme.
-// Exception: inside the navbar, globals.css scopes a
-// `.navbar .brand-word-secondary` override to var(--color-navbar-text)
-// instead — the navbar always sits on the same dark, theme-independent
-// background (see .navbar), not the normal page surface this default is
-// tuned for.
+// var(--color-primary) automatically in both light and dark theme. The
+// navbar is transparent and theme-following too now, so no override is
+// needed there anymore (it previously pointed at a navbar-specific,
+// theme-independent color — see globals.css's .navbar comment).
 function BrandMark() {
   return (
     <>
