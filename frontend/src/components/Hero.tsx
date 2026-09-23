@@ -16,9 +16,9 @@ function Hero() {
         <div className="hero-overlay" />
       </div>
       <div className="hero-content">
-        <h1 className="hero-title">Find the perfect place to stay</h1>
+        <h1 className="hero-title">Find the perfect place to relax and explore.</h1>
         <p className="hero-subtitle">
-          Browse real, reviewed apartments and vacation rentals around the world.
+          Experience top attractions and adventures, and browse trusted, well reviewed apartments and vacation stays worldwide.
         </p>
         <form className="hero-search" method="GET" action="/plan" data-testid="hero-search-form">
           <LocationAutosuggest

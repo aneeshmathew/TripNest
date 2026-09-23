@@ -10,7 +10,7 @@ test.describe("Home page", () => {
     page
   }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Find the perfect place to stay" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Find a comfortable place to relax and experience the best attractions and adventures." })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Frequently asked questions" })).toBeVisible();
     // Not "no listing text visible anywhere" — Featured Stays legitimately
     // shows real, top-rated listings on the marketing front door by

@@ -158,7 +158,7 @@ function LocationAutosuggest({
       {open && suggestions.length > 0 && (
         <ul className="location-autosuggest-list" role="listbox" data-testid={`${testIdPrefix}-list`}>
           {suggestions.map((suggestion, index) => (
-            <li key={suggestion.placeId ?? `${suggestion.formatted}-${index}`}>
+            <li key={`${suggestion.placeId ?? suggestion.formatted}-${index}`}>
               <button
                 type="button"
                 role="option"

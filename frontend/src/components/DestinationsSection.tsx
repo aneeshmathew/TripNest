@@ -3,8 +3,7 @@ import DestinationsCarousel from "./DestinationsCarousel";
 function DestinationsSection() {
   return (
     <section className="section destinations-section">
-      <h2 className="section-title">Find your next stay, anywhere in the world</h2>
-      <p className="section-subtitle">Click a location to browse your destinations.</p>
+      <p className="section-subtitle">Check out the top destinations of the year and choose your next getaway.</p>
       <DestinationsCarousel />
     </section>
   );
