@@ -305,6 +305,76 @@ body {
   width: 110px;
 }
 
+/* LocationAutosuggest — wraps a single text input (the visible field of
+   whichever form it's dropped into: .hero-search, .search-filters, or
+   .tab-search-form all size it via flex, same as the plain <input> it
+   replaced) plus an absolutely-positioned suggestions dropdown. */
+.location-autosuggest {
+  flex: 1 1 220px;
+  position: relative;
+}
+
+.hero-search .location-autosuggest {
+  flex: 1;
+}
+
+.location-autosuggest input {
+  width: 100%;
+}
+
+.location-autosuggest-list {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  left: 0;
+  list-style: none;
+  margin: 0.35rem 0 0;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 0.35rem;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+}
+
+.location-autosuggest-option {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.9rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  width: 100%;
+}
+
+.location-autosuggest-option svg {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+.location-autosuggest-option:hover,
+.location-autosuggest-option.is-active {
+  background: var(--color-secondary-bg);
+}
+
+/* Attractions tab (live Geoapify Places data) — reuses .card/.grid, just
+   without the image slot .card-image-wrap normally provides. */
+.attraction-address {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: 0.85rem;
+  gap: 0.35rem;
+  margin: 0.3rem 0 0;
+}
+
 .clear-filters-link {
   color: var(--color-text);
   display: inline-block;

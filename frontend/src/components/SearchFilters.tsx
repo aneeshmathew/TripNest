@@ -1,4 +1,5 @@
 import type { ListingFilters } from "../lib/listings";
+import LocationAutosuggest from "./LocationAutosuggest";
 
 interface SearchFiltersProps {
   defaultValues: ListingFilters;
@@ -29,13 +30,12 @@ function SearchFilters({ defaultValues }: SearchFiltersProps) {
       {defaultValues.continent && (
         <input type="hidden" name="continent" value={defaultValues.continent} />
       )}
-      <input
-        type="text"
+      <LocationAutosuggest
         name="search"
-        placeholder="Search by title or location"
         defaultValue={defaultValues.search ?? ""}
+        placeholder="Search by title or location"
         aria-label="Search listings"
-        data-testid="search-input"
+        testIdPrefix="search"
       />
       <input
         type="number"

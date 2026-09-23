@@ -32,6 +32,9 @@
 - All buttons (`.primary-btn`/`.secondary-btn`) are flat/outlined — border + transparent background, no solid fill; subtle background tint on hover only
 - Navbar account dropdown (Settings/Logout only), `/settings` page
 - Test scaffolding with real examples per layer (Vitest unit — backend, Vitest+RTL component — frontend, Playwright e2e) — pattern established, **not comprehensive coverage**
+- Destination/attraction autosuggest (Geoapify Autocomplete, proxied through `app/api/autosuggest` so the API key stays server-side) on the Hero search, homepage `SearchFilters`, and the destination/activity tab search boxes
+- Live "Attractions" tab on `/destinations/[slug]` and `/activities/[slug]` (Geoapify Places, via `app/api/attractions` / `lib/geoapify.ts`) — third-party data, not the internal `Attraction` model described below, which is still not started
+- Destination/activity hero photos and `/plan` group photos now try Unsplash's Search Photos API first (`lib/unsplash.ts`), falling back to the existing curated/placeholder `imageUrl` only when Unsplash has no match or isn't configured
 
 ### 🟡 Partially done / honest approximations
 - "Activities" are a keyword-search approximation against existing Listings/Hotels/Restaurants — no real `Attraction`/`Activity` model or tagging yet
@@ -40,6 +43,7 @@
 - `continent` filter exists and works but has no UI entry point (the old `ContinentMap` was removed)
 - Automated tests exist but nothing enforces them — no CI gate blocks a merge on failing tests yet
 - The 50 world destinations' images are seeded `picsum.photos` placeholders (stable per slug), not hand-picked real photography — real per-destination photos would need sourcing, same caveat as the rest of the app's hotlinked images
+- The homepage carousel/gallery/activity strips (`DestinationsCarousel`, `DestinationGallery`, `ActivitiesSection`) still render the static curated/placeholder images directly — Unsplash is only wired into the detail-page heroes and `/plan` so far (client components rendering 30-50 tiles each would need a data-fetching refactor plus care around Unsplash's rate limit to do live per-tile)
 
 ### ⛔ Not started
 - Real geo data (`lat`/`lng`), map view, "near me" / radius search
@@ -53,7 +57,6 @@
 - Redis caching layer, background jobs (BullMQ)
 - Observability (Sentry, structured logging, metrics/dashboards)
 - SEO extras: sitemap, schema.org structured data, canonical URLs (basic metadata only today)
-- Destination/search autocomplete against the live catalog
 - Personalized recommendations (homepage section is illustrative marketing copy only, no engine behind it)
 - Accessibility (a11y) audit and internationalization (i18n)
 - OAuth/social login, email verification, password reset
@@ -156,14 +159,14 @@ Demo login: `user1@mail.com` / `user123`.
 Grouped by what differentiates a TripAdvisor-class product from what exists today. See [Status Snapshot](#0-status-snapshot) for the flat checklist — this groups the same gaps by area.
 
 ### Core content model
-- No real `Attraction`/`Activity` type (keyword-search approximation instead)
+- No real `Attraction`/`Activity` type (keyword-search approximation instead); the live "Attractions" tab added on destination/activity pages is third-party Geoapify data, not a model in our own database
 - No owner-submission workflow for any listing type (all curated/seeded)
 - Reviews: no photo upload, helpful votes, owner responses, moderation/flagging
 - Ranking is a plain average, no recency/quality/popularity weighting
 
 ### Discovery
 - No faceted search, geo search ("near me"/radius), or real map
-- No destination/search autocomplete against the live catalog
+- ~~No destination/search autocomplete against the live catalog~~ — done via Geoapify (search boxes only; the results themselves still come from our own keyword search, not Geoapify)
 - No personalized recommendations engine
 - No sitemap/structured data/canonical URLs beyond basic metadata
 

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import LocationAutosuggest from "./LocationAutosuggest";
 
 function Hero() {
   return (
@@ -20,12 +21,12 @@ function Hero() {
           Browse real, reviewed apartments and vacation rentals around the world.
         </p>
         <form className="hero-search" method="GET" action="/plan" data-testid="hero-search-form">
-          <input
-            type="text"
+          <LocationAutosuggest
             name="q"
             placeholder="Start with a destination or activity"
             aria-label="Describe the trip you want"
-            data-testid="hero-search-input"
+            testIdPrefix="hero-search"
+            coordFieldNames={{ lat: "lat", lon: "lon" }}
           />
           <button type="submit" className="primary-btn" data-testid="hero-search-btn">
             Start planning

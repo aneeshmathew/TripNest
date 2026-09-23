@@ -7,6 +7,7 @@ import type { NatGeoDestination } from "../../data/natGeoDestinations";
 import { activityHighlights, type ActivityHighlight } from "../../data/activityHighlights";
 import { destinationActivitySlugs } from "../../data/destinationActivities";
 import { parseTripQuery } from "../../lib/parseTripQuery";
+import { getDestinationPhotoUrl } from "../../lib/unsplash";
 
 export const metadata: Metadata = {
   title: "Plan your trip",
@@ -104,7 +105,7 @@ export default async function PlanPage({ searchParams }: PlanPageProps) {
   );
 }
 
-function PlanGroupCard({
+async function PlanGroupCard({
   group,
   requestedActivity
 }: {
@@ -112,11 +113,15 @@ function PlanGroupCard({
   requestedActivity: ActivityHighlight | null;
 }) {
   const { destination, activities, requestedIncluded } = group;
+  const photoUrl = await getDestinationPhotoUrl(
+    `${destination.name} ${destination.location}`,
+    destination.imageUrl
+  );
 
   return (
     <article className="plan-group">
       <div className="plan-group-photo-wrap">
-        <Image src={destination.imageUrl} alt={destination.name} fill sizes="120px" style={{ objectFit: "cover" }} />
+        <Image src={photoUrl} alt={destination.name} fill sizes="120px" style={{ objectFit: "cover" }} />
       </div>
       <div className="plan-group-body">
         <h2 className="plan-group-title">{destination.name}</h2>

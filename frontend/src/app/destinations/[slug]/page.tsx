@@ -14,13 +14,18 @@ import HotelCard from "../../../components/HotelCard";
 import RestaurantCard from "../../../components/RestaurantCard";
 import ReviewItem from "../../../components/ReviewItem";
 import BackButton from "../../../components/BackButton";
+import LocationAutosuggest from "../../../components/LocationAutosuggest";
+import AttractionsGrid from "../../../components/AttractionsGrid";
+import { getAttractionsNear } from "../../../lib/geoapify";
+import { getDestinationPhotoUrl } from "../../../lib/unsplash";
 
-type TabKey = "apartments" | "hotels" | "restaurants" | "activities" | "reviews";
+type TabKey = "apartments" | "hotels" | "restaurants" | "activities" | "attractions" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
   { key: "apartments", label: "Apartments" },
   { key: "hotels", label: "Hotels" },
   { key: "restaurants", label: "Restaurants" },
   { key: "activities", label: "Activities" },
+  { key: "attractions", label: "Attractions" },
   { key: "reviews", label: "Reviews" }
 ];
 
@@ -55,6 +60,11 @@ export default async function DestinationPage({ params, searchParams }: Destinat
   if (!destination) {
     notFound();
   }
+
+  const heroImageUrl = await getDestinationPhotoUrl(
+    `${destination.name} ${destination.location}`,
+    destination.imageUrl
+  );
 
   const activeTab: TabKey = TABS.some((t) => t.key === rawTab) ? (rawTab as TabKey) : "apartments";
   const trimmedQuery = rawQuery?.trim();
@@ -133,6 +143,13 @@ export default async function DestinationPage({ params, searchParams }: Destinat
             ))}
           </div>
         );
+    } else if (activeTab === "attractions") {
+      // Live third-party data (Geoapify Places), distinct from the
+      // "activities" tab above, which is TripNest's own curated content.
+      // Geocodes the destination's name/location on the fly since curated
+      // destinations don't have stored coordinates yet.
+      const attractions = await getAttractionsNear(`${destination.name}, ${destination.location}`);
+      tabContent = <AttractionsGrid attractions={attractions} placeName={destination.name} />;
     } else {
       // Reviews tab: reviews of OUR apartment listings that match this
       // destination — there's no separate hotel/restaurant review system
@@ -162,7 +179,7 @@ export default async function DestinationPage({ params, searchParams }: Destinat
       <BackButton />
       <div className="destination-hero-wrap">
         <Image
-          src={destination.imageUrl}
+          src={heroImageUrl}
           alt={destination.name}
           fill
           sizes="(max-width: 768px) 100vw, 1080px"
@@ -187,11 +204,12 @@ export default async function DestinationPage({ params, searchParams }: Destinat
         ))}
       </nav>
 
-      {/* No search box on Activities or Reviews — Activities is a fixed
-          curated list (see the "activities" branch above), and Reviews
-          is looked up by the destination itself, not by free-text
-          keyword. */}
-      {activeTab !== "reviews" && activeTab !== "activities" && (
+      {/* No search box on Activities, Attractions, or Reviews — Activities
+          is a fixed curated list (see the "activities" branch above),
+          Attractions is live data already scoped to this destination, and
+          Reviews is looked up by the destination itself, not by
+          free-text keyword. */}
+      {activeTab !== "reviews" && activeTab !== "activities" && activeTab !== "attractions" && (
         <form
           className="tab-search-form"
           method="GET"
@@ -199,13 +217,12 @@ export default async function DestinationPage({ params, searchParams }: Destinat
           data-testid="destination-tab-search-form"
         >
           <input type="hidden" name="tab" value={activeTab} />
-          <input
-            type="text"
+          <LocationAutosuggest
             name="q"
-            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label.toLowerCase()} nearby`}
             defaultValue={trimmedQuery ?? ""}
+            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label.toLowerCase()} nearby`}
             aria-label={`Search ${activeTab}`}
-            data-testid="destination-tab-search-input"
+            testIdPrefix="destination-tab-search"
           />
           <button type="submit" className="primary-btn" data-testid="destination-tab-search-btn">
             Search

@@ -12,12 +12,17 @@ import HotelCard from "../../../components/HotelCard";
 import RestaurantCard from "../../../components/RestaurantCard";
 import ReviewItem from "../../../components/ReviewItem";
 import BackButton from "../../../components/BackButton";
+import LocationAutosuggest from "../../../components/LocationAutosuggest";
+import AttractionsGrid from "../../../components/AttractionsGrid";
+import { getAttractionsNear } from "../../../lib/geoapify";
+import { getDestinationPhotoUrl } from "../../../lib/unsplash";
 
-type TabKey = "apartments" | "hotels" | "restaurants" | "reviews";
+type TabKey = "apartments" | "hotels" | "restaurants" | "attractions" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
   { key: "apartments", label: "Apartments" },
   { key: "hotels", label: "Hotels" },
   { key: "restaurants", label: "Restaurants" },
+  { key: "attractions", label: "Attractions" },
   { key: "reviews", label: "Reviews" }
 ];
 
@@ -71,6 +76,11 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   // whatever the Apartments tab's effective keyword is.
   const effectiveKeyword = trimmedQuery || highlight.location;
 
+  const heroImageUrl = await getDestinationPhotoUrl(
+    `${highlight.activity} ${highlight.location}`,
+    highlight.imageUrl
+  );
+
   let tabContent;
   try {
     if (activeTab === "apartments") {
@@ -105,6 +115,12 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
             ))}
           </div>
         );
+    } else if (activeTab === "attractions") {
+      // Live third-party data (Geoapify Places), keyed off the activity's
+      // pinned real-world location — same pattern as the destination
+      // page's Attractions tab.
+      const attractions = await getAttractionsNear(effectiveKeyword);
+      tabContent = <AttractionsGrid attractions={attractions} placeName={effectiveKeyword} />;
     } else {
       // Reviews tab: reviews of OUR apartment listings that match this
       // activity's effective keyword (its real location, or the visitor's
@@ -137,7 +153,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
       <BackButton />
       <div className="destination-hero-wrap">
         <Image
-          src={highlight.imageUrl}
+          src={heroImageUrl}
           alt={highlight.activity}
           fill
           sizes="(max-width: 768px) 100vw, 1080px"
@@ -162,9 +178,11 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
         ))}
       </nav>
 
-      {/* No search box on Reviews — reviews are looked up by the activity
-          itself, not by free-text keyword, same as the destination page. */}
-      {activeTab !== "reviews" && (
+      {/* No search box on Attractions or Reviews — Attractions is live
+          data already scoped to this activity's location, and Reviews is
+          looked up by the activity itself, not by free-text keyword, same
+          as the destination page. */}
+      {activeTab !== "reviews" && activeTab !== "attractions" && (
         <form
           className="tab-search-form"
           method="GET"
@@ -172,13 +190,12 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
           data-testid="activity-tab-search-form"
         >
           <input type="hidden" name="tab" value={activeTab} />
-          <input
-            type="text"
+          <LocationAutosuggest
             name="q"
-            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label.toLowerCase()} nearby`}
             defaultValue={trimmedQuery ?? ""}
+            placeholder={`Search for ${TABS.find((t) => t.key === activeTab)!.label.toLowerCase()} nearby`}
             aria-label={`Search ${activeTab}`}
-            data-testid="activity-tab-search-input"
+            testIdPrefix="activity-tab-search"
           />
           <button type="submit" className="primary-btn" data-testid="activity-tab-search-btn">
             Search
