@@ -281,6 +281,16 @@ body {
   padding: 2rem;
   padding-top: calc(var(--navbar-height) + 2rem);
 }
+.app-background-graphic {
+  background: #1b2632;
+  height: var(--navbar-height);
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 40;
+}
 
 .page-title {
   font-size: 2rem;
@@ -1999,4 +2009,80 @@ body {
   .nav-cta {
     padding: 0.4rem 0.7rem;
   }
+}
+
+
+/* TravelWatermark (src/components/TravelWatermark.tsx) — a dashed route
+   line, two faint "you are here" pulse rings, and five icons standing in
+   for TripNest's own sections (Destinations, Attractions, Hotels,
+   Apartments, Activities). Fixed to the viewport rather than absolutely
+   positioned across .container — see the component's own comment for
+   why (short version: .container's height varies a lot by page, and on
+   the home page includes a 100vh hero, so percentage positions across it
+   would land most icons behind the hero, invisible). Color/opacity use
+   color-mix() against the existing --color-primary/--color-border
+   variables, so it stays in sync with the theme with no separate
+   light/dark assets. */
+.travel-watermark {
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 0;
+}
+
+.travel-watermark-lines {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  stroke: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  top: 0;
+  width: 100%;
+}
+
+.travel-watermark-lines circle {
+  stroke: color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+
+.travel-watermark-icon {
+  color: color-mix(in srgb, var(--color-border) 80%, transparent);
+  position: absolute;
+}
+
+.travel-watermark-destinations {
+  height: 3rem;
+  left: 14%;
+  top: 14%;
+  width: 3rem;
+}
+
+.travel-watermark-attractions {
+  height: 3rem;
+  right: 10%;
+  top: 35%;
+  width: 3rem;
+}
+
+.travel-watermark-hotels {
+  bottom: 14%;
+  height: 3rem;
+  left: 10%;
+  width: 3rem;
+}
+
+.travel-watermark-apartments {
+  bottom: 8%;
+  height: 3rem;
+  right: 15%;
+  width: 3rem;
+}
+
+.travel-watermark-activities {
+  height: 2.5rem;
+  left: 46%;
+  top: 50%;
+  width: 2.5rem;
 }
