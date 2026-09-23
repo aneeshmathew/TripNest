@@ -66,19 +66,22 @@ test.describe("Destination detail page tabs", () => {
     await expect(page.getByText(/no apartments match "zzznotarealplacezzzz" yet/i)).toBeVisible();
   });
 
-  test("the Activities tab shows curated activities linking to their own activity pages", async ({
+  test("the Things to Do tab shows live nearby places (Geoapify), not curated content", async ({
     page
   }) => {
     await page.goto("/destinations/dolomites-italy");
-    await page.getByTestId("destination-tab-activities").click();
+    await page.getByTestId("destination-tab-things-to-do").click();
 
-    await expect(page).toHaveURL(/tab=activities/);
-    const hikingCard = page.getByTestId("destination-activity-hiking");
-    await expect(hikingCard).toBeVisible();
-    await expect(hikingCard).toHaveAttribute("href", "/activities/hiking");
+    await expect(page).toHaveURL(/tab=things-to-do/);
+    // Live third-party data can't be asserted on exact content in CI —
+    // just confirm the tab renders its grid (or an honest empty state)
+    // rather than erroring or showing the old curated Activities cards.
+    await expect(
+      page.getByTestId("things-to-do-grid").or(page.getByText(/no things to do found near/i))
+    ).toBeVisible();
   });
 
-  test("each non-Reviews, non-Activities tab has its own search box; neither Reviews nor Activities has one", async ({
+  test("each non-Reviews, non-live-data tab has its own search box; Reviews/Things to Do/Attractions don't", async ({
     page
   }) => {
     await page.goto("/destinations/rio-de-janeiro-brazil");
@@ -87,7 +90,10 @@ test.describe("Destination detail page tabs", () => {
       "Search for apartments nearby"
     );
 
-    await page.getByTestId("destination-tab-activities").click();
+    await page.getByTestId("destination-tab-things-to-do").click();
+    await expect(page.getByTestId("destination-tab-search-form")).toHaveCount(0);
+
+    await page.getByTestId("destination-tab-attractions").click();
     await expect(page.getByTestId("destination-tab-search-form")).toHaveCount(0);
 
     await page.getByTestId("destination-tab-reviews").click();

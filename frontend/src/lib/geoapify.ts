@@ -120,18 +120,26 @@ export async function geocodePlace(query: string): Promise<{ lat: number; lon: n
 // Attractions change slowly — cache for a day, same rationale as Unsplash.
 const PLACES_REVALIDATE_SECONDS = 60 * 60 * 24;
 
+/** Geoapify Places category groups — see https://apidocs.geoapify.com/docs/places/#categories */
+export const ATTRACTION_CATEGORIES = "tourism.sights,tourism.attraction";
+// Deliberately excludes tourism.sights/attraction — those are the
+// Attractions tab's territory. "Things to Do" covers the more active/
+// experiential side: entertainment venues, leisure spots, sport
+// facilities, and natural features worth visiting (beaches, viewpoints).
+export const THINGS_TO_DO_CATEGORIES = "entertainment,leisure,sport,natural.water,natural.forest";
+
 /**
- * Nearby tourist attractions/sights around a point, via Geoapify's Places
- * API. Used to power the "Attractions" tab/section — this is live data,
- * distinct from TripNest's own curated "Activities" catalog.
+ * Nearby places around a point, via Geoapify's Places API. `categories`
+ * defaults to sights/attractions; pass THINGS_TO_DO_CATEGORIES (or your
+ * own comma-separated list) for a different slice of the same data.
  */
 export async function geoapifyAttractions(
   lat: number,
   lon: number,
-  opts: { radiusMeters?: number; limit?: number } = {}
+  opts: { radiusMeters?: number; limit?: number; categories?: string } = {}
 ): Promise<GeoAttraction[]> {
   const params = new URLSearchParams({
-    categories: "tourism.sights,tourism.attraction",
+    categories: opts.categories ?? ATTRACTION_CATEGORIES,
     filter: `circle:${lon},${lat},${opts.radiusMeters ?? 15000}`,
     bias: `proximity:${lon},${lat}`,
     limit: String(opts.limit ?? 12),
@@ -173,16 +181,26 @@ export async function geoapifyAttractions(
 
 /**
  * Convenience wrapper for pages that only have a destination/activity name
- * (no stored coordinates): geocodes the name, then fetches attractions
- * around it. Returns an empty list — never throws — so a geocoding miss or
- * an API hiccup just means an empty section, not a broken page.
+ * (no stored coordinates): geocodes the name, then fetches nearby places.
+ * Returns an empty list — never throws — so a geocoding miss or an API
+ * hiccup just means an empty section, not a broken page. Defaults to
+ * sights/attractions; pass `categories` (e.g. THINGS_TO_DO_CATEGORIES) for
+ * a different slice of Places data from the same place name.
  */
-export async function getAttractionsNear(placeQuery: string): Promise<GeoAttraction[]> {
+export async function getAttractionsNear(
+  placeQuery: string,
+  categories?: string
+): Promise<GeoAttraction[]> {
   try {
     const point = await geocodePlace(placeQuery);
     if (!point) return [];
-    return await geoapifyAttractions(point.lat, point.lon);
+    return await geoapifyAttractions(point.lat, point.lon, { categories });
   } catch {
     return [];
   }
+}
+
+/** Same as getAttractionsNear, scoped to the "Things to Do" category set. */
+export async function getThingsToDoNear(placeQuery: string): Promise<GeoAttraction[]> {
+  return getAttractionsNear(placeQuery, THINGS_TO_DO_CATEGORIES);
 }

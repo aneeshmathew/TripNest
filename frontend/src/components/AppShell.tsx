@@ -2,10 +2,12 @@
 
 import type { ReactNode } from "react";
 import { AuthProvider } from "../context/AuthContext";
+import { AuthModalProvider } from "../context/AuthModalContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import TripIllustrationBanner from "./TripIllustrationBanner";
+import AuthModal from "./AuthModal";
 
 // This is the one client-side boundary for the whole app: auth state,
 // theme state, and the navbar live here. `children` is whatever Server
@@ -32,12 +34,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <div className="app">
-          <Navbar />
-          <main className="container">{children}</main>
-          <TripIllustrationBanner />
-          <Footer />
-        </div>
+        <AuthModalProvider>
+          <div className="app">
+            <Navbar />
+            <main className="container">{children}</main>
+            <TripIllustrationBanner />
+            <Footer />
+          </div>
+          <AuthModal />
+        </AuthModalProvider>
       </AuthProvider>
     </ThemeProvider>
   );

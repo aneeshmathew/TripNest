@@ -16,8 +16,35 @@ test.describe("Signup", () => {
 
   test("Navbar shows Login and Sign up when logged out", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
-    await expect(page.getByTestId("signup-nav-link")).toBeVisible();
+    await expect(page.getByTestId("login-nav-btn")).toBeVisible();
+    await expect(page.getByTestId("signup-nav-btn")).toBeVisible();
+  });
+
+  test("Login/Sign up open as a closable popup rather than navigating away", async ({ page }) => {
+    await page.goto("/destinations/dolomites-italy");
+
+    await page.getByTestId("login-nav-btn").click();
+    await expect(page.getByTestId("auth-modal")).toBeVisible();
+    // Confirms this is a popup, not a page navigation.
+    await expect(page).toHaveURL("/destinations/dolomites-italy");
+
+    // Switches mode in place, without closing/reopening the modal.
+    await page.getByRole("button", { name: "Sign up" }).click();
+    await expect(page.getByTestId("signup-name")).toBeVisible();
+
+    // Escape closes it.
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("auth-modal")).not.toBeVisible();
+
+    // The X button also closes it.
+    await page.getByTestId("signup-nav-btn").click();
+    await page.getByTestId("auth-modal-close").click();
+    await expect(page.getByTestId("auth-modal")).not.toBeVisible();
+
+    // Clicking the backdrop also closes it.
+    await page.getByTestId("login-nav-btn").click();
+    await page.getByTestId("auth-modal-overlay").click({ position: { x: 5, y: 5 } });
+    await expect(page.getByTestId("auth-modal")).not.toBeVisible();
   });
 });
 

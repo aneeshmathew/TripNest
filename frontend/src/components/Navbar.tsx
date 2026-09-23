@@ -6,9 +6,11 @@ import { ChevronDown } from "lucide-react";
 import BrandMark from "./BrandMark";
 import ThemeIcon from "./ThemeIcon";
 import { useAuth } from "../context/AuthContext";
+import { useAuthModal } from "../context/AuthModalContext";
 import { useTheme } from "../context/ThemeContext";
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { openLogin, openSignup } = useAuthModal();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -91,12 +93,22 @@ function Navbar() {
           </div>
         ) : (
           <>
-            <Link href="/login" className="nav-link">
+            <button
+              type="button"
+              className="nav-link"
+              onClick={openLogin}
+              data-testid="login-nav-btn"
+            >
               Login
-            </Link>
-            <Link href="/signup" className="primary-btn nav-cta" data-testid="signup-nav-link">
+            </button>
+            <button
+              type="button"
+              className="primary-btn nav-cta"
+              onClick={openSignup}
+              data-testid="signup-nav-btn"
+            >
               Sign up
-            </Link>
+            </button>
           </>
         )}
       </div>

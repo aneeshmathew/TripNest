@@ -34,6 +34,8 @@
 - Test scaffolding with real examples per layer (Vitest unit — backend, Vitest+RTL component — frontend, Playwright e2e) — pattern established, **not comprehensive coverage**
 - Destination/attraction autosuggest (Geoapify Autocomplete, proxied through `app/api/autosuggest` so the API key stays server-side) on the Hero search, homepage `SearchFilters`, and the destination/activity tab search boxes
 - Live "Attractions" tab on `/destinations/[slug]` and `/activities/[slug]` (Geoapify Places, via `app/api/attractions` / `lib/geoapify.ts`) — third-party data, not the internal `Attraction` model described below, which is still not started
+- `/destinations/[slug]`'s old curated "Activities" tab (which linked to `/activities/[slug]` pages) has been replaced by a live "Things to Do" tab — same Geoapify Places API as Attractions, different category set (entertainment/leisure/sport/natural vs. tourism.sights/attraction). The standalone `/activities/[slug]` pages and their own curated data (`data/activityHighlights.ts`, `data/destinationActivities.ts`) are unaffected — only the destination page's tab changed.
+- Navbar is fully transparent with fixed white text/logo colors (doesn't shift on theme toggle) and outlined buttons; Login/Sign up now open as a closable popup (`AuthModal.tsx` / `AuthModalContext.tsx`) instead of navigating to `/login`/`/signup` — those routes still exist and work directly (deep links, no-JS)
 - Destination/activity hero photos and `/plan` group photos now try Unsplash's Search Photos API first (`lib/unsplash.ts`), falling back to the existing curated/placeholder `imageUrl` only when Unsplash has no match or isn't configured
 
 ### 🟡 Partially done / honest approximations

@@ -3,8 +3,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { allDestinations } from "../../../data/allDestinations";
-import { destinationActivitySlugs } from "../../../data/destinationActivities";
-import { activityHighlights } from "../../../data/activityHighlights";
 import { getListings } from "../../../lib/listings";
 import { getHotels } from "../../../lib/hotels";
 import { getRestaurants } from "../../../lib/restaurants";
@@ -16,15 +14,15 @@ import ReviewItem from "../../../components/ReviewItem";
 import BackButton from "../../../components/BackButton";
 import LocationAutosuggest from "../../../components/LocationAutosuggest";
 import AttractionsGrid from "../../../components/AttractionsGrid";
-import { getAttractionsNear } from "../../../lib/geoapify";
+import { getAttractionsNear, getThingsToDoNear } from "../../../lib/geoapify";
 import { getDestinationPhotoUrl } from "../../../lib/unsplash";
 
-type TabKey = "apartments" | "hotels" | "restaurants" | "activities" | "attractions" | "reviews";
+type TabKey = "apartments" | "hotels" | "restaurants" | "things-to-do" | "attractions" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
   { key: "apartments", label: "Apartments" },
   { key: "hotels", label: "Hotels" },
   { key: "restaurants", label: "Restaurants" },
-  { key: "activities", label: "Activities" },
+  { key: "things-to-do", label: "Things to Do" },
   { key: "attractions", label: "Attractions" },
   { key: "reviews", label: "Reviews" }
 ];
@@ -111,43 +109,27 @@ export default async function DestinationPage({ params, searchParams }: Destinat
             ))}
           </div>
         );
-    } else if (activeTab === "activities") {
-      const slugs = destinationActivitySlugs[destination.slug] ?? [];
-      const activities = activityHighlights.filter((a) => slugs.includes(a.slug));
-      tabContent =
-        activities.length === 0 ? (
-          <p className="status-text">No curated activities for {destination.name} yet.</p>
-        ) : (
-          <div className="grid">
-            {activities.map((activity) => (
-              <Link
-                key={activity.slug}
-                href={`/activities/${activity.slug}`}
-                className="card"
-                data-testid={`destination-activity-${activity.slug}`}
-              >
-                <div className="card-image-wrap">
-                  <Image
-                    src={activity.imageUrl}
-                    alt={activity.activity}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-                <div className="card-content">
-                  <h3>{activity.activity}</h3>
-                  <p>{activity.title}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        );
+    } else if (activeTab === "things-to-do") {
+      // Live third-party data (Geoapify Places, entertainment/leisure/
+      // sport/natural categories) — replaces the old curated Activities
+      // tab entirely. Geocodes the destination's name/location on the fly
+      // since curated destinations don't have stored coordinates yet.
+      const thingsToDo = await getThingsToDoNear(`${destination.name}, ${destination.location}`);
+      tabContent = (
+        <AttractionsGrid
+          attractions={thingsToDo}
+          placeName={destination.name}
+          emptyMessage={`No things to do found near ${destination.name} yet.`}
+          testIdPrefix="thing-to-do"
+          gridTestId="things-to-do-grid"
+        />
+      );
     } else if (activeTab === "attractions") {
-      // Live third-party data (Geoapify Places), distinct from the
-      // "activities" tab above, which is TripNest's own curated content.
-      // Geocodes the destination's name/location on the fly since curated
-      // destinations don't have stored coordinates yet.
+      // Live third-party data (Geoapify Places, sights/attraction
+      // categories) — distinct from Things to Do above (different
+      // category set, same underlying API). Geocodes the destination's
+      // name/location on the fly since curated destinations don't have
+      // stored coordinates yet.
       const attractions = await getAttractionsNear(`${destination.name}, ${destination.location}`);
       tabContent = <AttractionsGrid attractions={attractions} placeName={destination.name} />;
     } else {
@@ -204,12 +186,12 @@ export default async function DestinationPage({ params, searchParams }: Destinat
         ))}
       </nav>
 
-      {/* No search box on Activities, Attractions, or Reviews — Activities
-          is a fixed curated list (see the "activities" branch above),
-          Attractions is live data already scoped to this destination, and
-          Reviews is looked up by the destination itself, not by
-          free-text keyword. */}
-      {activeTab !== "reviews" && activeTab !== "activities" && activeTab !== "attractions" && (
+      {/* No search box on Things to Do, Attractions, or Reviews — both
+          Things to Do and Attractions are live data already scoped to
+          this destination (different Geoapify categories, same
+          geocoded point), and Reviews is looked up by the destination
+          itself, not by free-text keyword. */}
+      {activeTab !== "reviews" && activeTab !== "things-to-do" && activeTab !== "attractions" && (
         <form
           className="tab-search-form"
           method="GET"
