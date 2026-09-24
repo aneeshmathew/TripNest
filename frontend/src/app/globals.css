@@ -1109,6 +1109,7 @@ body {
   align-items: center;
   display: flex;
   gap: 0.6rem;
+  width: 100%;
 }
 
 .destinations-carousel {
@@ -1117,16 +1118,52 @@ body {
      math holds at every screen size, not just desktop. */
   --carousel-visible: 6;
   display: flex;
+  /* flex: 1 + min-width: 0 — without these this shrinks to its own
+     content's natural size inside the flex row (prev button / track /
+     next button) rather than stretching to fill the space between the
+     two nav buttons, leaving a big empty gap on wide screens with
+     noticeably narrower tiles than intended. min-width: 0 overrides a
+     flex item's default min-width: auto, which otherwise blocks it from
+     shrinking below its content size (irrelevant here since the content
+     scrolls, but needed for flex: 1 to size it correctly either way). */
+  flex: 1;
   gap: 1rem;
+  min-width: 0;
   overflow-x: auto;
   padding: 4px 4px 0.5rem;
   scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
 
 .destinations-carousel::-webkit-scrollbar {
   display: none;
+}
+
+.destinations-dots {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 0.9rem;
+}
+
+.destinations-dot {
+  background: rgba(255, 255, 255, 0.45);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  height: 8px;
+  padding: 0;
+  transition: background 0.15s ease, width 0.15s ease;
+  width: 8px;
+}
+
+.destinations-dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.destinations-dot.active {
+  background: var(--color-primary);
+  width: 22px;
 }
 
 .carousel-nav-btn {
