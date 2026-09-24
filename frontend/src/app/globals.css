@@ -177,10 +177,10 @@ body {
 }
 
 .nav-link {
-  border: 1.5px solid var(--color-primary);
-  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
   font-weight: 600;
-  padding: 0.5rem 1.1rem;
+  padding: 0.55rem 1.3rem;
   text-decoration: none;
   transition: background 0.15s ease;
 }
@@ -279,6 +279,23 @@ body {
   margin: 0 auto;
   max-width: 1080px;
   padding: 2rem;
+  padding-top: calc(var(--navbar-height) + 2rem);
+}
+
+/* Home page only (see AppShell.tsx): the hero is meant to start at the
+   true top of the viewport, under the transparent fixed navbar, rather
+   than below the normal top padding every other page reserves for it. */
+.container-flush {
+  /* !important: needed to win over the @media (max-width: 768px) .container
+     padding-top override further down this file, which has equal
+     selector specificity and comes later in source order. */
+  padding-top: 0 !important;
+}
+
+/* See app/page.tsx's search-results branch + AppShell.tsx's comment: this
+   restores the top padding .container-flush removes, for the one "/"
+   state that isn't the Hero. */
+.search-results-page {
   padding-top: calc(var(--navbar-height) + 2rem);
 }
 .app-background-graphic {
@@ -824,16 +841,23 @@ body {
 }
 
 .nav-cta {
-  padding: 0.5rem 1.1rem;
+  padding: 0.55rem 1.3rem;
 }
 
-/* Nav buttons keep the site-wide outline shape (border colored, background
-   transparent) but use a fixed white text rather than .primary-btn's
-   theme-following text elsewhere on the site (see .brand, .nav-link, ...
-   above) — scoped to .navbar so the rest of the app's primary buttons
-   (hero search, forms, etc.) are unaffected. */
-.navbar .primary-btn {
-  color: #f5f2ec;
+/* Nav CTA is solid (fill + white text) rather than the site-wide outline
+   .primary-btn shape used elsewhere (hero search, forms, etc.) — scoped
+   to .navbar .nav-cta specifically so it doesn't affect any other button
+   on the site. */
+.navbar .primary-btn.nav-cta {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 999px;
+  color: #ffffff;
+}
+
+.navbar .primary-btn.nav-cta:hover,
+.navbar .primary-btn.nav-cta:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 85%, black);
 }
 
 .theme-toggle-icon-btn {
@@ -848,7 +872,10 @@ body {
   width: 36px;
 }
 
-/* Shared section scaffolding */
+/* Shared section scaffolding — left-aligned intros (heading + subtitle)
+   to match the redesigned homepage; the only components still using these
+   two classes are the homepage-only ActivitiesSection, FeaturedStays,
+   FaqSection and TestimonialSection, so this is safe to change globally. */
 .section {
   margin: 0 auto;
   max-width: 1080px;
@@ -856,14 +883,16 @@ body {
 }
 
 .section-title {
-  margin: 0 0 0.4rem;
-  text-align: center;
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  text-align: left;
 }
 
 .section-subtitle {
   color: var(--color-text-muted);
   margin: 0 0 2rem;
-  text-align: center;
+  text-align: left;
 }
 
 .eyebrow {
@@ -877,42 +906,38 @@ body {
 
 /* Hero — breaks out to full viewport width regardless of the parent
    .container's max-width/padding (classic CSS full-bleed trick), since
-   this is the one section that should span edge to edge. */
+   this is the one section that should span edge to edge. Sits directly
+   under the transparent fixed .navbar (see .container-flush in
+   AppShell.tsx), so no top offset is needed here any more. */
 .hero {
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  margin-top: calc(-1 * (var(--navbar-height) + 2rem));
   position: relative;
   width: 100vw;
 }
 
 .hero-image-wrap {
-  /* Full viewport again, per feedback — the empty-gap problem last time
-     wasn't really about the height, it was .hero-content being dead
-     centered (top: 50%) in a tall box. Moving content up (now top: 33%, tightened further after seeing an actual render)
-     (see .hero-content) is what actually fixes that, so this can go back
-     to filling the viewport without reopening the gap issue. Known
-     trade-off: 100vh can jump around on mobile browsers as their chrome
-     (URL bar) shows/hides — 100dvh would fix that but has weaker
-     older-browser support. */
-  height: 100vh;
-  min-height: 700px;
+  /* Fixed height rather than 100vh — the hero is a defined banner (photo +
+     headline/search + the popular-destinations strip + wave divider), not
+     a full-viewport splash screen. */
+  height: 800px;
+  overflow: hidden;
   position: relative;
   width: 100%;
 }
 
 .hero-overlay {
-  /* Lightened from the original (0.55/0.4/0.55) now that the photo itself
-     (blue sky over a valley, not a moody dark mountain range) is already
-     much brighter — a heavy dark overlay would have fought that instead
-     of complementing it. Still dark enough at top/bottom for the white
-     .hero-title and the overlapping .destinations-section content (see
-     that section's own comment) to stay legible. */
+  /* Teal, left-to-right scrim (opaque over the headline/search, fading out
+     toward the right so the photo itself reads clearly on that side) —
+     replaces a flat dark vignette so the brand color carries through the
+     photo itself rather than just sitting in a badge/button on top of it. */
   background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.22) 30%,
-    rgba(0, 0, 0, 0.45) 100%
+    100deg,
+    rgba(10, 58, 74, 0.88) 0%,
+    rgba(13, 74, 94, 0.78) 28%,
+    rgba(20, 100, 116, 0.42) 48%,
+    rgba(20, 100, 116, 0.08) 65%,
+    rgba(0, 0, 0, 0) 78%
   );
   inset: 0;
   position: absolute;
@@ -920,109 +945,164 @@ body {
 
 .hero-content {
   color: #fff;
-  left: 50%;
-  padding: 0 1.5rem;
+  left: 0;
+  padding: 0 2.5rem;
   position: absolute;
-  text-align: center;
-  top: 33%;
-  transform: translate(-50%, -50%);
+  text-align: left;
+  top: 108px;
   width: 100%;
-  /* Must beat .destinations-section's z-index: 1 — that section
-     deliberately overlaps -420px up into the tail of this hero (see its
-     own comment), and without an explicit z-index here .hero-content
-     had no stacking context of its own, so the later, explicitly-
-     elevated .destinations-section painted (and hit-tested) on top of
-     it wherever they overlapped — silently swallowing every click on
-     .hero-search whenever that overlap zone reached down to it (a short
-     viewport, or .hero-content sitting lower than ~top: 33% is common
-     enough to hit consistently, not just an edge case). Only this text
-     block needs to win, not the whole .hero — the photo itself should
-     stay visually behind .destinations-section's transparent overlap
-     zone, which is the whole point of that overlap. */
   z-index: 2;
 }
 
+.hero-eyebrow {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+}
+
 .hero-title {
-  font-size: 2.6rem;
-  margin: 0 0 0.6rem;
+  font-size: 2.9rem;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  max-width: 620px;
 }
 
 .hero-subtitle {
-  font-size: 1.1rem;
-  margin: 0 auto 1.6rem;
+  font-size: 1.05rem;
+  margin: 0 0 2rem;
+  max-width: 480px;
   opacity: 0.92;
 }
 
+/* Segmented search bar: three clickable fields separated by thin
+   dividers, ending in a round icon-only submit button — replaces the
+   earlier single-input pill. */
 .hero-search {
-  background: var(--color-surface);
+  align-items: stretch;
+  background: #ffffff;
   border-radius: 999px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   display: flex;
-  gap: 0.5rem;
-  margin: 0 auto;
-  max-width: 560px;
-  padding: 0.5rem;
+  gap: 0;
+  max-width: 620px;
+  padding: 0.4rem;
 }
 
-.hero-search input {
+.hero-search-field {
+  align-items: center;
+  color: #1b2632;
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.5rem 0.9rem;
+}
+
+.hero-search-field-location {
+  flex: 1.3 1 auto;
+}
+
+.hero-search-field-location .location-autosuggest {
+  flex: 1;
+  width: 100%;
+}
+
+.hero-search-field-location .location-autosuggest input {
   background: transparent;
   border: 0;
-  color: var(--color-text);
-  flex: 1;
-  font-size: 1rem;
-  padding: 0.6rem 0.9rem;
-}
-
-.hero-search input:focus {
+  color: #1b2632;
+  font-size: 0.92rem;
   outline: none;
+  padding: 0;
+  width: 100%;
 }
 
-.hero-search .primary-btn {
-  border-radius: 999px;
+.hero-search-field-static {
+  color: #52606d;
+  cursor: default;
+  font-size: 0.92rem;
+  font-weight: 500;
   white-space: nowrap;
 }
 
-/* Destinations carousel section (replaces the removed continent map) */
-/* Overlaps up into the tail of the (now full-viewport-height) hero photo
-   rather than starting fresh below it — this is both what makes the
-   photo read as "extending behind the carousel" and what pulls the
-   carousel up closer to the first viewport instead of requiring a scroll
-   to reach it. The background gradient is a scrim: dark enough near the
-   top (still over the photo) for the white heading text to stay legible,
-   fading to solid --color-bg well before the carousel tiles (which have
-   their own opaque card backgrounds regardless, so they don't strictly
-   need the scrim — this is purely for the heading/subtitle text above
-   them). Fixed px stops, not percentages — percentages would be relative
-   to this section's own height, which varies a lot with content, so the
-   fade would stretch or compress unpredictably instead of finishing
-   within a fixed distance from the top.
-   Exact overlap/fade distances here are a starting point, not
-   pixel-tested against a live render — expect to nudge margin-top/
-   padding-top/gradient stops after seeing it rendered. */
-.destinations-section {
-  /* No background here at all — that was the visible "box" with a seam.
-     transparent lets the hero's own photo+overlay (a sibling element,
-     painted first) show through directly in the overlap zone, so
-     there's one continuous darkened photo instead of two stacked
-     background layers with a visible edge between them. Text legibility
-     in the overlap zone comes entirely from .hero-overlay's own
-     darkening, not from anything on this element.
-     Overlap distance recalculated against the restored 100vh hero (with
-     content now at top: 33% instead of dead-center) — still an estimate
-     for a "typical" ~900px viewport, not pixel-tested against a live
-     render, and inherently imprecise since 100vh varies by device while
-     this margin is a fixed px value. This pairing (hero height/content
-     position + this overlap) is the thing most worth checking once
-     actually rendered, especially on short viewports where the min-height
-     floor (700px) kicks in. */
-  margin-top: -420px;
-  padding-top: 20px;
-  position: relative;
-  z-index: 1;
+.hero-search-field-icon {
+  color: #7c8894;
+  flex-shrink: 0;
 }
 
-.destinations-section .section-title,
-.destinations-section .section-subtitle {
+.hero-search-field-chevron {
+  color: #7c8894;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.hero-search-divider {
+  align-self: center;
+  background: var(--color-border);
+  flex-shrink: 0;
+  height: 26px;
+  width: 1px;
+}
+
+.hero-search-submit {
+  align-items: center;
+  background: var(--color-primary);
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 46px;
+  justify-content: center;
+  transition: background 0.15s ease;
+  width: 46px;
+}
+
+.hero-search-submit:hover,
+.hero-search-submit:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 85%, black);
+}
+
+/* Wavy white divider between the hero photo and the page body below it —
+   pinned to the very bottom of .hero-image-wrap so the popular-destinations
+   strip above it still sits on the photo. */
+.hero-wave {
+  bottom: -1px;
+  display: block;
+  height: 70px;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+}
+
+/* Popular Destinations strip — lives inside .hero-image-wrap, over the
+   photo/teal scrim, positioned near the bottom of the fixed-height hero
+   (above the wave divider). */
+.destinations-section {
+  bottom: 78px;
+  left: 0;
+  padding: 0 2.5rem;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+}
+
+.destinations-heading {
   color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+}
+
+.destinations-subheading {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  margin: 0 0 0.9rem;
 }
 
 .destinations-carousel-wrap {
@@ -1035,11 +1115,11 @@ body {
   /* Tile width is computed from this, not hardcoded — see .destination-tile
      below. Overridden at smaller breakpoints so the same "no cut-off tile"
      math holds at every screen size, not just desktop. */
-  --carousel-visible: 5;
+  --carousel-visible: 6;
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding: 12px 4px 0.5rem;
+  padding: 4px 4px 0.5rem;
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
@@ -1051,7 +1131,7 @@ body {
 
 .carousel-nav-btn {
   align-items: center;
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--color-border);
   border-radius: 999px;
   color: var(--color-text);
@@ -1064,18 +1144,17 @@ body {
 }
 
 .carousel-nav-btn:hover {
-  background: var(--color-secondary-bg);
+  background: #ffffff;
 }
 
 /* flex-basis as a percentage of .destinations-carousel's own (already
    width-constrained, thanks to its overflow-x: auto) box — not a fixed
    px value — so exactly --carousel-visible tiles fit edge to edge with
-   no partial tile cut off, at whatever width the carousel actually
-   renders at. */
+   no partial tile cut off. Name/location are overlaid directly on the
+   image (gradient scrim + white text) rather than in a separate content
+   band below it. */
 .destination-tile {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 12px;
   color: inherit;
   display: block;
   flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
@@ -1088,31 +1167,44 @@ body {
 
 .destination-tile:hover,
 .destination-tile:focus-visible {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   transform: scale(1.06);
   z-index: 2;
 }
 
 .destination-tile-image-wrap {
-  height: 130px;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   position: relative;
   width: 100%;
 }
 
+.destination-tile-scrim {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.7) 100%);
+  inset: 0;
+  position: absolute;
+}
+
 .destination-tile-content {
-  padding: 0.7rem 0.85rem;
+  bottom: 0.65rem;
+  left: 0.75rem;
+  position: absolute;
+  right: 0.75rem;
 }
 
 .destination-tile-name {
-  font-size: 1rem;
-  margin: 0 0 0.15rem;
+  align-items: center;
+  color: #fff;
+  display: flex;
+  font-size: 0.9rem;
+  gap: 0.3rem;
+  margin: 0 0 0.1rem;
 }
 
 .destination-tile-location {
-  color: var(--color-text-subtle);
-  font-size: 0.85rem;
-  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  margin: 0 0 0 1.15rem;
 }
 
 .activities-section {
@@ -1124,21 +1216,22 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
-  justify-content: center;
-  margin: 0 0 2.75rem;
+  margin: 0 0 2.5rem;
 }
 
 .activity-filter-pill {
-  background: transparent;
-  border: 1px solid var(--color-primary);
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   color: var(--color-text);
   cursor: pointer;
-  font-size: 0.8rem;
+  display: inline-flex;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  padding: 0.5rem 1.1rem;
-  transition: background 0.15s ease, color 0.15s ease;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .activity-filter-pill:hover {
@@ -1147,6 +1240,7 @@ body {
 
 .activity-filter-pill.active {
   background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-primary-text);
 }
 
@@ -1161,7 +1255,7 @@ body {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding: 12px 4px 0.5rem;
+  padding: 4px 4px 0.5rem;
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
@@ -1172,13 +1266,15 @@ body {
   display: none;
 }
 
-/* flex-basis as a percentage of .activities-carousel's own (already
-   width-constrained, thanks to its overflow-x: auto) box — not a fixed
-   px value — so exactly --carousel-visible tiles fit edge to edge with
-   no partial tile cut off, at whatever width the carousel actually
-   renders at. Same approach as .destination-tile below. */
+/* White card: image on top (with a colored category badge overlaid on
+   its lower-left corner) and a plain content area below it — replaces
+   the earlier full-bleed poster-style tile (image + scrim + overlaid
+   text top-to-bottom). flex-basis math is the same percentage-of-track
+   approach as .destination-tile above. */
 .activity-tile {
-  border-radius: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
   color: inherit;
   display: block;
   flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
@@ -1191,61 +1287,94 @@ body {
 
 .activity-tile:hover,
 .activity-tile:focus-visible {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
-  transform: scale(1.06);
-  z-index: 2;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  transform: translateY(-4px);
 }
 
 .activity-tile-image-wrap {
-  aspect-ratio: 3 / 5;
-  background: var(--color-secondary-bg);
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   position: relative;
   width: 100%;
 }
 
-.activity-tile-scrim {
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0) 30%,
-    rgba(0, 0, 0, 0) 55%,
-    rgba(0, 0, 0, 0.75) 100%
-  );
-  inset: 0;
-  position: absolute;
-}
-
 .activity-tile-badge {
   align-items: center;
+  background: var(--color-primary);
+  border-radius: 999px;
+  bottom: 0.6rem;
   color: #fff;
   display: flex;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  gap: 0.4rem;
-  left: 0.85rem;
-  letter-spacing: 0.05em;
+  gap: 0.3rem;
+  left: 0.6rem;
+  letter-spacing: 0.04em;
+  padding: 0.28rem 0.6rem;
   position: absolute;
   text-transform: uppercase;
-  top: 0.85rem;
 }
 
-.activity-badge-icon {
-  flex-shrink: 0;
-  height: 18px;
-  width: 18px;
+.activity-tile-badge-water-sports {
+  background: #1b7fa8;
+}
+
+.activity-tile-badge-history-culture {
+  background: #a8622f;
+}
+
+.activity-tile-badge-high-adrenaline {
+  background: #c23b3b;
+}
+
+.activity-tile-badge-other-activities {
+  background: #4a6a55;
+}
+
+.activity-tile-body {
+  padding: 0.9rem 1rem 1rem;
 }
 
 .activity-tile-title {
-  bottom: 0.85rem;
-  color: #fff;
-  font-weight: 200;
-  font-size: 12px;
-  left: 0.85rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 700;
   line-height: 1.3;
-  margin: 0;
-  position: absolute;
-  right: 0.85rem;
+  margin: 0 0 0.35rem;
+}
+
+.activity-tile-location {
+  align-items: center;
+  color: var(--color-text-subtle);
+  display: flex;
+  font-size: 0.8rem;
+  gap: 0.3rem;
+  margin: 0 0 0.75rem;
+}
+
+.activity-tile-footer {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.activity-tile-duration {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: 0.78rem;
+  gap: 0.3rem;
+}
+
+.activity-tile-arrow {
+  align-items: center;
+  background: var(--color-secondary-bg);
+  border-radius: 999px;
+  color: var(--color-primary);
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
 }
 
 /* Destination detail page */
@@ -1430,12 +1559,12 @@ body {
   transform: translateY(-50%);
 }
 
+/* Featured stay cards */
 .featured-stays-section {
   padding-bottom: 5rem;
   padding-top: 0;
 }
 
-/* Featured stays row */
 .featured-stays-carousel-wrap {
   align-items: center;
   display: flex;
@@ -1445,16 +1574,9 @@ body {
 .featured-stays-row {
   --carousel-visible: 4;
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   overflow-x: auto;
-  /* Needs noticeably more top/bottom room than the 12px/8px used by the
-     other carousels above: featured-stay cards are taller (image +
-     title/price/rating text) than a plain destination/activity tile, so
-     the same scale(1.06) hover grows them by more pixels — with only
-     4px of top padding, the top of the card was getting clipped by this
-     container's own overflow-x: auto (which implicitly clips overflow-y
-     too, per the CSS spec, rather than leaving it visible). */
-  padding: 20px 4px 24px;
+  padding: 4px 4px 0.5rem;
   scroll-behavior: smooth;
   scrollbar-width: none;
   width: 100%;
@@ -1464,99 +1586,137 @@ body {
   display: none;
 }
 
-/* flex-basis computed the same way as .destination-tile/.activity-tile,
-   so exactly --carousel-visible cards fit edge to edge with no partial
-   card cut off. Also gets the same whole-tile hover zoom as those two —
-   applied here on the wrapper (rather than relying on .card's own
-   hover, see the override below) so it matches exactly. */
 .featured-stay-item {
   display: flex;
-  flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1.25rem) / var(--carousel-visible));
 }
 
-.featured-stay-item:hover,
-.featured-stay-item:focus-within {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
-  transform: scale(1.06);
-  z-index: 2;
-}
-
-/* Suppress the base .card hover lift (translateY + soft shadow) inside
-   this carousel specifically, so hovering a featured stay only plays the
-   one zoom animation above rather than that plus a second, different
-   animation on the nested .card. */
-.featured-stay-item .card:hover,
-.featured-stay-item .card:focus-visible {
-  box-shadow: none;
-  transform: none;
-}
-
-/* Equal-height cards regardless of how many lines the title wraps to —
-   without this, a longer title (e.g. "Table Mountain View House"
-   wrapping to two lines) pushed that one card's "View details" link
-   down, making it visibly taller than its siblings. Scoped to this
-   carousel specifically rather than changing the shared .card/
-   .card-content rules every other card grid (hotels, restaurants,
-   apartment lists) also uses. */
-.featured-stay-item .card {
+.featured-stay-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  color: inherit;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
 }
 
-.featured-stay-item .card-content {
+.featured-stay-card:hover,
+.featured-stay-card:focus-visible {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  transform: translateY(-4px);
+}
+
+.featured-stay-card-image-wrap {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.featured-stay-card-heart {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  color: #1b2632;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  position: absolute;
+  right: 0.6rem;
+  top: 0.6rem;
+  width: 30px;
+}
+
+.featured-stay-card-rating {
+  align-items: center;
+  background: rgba(20, 40, 50, 0.75);
+  border-radius: 999px;
+  bottom: 0.6rem;
+  color: #fff;
+  display: flex;
+  font-size: 0.75rem;
+  font-weight: 700;
+  gap: 0.3rem;
+  left: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  position: absolute;
+}
+
+.featured-stay-card-rating svg {
+  color: #ffb648;
+}
+
+.featured-stay-card-content {
   display: flex;
   flex: 1;
   flex-direction: column;
+  padding: 0.9rem 1rem 1.1rem;
 }
 
-.featured-stay-item .details-link {
-  margin-top: auto;
-  padding-top: 0.5rem;
+.featured-stay-card-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
 }
 
-/* Split sections (easy-to-use, recommendations, plan-with-friends) */
-.split-section {
+.featured-stay-card-location {
   align-items: center;
-  display: grid;
-  gap: 2.5rem;
-  grid-template-columns: 1fr 1fr;
-  padding: 3.5rem 1.5rem;
+  color: var(--color-text-subtle);
+  display: flex;
+  font-size: 0.82rem;
+  gap: 0.3rem;
+  margin: 0 0 0.6rem;
 }
 
-.split-reverse {
-  direction: rtl;
+.featured-stay-card-price {
+  color: var(--color-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
 }
 
-.split-reverse > * {
-  direction: ltr;
+.featured-stay-card-price span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-.split-visual {
+.featured-stay-card-btn {
+  align-items: center;
   background: var(--color-secondary-bg);
-  border-radius: 14px;
-  height: 320px;
-  overflow: hidden;
-  position: relative;
+  border-radius: 999px;
+  color: var(--color-text);
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 600;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: auto;
+  padding: 0.55rem 1rem;
+  transition: background 0.15s ease;
 }
 
-/* Real navigation tiles filling .split-visual — see ExploreCategories.tsx
-   for why this replaced a sometimes-photo/sometimes-empty-box slot. A
-   simple 2x2 grid rather than attempting the circular/ring layout from
-   the original design reference: the ring relies on a decorative
-   laptop-screenshot centerpiece these tiles deliberately don't have, so a
-   plain grid reads more honestly as "four links" than as an illustration
-   missing its middle. */
+.featured-stay-card:hover .featured-stay-card-btn {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+/* Real navigation tiles used inside a plain 2x2 grid slot on the
+   apartments/activities/restaurants/hotels index pages (see
+   ExploreCategories.tsx) — kept as-is; not part of this homepage
+   redesign, whose "Discover"/"Personalized" panels (see
+   .discover-panels below) replaced the old split-section layout this
+   grid used to live inside on the home page specifically. */
 .explore-categories {
   display: grid;
   gap: 1px;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   height: 100%;
-  /* The 1px gap plus this background shows through as thin dividing
-     lines between tiles, without needing a border on every tile edge
-     (which would double up where two tiles meet). */
   background: var(--color-border);
 }
 
@@ -1589,53 +1749,154 @@ body {
   opacity: 0.8;
 }
 
-.split-text .section-title.split-title {
-  text-align: left;
+/* Discover / Personalized panels (replaces the old .split-section pair) */
+.discover-panels {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 auto;
+  max-width: 1080px;
+  padding: 1rem 0 3.5rem;
 }
 
-.split-text p {
-  color: var(--color-text-muted);
-}
-
-.recommendations-visual {
+.discover-panel {
   align-items: center;
-  display: flex;
-  justify-content: center;
+  border-radius: 18px;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1.3fr 1fr;
+  padding: 2rem;
 }
 
-.recommendations-mock-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  padding: 1.5rem;
-  width: 80%;
+.discover-panel-explore {
+  background: #e4f1ee;
 }
 
-.recommendations-mock-line {
-  background: var(--color-secondary-bg);
+.discover-panel-personalized {
+  background: #fbead9;
+}
+
+.discover-panel-eyebrow {
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.discover-panel-eyebrow-alt {
+  color: #b5651d;
+}
+
+.discover-panel-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+}
+
+.discover-panel-body {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+}
+
+.discover-panel-btn {
+  align-items: center;
   border-radius: 999px;
-  display: block;
-  height: 12px;
+  display: inline-flex;
+  font-size: 0.85rem;
+  font-weight: 700;
+  gap: 0.4rem;
+  padding: 0.65rem 1.3rem;
+  text-decoration: none;
+}
+
+.discover-panel-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.discover-panel-btn-dark {
+  background: #1b2632;
+  color: #fff;
+}
+
+.discover-panel-visual {
+  position: relative;
+}
+
+.discover-panel-photo-card {
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+  position: relative;
+  transform: rotate(3deg);
   width: 100%;
 }
 
-.recommendations-mock-line-title {
-  height: 16px;
-  width: 60%;
+.discover-panel-photo-card-tagged {
+  transform: rotate(-3deg);
 }
 
-.recommendations-mock-line-short {
-  width: 40%;
-}
-
-/* FAQ accordion */
-.faq-list {
+.discover-panel-photo-chip {
+  align-items: center;
+  background: #fff;
+  border-radius: 999px;
+  bottom: 0.7rem;
+  color: #1b2632;
   display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  left: 0.7rem;
+  padding: 0.3rem 0.6rem;
+  position: absolute;
+}
+
+.discover-panel-photo-label {
+  background: #fff;
+  border-radius: 8px;
+  color: #1b2632;
+  font-size: 0.75rem;
+  font-weight: 700;
+  left: 0.7rem;
+  padding: 0.3rem 0.55rem;
+  position: absolute;
+  top: 0.7rem;
+}
+
+.discover-panel-tag {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  color: #1b2632;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  position: absolute;
+}
+
+.discover-panel-tag-1 {
+  bottom: 2.6rem;
+  left: 0.7rem;
+}
+
+.discover-panel-tag-2 {
+  bottom: 1.5rem;
+  left: 2.6rem;
+}
+
+.discover-panel-tag-3 {
+  bottom: 0.5rem;
+  left: 1.5rem;
+}
+
+/* FAQ accordion — two-column grid to match the design reference */
+.faq-list {
+  display: grid;
+  gap: 0.9rem 1.5rem;
+  grid-template-columns: 1fr 1fr;
 }
 
 .faq-item {
@@ -1648,6 +1909,11 @@ body {
 .faq-question {
   cursor: pointer;
   font-weight: 600;
+  list-style: none;
+}
+
+.faq-question::-webkit-details-marker {
+  display: none;
 }
 
 .faq-answer {
@@ -1655,23 +1921,61 @@ body {
   margin: 0.7rem 0 0;
 }
 
-/* Testimonials */
+/* Testimonials — horizontal carousel of avatar cards, same prev/next
+   pattern as the destinations/activities carousels above. */
+.testimonial-carousel-wrap {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
 .testimonial-list {
-  display: grid;
-  gap: 1.2rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding: 4px 4px 0.5rem;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  width: 100%;
+}
+
+.testimonial-list::-webkit-scrollbar {
+  display: none;
 }
 
 .testimonial-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 14px;
+  flex: 0 0 calc((100% - 2 * 1.25rem) / 3);
   margin: 0;
-  padding: 1.3rem;
+  min-width: 260px;
+  padding: 1.4rem;
+}
+
+.testimonial-card-header {
+  align-items: center;
+  display: flex;
+  gap: 0.7rem;
+  margin: 0 0 0.8rem;
+}
+
+.testimonial-avatar {
+  align-items: center;
+  background: var(--color-primary);
+  border-radius: 999px;
+  color: var(--color-primary-text);
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
 }
 
 .testimonial-card blockquote {
-  margin: 0.7rem 0;
+  margin: 0.7rem 0 0;
 }
 
 .testimonial-author {
@@ -1681,7 +1985,7 @@ body {
 
 .testimonial-context {
   color: var(--color-text-subtle);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* Destination gallery ("Explore more destinations") — a scrollable strip
@@ -1810,19 +2114,25 @@ body {
   margin: 0;
 }
 
-/* Footer */
+/* Footer — dark navy, matches the design reference; applies site-wide
+   since Footer is shared chrome rendered on every page (see AppShell.tsx),
+   not just the home page. */
 .site-footer {
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  padding: 3rem 2rem 1.5rem;
+  background: #16213a;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 3.5rem 2rem 1.5rem;
 }
 
 .footer-columns {
   display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2.5rem;
+  grid-template-columns: 1.3fr 1fr 1fr 1.3fr;
   margin: 0 auto;
   max-width: 1080px;
+}
+
+.footer-column-brand .brand {
+  color: #fff;
 }
 
 .footer-brand {
@@ -1830,26 +2140,33 @@ body {
 }
 
 .footer-tagline {
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0.5rem 0 1rem;
 }
 
 .footer-heading {
+  color: #fff;
   font-size: 0.95rem;
-  margin: 0 0 0.8rem;
+  margin: 0 0 1rem;
 }
 
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .footer-links a {
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.65);
   text-decoration: none;
+}
+
+.footer-links-placeholder li {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
 }
 
 .footer-social {
@@ -1859,19 +2176,61 @@ body {
 
 .footer-social-icon {
   align-items: center;
-  background: var(--color-secondary-bg);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
+  color: #fff;
   display: flex;
-  height: 34px;
+  height: 32px;
   justify-content: center;
-  width: 34px;
+  width: 32px;
+}
+
+.footer-newsletter-copy {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.88rem;
+  margin: 0 0 1rem;
+}
+
+.footer-newsletter-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.footer-newsletter-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #fff;
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 1rem;
+}
+
+.footer-newsletter-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-newsletter-submit {
+  align-items: center;
+  background: var(--color-primary);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
 }
 
 .footer-bottom {
-  color: var(--color-text-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.55);
   font-size: 0.85rem;
   margin: 2.5rem auto 0;
   max-width: 1080px;
+  padding-top: 1.5rem;
   text-align: center;
 }
 
@@ -1897,9 +2256,20 @@ body {
 }
 
 @media (max-width: 900px) {
-  .split-section,
-  .split-reverse {
+  .discover-panel {
     grid-template-columns: 1fr;
+  }
+
+  .discover-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-list {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-columns {
+    grid-template-columns: 1fr 1fr;
   }
 
   .destinations-carousel,
@@ -1910,6 +2280,10 @@ body {
 
   .featured-stays-row {
     --carousel-visible: 2;
+  }
+
+  .testimonial-card {
+    flex-basis: calc((100% - 1.25rem) / 2);
   }
 }
 
@@ -1944,9 +2318,42 @@ body {
     font-size: 1rem;
   }
 
+  .hero-content {
+    top: 84px;
+  }
+
+  .hero-image-wrap {
+    height: 940px;
+  }
+
   .hero-search {
-    border-radius: 16px;
+    align-items: stretch;
+    border-radius: 20px;
     flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .hero-search-divider {
+    display: none;
+  }
+
+  .hero-search-submit {
+    border-radius: 999px;
+    width: 100%;
+  }
+
+  .destinations-section {
+    bottom: 60px;
+  }
+
+  .footer-columns {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .discover-panel-visual {
+    margin: 0 auto;
+    max-width: 220px;
   }
 
   .destination-tabs {
@@ -1979,6 +2386,10 @@ body {
 
   .featured-stays-row {
     --carousel-visible: 1;
+  }
+
+  .testimonial-card {
+    flex-basis: 85%;
   }
 
   .search-filters input[type="number"] {

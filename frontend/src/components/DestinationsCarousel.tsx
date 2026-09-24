@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { natGeoDestinations } from "../data/natGeoDestinations";
 
 const AUTO_ADVANCE_MS = 2000;
@@ -33,10 +33,14 @@ function DestinationTile({ destination, hidden }: { destination: Destination; hi
           sizes="220px"
           style={{ objectFit: "cover" }}
         />
-      </div>
-      <div className="destination-tile-content">
-        <h3 className="destination-tile-name">{destination.name}</h3>
-        <p className="destination-tile-location">{destination.location}</p>
+        <div className="destination-tile-scrim" />
+        <div className="destination-tile-content">
+          <h3 className="destination-tile-name">
+            <MapPin size={13} aria-hidden="true" />
+            {destination.name}
+          </h3>
+          <p className="destination-tile-location">{destination.location}</p>
+        </div>
       </div>
     </Link>
   );

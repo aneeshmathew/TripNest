@@ -1,23 +1,40 @@
+import Image from "next/image";
 import Link from "next/link";
-import ExploreCategories from "./ExploreCategories";
+import { ArrowRight, MapPin } from "lucide-react";
 
+// "Discover" panel — search by destination is a real, already-working
+// feature (see LocationAutosuggest + app/page.tsx's search-results state),
+// so this panel links straight into that instead of illustrating a
+// feature that doesn't exist.
 function EasyToUseSection() {
   return (
-    <section className="section split-section">
-      <div className="split-visual">
-        <ExploreCategories />
-      </div>
-      <div className="split-text">
-        <p className="eyebrow">Search, compare, book</p>
-        <h2 className="section-title split-title">Ridiculously easy to find your next stay</h2>
-        <p>
-          Search by destination, filter by price and rating, or just click a region on the map.
-          Every listing shows real reviews from real guests, so you know what you&apos;re booking
-          before you book it.
+    <section className="discover-panel discover-panel-explore">
+      <div className="discover-panel-text">
+        <p className="discover-panel-eyebrow">Discover</p>
+        <h2 className="discover-panel-title">Find your perfect destination</h2>
+        <p className="discover-panel-body">
+          Search by location, dates, or explore beautiful places with rich details and photos,
+          curated just for you.
         </p>
-        <Link href="/" className="primary-btn">
+        <Link href="/apartments" className="discover-panel-btn discover-panel-btn-primary">
           Start exploring
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
+      </div>
+      <div className="discover-panel-visual" aria-hidden="true">
+        <div className="discover-panel-photo-card">
+          <Image
+            src="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=500&q=80"
+            alt=""
+            fill
+            sizes="220px"
+            style={{ objectFit: "cover" }}
+          />
+          <span className="discover-panel-photo-chip">
+            <MapPin size={12} aria-hidden="true" />
+            Bali
+          </span>
+        </div>
       </div>
     </section>
   );

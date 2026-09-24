@@ -3,29 +3,39 @@ interface FaqItem {
   answer: string;
 }
 
-// Real answers about how TripNest actually works, not generic filler —
-// the one content section here that doesn't need real backend data to be
-// genuinely accurate.
+// Question wording matches the design reference exactly. Answers are
+// written to be honest about what TripNest actually does today (browsing/
+// search + reviews, no live booking or payment flow yet) rather than
+// promising booking/payment features that don't exist — same principle
+// the original FAQ copy followed.
 const faqs: FaqItem[] = [
   {
-    question: "How do I find a place to stay?",
+    question: "How do I book a stay on TripNest?",
     answer:
-      "Use the search bar to look up a destination, click a region on the map, or filter by price and rating. Results update instantly — no account needed to browse."
+      "Browse or search for a place, open its listing page, and use the host's contact details there — TripNest doesn't process bookings directly yet."
   },
   {
-    question: "Do I need an account to browse listings?",
+    question: "Can I modify or cancel my booking?",
     answer:
-      "No — browsing and searching are open to everyone. You'll need to log in to leave a review."
+      "Since bookings happen directly with the host rather than through TripNest, any changes or cancellations are handled with them, not through this site."
   },
   {
-    question: "How does the rating system work?",
+    question: "What is your cancellation policy?",
     answer:
-      "Each listing's rating is the average of its real guest reviews, recalculated automatically every time a review is added, edited, or removed — it's never set manually."
+      "TripNest doesn't set cancellation policies — each host or property sets their own, so check the listing page or ask the host directly."
   },
   {
-    question: "Can I leave more than one review for the same place?",
+    question: "Do you offer 24/7 customer support?",
+    answer: "Not yet — for now, questions about a specific stay are best directed to that listing's host."
+  },
+  {
+    question: "Are the prices per night or per person?",
+    answer: "Listed prices are per night for the whole place, not per person, unless a listing says otherwise."
+  },
+  {
+    question: "What payment methods do you accept?",
     answer:
-      "One review per listing per account, to keep ratings honest. You can edit or delete your own review at any time."
+      "TripNest doesn't handle payments — you'd arrange payment directly with the host, however they accept it."
   }
 ];
 
@@ -33,6 +43,7 @@ function FaqSection() {
   return (
     <section className="section faq-section" id="faq">
       <h2 className="section-title">Frequently asked questions</h2>
+      <p className="section-subtitle">Everything you need to know before you go.</p>
       <div className="faq-list">
         {faqs.map((faq) => (
           <details key={faq.question} className="faq-item">

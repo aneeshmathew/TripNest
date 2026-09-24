@@ -2,8 +2,9 @@ import DestinationsCarousel from "./DestinationsCarousel";
 
 function DestinationsSection() {
   return (
-    <section className="section destinations-section">
-      <p className="section-subtitle">Check out the top destinations of the year and choose your next getaway.</p>
+    <section className="destinations-section">
+      <h2 className="destinations-heading">Popular Destinations</h2>
+      <p className="destinations-subheading">Top places travelers love</p>
       <DestinationsCarousel />
     </section>
   );

@@ -49,6 +49,8 @@ export interface ActivityHighlight {
    * Apartments/Hotels/Restaurants/Reviews tabs.
    */
   location: string;
+  /** Illustrative rough visit length shown on the card, e.g. "3 hours". */
+  durationLabel: string;
 }
 
 export const activityHighlights: ActivityHighlight[] = [
@@ -59,7 +61,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["adventure"],
     imageUrl:
       "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80",
-    location: "Dublin, Ireland"
+    location: "Dublin, Ireland",
+    durationLabel: "6 hours"
   },
   {
     slug: "animal-watching",
@@ -68,7 +71,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["adventure", "other-activities"],
     imageUrl:
       "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=600&q=80",
-    location: "Akagera National Park, Rwanda"
+    location: "Akagera National Park, Rwanda",
+    durationLabel: "4 hours"
   },
   {
     slug: "surfing",
@@ -77,7 +81,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["water-sports", "high-adrenaline"],
     imageUrl:
       "https://images.unsplash.com/photo-1671387572483-096ea6d3c069?auto=format&fit=crop&w=600&q=80",
-    location: "Coastal Oaxaca, Mexico"
+    location: "Coastal Oaxaca, Mexico",
+    durationLabel: "3 hours"
   },
   {
     slug: "cycling",
@@ -86,7 +91,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["adventure"],
     imageUrl:
       "https://images.unsplash.com/photo-1471506480208-91b3a4cc78be?auto=format&fit=crop&w=600&q=80",
-    location: "Dubrovnik, Croatia"
+    location: "Dubrovnik, Croatia",
+    durationLabel: "5 hours"
   },
   {
     slug: "kayaking",
@@ -95,7 +101,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["water-sports"],
     imageUrl:
       "https://images.unsplash.com/photo-1696469014188-e6d7ea983c56?auto=format&fit=crop&w=600&q=80",
-    location: "Queenstown, New Zealand"
+    location: "Queenstown, New Zealand",
+    durationLabel: "3 hours"
   },
   {
     slug: "whale-watching",
@@ -108,7 +115,8 @@ export const activityHighlights: ActivityHighlight[] = [
     // also a real, if different, whale-watching destination we do have
     // seeded inventory for, so the tabs show real results rather than
     // staying empty over a place we can't yet back up.
-    location: "Reykjavík, Iceland"
+    location: "Reykjavík, Iceland",
+    durationLabel: "3 hours"
   },
   {
     slug: "nightlife",
@@ -117,7 +125,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["other-activities"],
     imageUrl:
       "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=600&q=80",
-    location: "Rio de Janeiro, Brazil"
+    location: "Rio de Janeiro, Brazil",
+    durationLabel: "4 hours"
   },
   {
     slug: "rock-climbing",
@@ -126,7 +135,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["high-adrenaline", "adventure"],
     imageUrl:
       "https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=600&q=80",
-    location: "The Dolomites, Italy"
+    location: "The Dolomites, Italy",
+    durationLabel: "5 hours"
   },
   {
     slug: "skydiving",
@@ -135,7 +145,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["high-adrenaline"],
     imageUrl:
       "https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=600&q=80",
-    location: "Queenstown, New Zealand"
+    location: "Queenstown, New Zealand",
+    durationLabel: "3 hours"
   },
   {
     slug: "ancient-ruins",
@@ -144,7 +155,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["history-culture"],
     imageUrl:
       "https://images.unsplash.com/photo-1596386461350-326ccb383e9f?auto=format&fit=crop&w=600&q=80",
-    location: "Khiva, Uzbekistan"
+    location: "Khiva, Uzbekistan",
+    durationLabel: "3 hours"
   },
   {
     slug: "temple-trail",
@@ -153,7 +165,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["history-culture"],
     imageUrl:
       "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=600&q=80",
-    location: "Beijing, China"
+    location: "Beijing, China",
+    durationLabel: "3 hours"
   },
   {
     slug: "scuba-diving",
@@ -162,7 +175,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["water-sports"],
     imageUrl:
       "https://images.unsplash.com/photo-1542259009477-d625272157b7?auto=format&fit=crop&w=600&q=80",
-    location: "Maui, Hawaii, USA"
+    location: "Maui, Hawaii, USA",
+    durationLabel: "2 hours"
   },
   {
     slug: "skiing",
@@ -171,7 +185,8 @@ export const activityHighlights: ActivityHighlight[] = [
     categories: ["adventure", "high-adrenaline"],
     imageUrl:
       "https://images.unsplash.com/photo-1708607487609-45758252b5ee?auto=format&fit=crop&w=600&q=80",
-    location: "The Dolomites, Italy"
+    location: "The Dolomites, Italy",
+    durationLabel: "6 hours"
   },
   {
     slug: "mountaineering",
@@ -183,6 +198,7 @@ export const activityHighlights: ActivityHighlight[] = [
     // Zürich is the nearest seeded gateway city to "the Alps" generally —
     // the title doesn't name one country's stretch of the Alps
     // specifically, so this is the closest honest anchor we have.
-    location: "Zürich, Switzerland"
+    location: "Zürich, Switzerland",
+    durationLabel: "8 hours"
   }
 ];

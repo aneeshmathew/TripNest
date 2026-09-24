@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import ApartmentCard from "./ApartmentCard";
+import FeaturedStayCard from "./FeaturedStayCard";
 import type { Listing } from "../types/listing";
 
 interface FeaturedStaysProps {
@@ -31,7 +31,7 @@ function FeaturedStays({ listings }: FeaturedStaysProps) {
   return (
     <section className="section featured-stays-section" id="featured-stays">
       <h2 className="section-title">Featured stays</h2>
-      <p className="section-subtitle">Our highest-rated apartments, picked by real guests</p>
+      <p className="section-subtitle">Handpicked accommodations for every kind of traveler.</p>
       <div className="featured-stays-carousel-wrap">
         <button
           type="button"
@@ -46,7 +46,7 @@ function FeaturedStays({ listings }: FeaturedStaysProps) {
         <div className="featured-stays-row" ref={trackRef}>
           {listings.map((listing) => (
             <div className="featured-stay-item" key={listing.id}>
-              <ApartmentCard apartment={listing} />
+              <FeaturedStayCard apartment={listing} />
             </div>
           ))}
         </div>

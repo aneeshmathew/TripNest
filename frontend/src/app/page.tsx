@@ -1,7 +1,5 @@
 import ActivitiesSection from "../components/ActivitiesSection";
 import ApartmentList from "../components/ApartmentList";
-import DestinationGallery from "../components/DestinationGallery";
-import DestinationsSection from "../components/DestinationsSection";
 import EasyToUseSection from "../components/EasyToUseSection";
 import FaqSection from "../components/FaqSection";
 import FeaturedStays from "../components/FeaturedStays";
@@ -55,14 +53,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     return (
       <>
         <Hero />
-        <DestinationsSection />
         <ActivitiesSection />
         <FeaturedStays listings={featuredListings} />
-        <EasyToUseSection />
-        <RecommendationsSection />
+        <div className="discover-panels">
+          <EasyToUseSection />
+          <RecommendationsSection />
+        </div>
         <FaqSection />
         <TestimonialSection reviews={featuredReviews} />
-        <DestinationGallery />
       </>
     );
   }
@@ -72,18 +70,26 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     listings = await getListings(filters);
   } catch {
     return (
-      <>
+      <div className="search-results-page">
+        {/* AppShell treats every "/" visit as the hero page (no top padding,
+            no dark backdrop behind the transparent navbar) — right for the
+            marketing Hero above, wrong here, so this state supplies its
+            own local backdrop bar + top padding rather than the usual
+            .app-background-graphic + .container padding-top AppShell adds
+            on every other route. See AppShell.tsx's comment. */}
+        <div className="app-background-graphic" aria-hidden="true" />
         <SearchResultsIntro />
         <SearchFilters defaultValues={filters} />
         <p className="status-text error-text">
           Couldn&apos;t load apartments. Is the backend running?
         </p>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="search-results-page">
+      <div className="app-background-graphic" aria-hidden="true" />
       <SearchResultsIntro />
       <SearchFilters defaultValues={filters} />
       {listings.length === 0 ? (
@@ -91,7 +97,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       ) : (
         <ApartmentList apartments={listings} />
       )}
-    </>
+    </div>
   );
 }
 
