@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import BrandMark from "./BrandMark";
 import ThemeIcon from "./ThemeIcon";
@@ -16,15 +15,6 @@ function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
-  // Mirrors AppShell.tsx's isHome check (pathname === "/" only — see that
-  // file's comment on why it doesn't also check search-params). "/" has a
-  // second, non-hero state (active search filters — see app/page.tsx),
-  // where this hides the toggle too; that state supplies its own local
-  // backdrop bar there specifically so the transparent/white nav styling
-  // stays legible, rather than this component trying to distinguish the
-  // two states itself.
-  const showThemeToggle = pathname !== "/";
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -55,17 +45,15 @@ function Navbar() {
         <BrandMark />
       </Link>
       <div className="nav-actions">
-        {showThemeToggle && (
-          <button
-            type="button"
-            className="theme-toggle-icon-btn"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            data-testid="navbar-theme-toggle-btn"
-          >
-            <ThemeIcon theme={theme} />
-          </button>
-        )}
+        <button
+          type="button"
+          className="theme-toggle-icon-btn"
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          data-testid="navbar-theme-toggle-btn"
+        >
+          <ThemeIcon theme={theme} />
+        </button>
         {isAuthenticated ? (
           <div className="account-menu" ref={menuRef}>
             <button

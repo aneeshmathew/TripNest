@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
@@ -10,12 +10,22 @@ export interface DestinationTileData {
   name: string;
   location: string;
   imageUrl: string;
+  /** Local picsum placeholder — swapped in client-side if imageUrl (the
+      real Unsplash photo) fails to load. See DestinationTile below. */
+  fallbackImageUrl: string;
 }
 
-const AUTO_ADVANCE_MS = 5000;
 const TILES_PER_PAGE = 6;
 
+// Unsplash's CDN occasionally fails a hotlinked image request (rate
+// limiting, a transient 5xx, a since-removed photo) even though the
+// server-side search that found its URL succeeded — that's a client-side
+// image-load failure, not something a server cache can prevent. This
+// swaps to the stable local placeholder if that happens, so a bad request
+// shows a plain placeholder instead of a broken-image icon.
 function DestinationTile({ destination }: { destination: DestinationTileData }) {
+  const [imageFailed, setImageFailed] = useState(false);
+
   return (
     <Link
       href={`/destinations/${destination.slug}`}
@@ -24,11 +34,12 @@ function DestinationTile({ destination }: { destination: DestinationTileData }) 
     >
       <div className="destination-tile-image-wrap">
         <Image
-          src={destination.imageUrl}
+          src={imageFailed ? destination.fallbackImageUrl : destination.imageUrl}
           alt={destination.name}
           fill
-          sizes="220px"
+          sizes="(max-width: 768px) 45vw, 220px"
           style={{ objectFit: "cover" }}
+          onError={() => setImageFailed(true)}
         />
         <div className="destination-tile-scrim" />
         <div className="destination-tile-content">
@@ -46,46 +57,25 @@ function DestinationTile({ destination }: { destination: DestinationTileData }) 
 // Each tile links straight to /destinations/[slug] — a real page built
 // from our own listings/hotels/restaurants/reviews for that location.
 //
-// Paginated (not continuous-scroll) carousel: TILES_PER_PAGE (6) tiles
-// per page, prev/next and the dots below all jump a full page at once,
-// matching the design reference's page-dot pattern rather than the
-// smooth one-tile-at-a-time drift this used to do. Auto-advances one page
-// every 5s, wrapping from the last page back to the first; pauses on
-// hover/focus so it doesn't yank a page out from under someone mid-click.
+// Paginated (not continuous-scroll, and no longer auto-advancing — removed
+// per request) carousel: TILES_PER_PAGE (6) tiles per page, prev/next and
+// the dots below all jump a full page at once. Purely user-driven now —
+// nothing moves until a button or dot is clicked.
 function DestinationsCarousel({ destinations }: { destinations: DestinationTileData[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
   const [activePage, setActivePage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(destinations.length / TILES_PER_PAGE));
 
-  const scrollToPage = (page: number, behavior: ScrollBehavior = "smooth") => {
+  const goToPage = (page: number) => {
+    const wrapped = (page + totalPages) % totalPages;
+    setActivePage(wrapped);
     const track = trackRef.current;
     if (!track) return;
     // One page = the track's own visible width (it's stretched to fill
     // the space between the two nav buttons — see .destinations-carousel
     // { flex: 1 } — so clientWidth here is exactly 6 tiles wide).
-    track.scrollTo({ left: page * track.clientWidth, behavior });
+    track.scrollTo({ left: wrapped * track.clientWidth, behavior: "smooth" });
   };
-
-  const goToPage = (page: number, behavior: ScrollBehavior = "smooth") => {
-    const wrapped = (page + totalPages) % totalPages;
-    setActivePage(wrapped);
-    scrollToPage(wrapped, behavior);
-  };
-
-  useEffect(() => {
-    if (isPaused || totalPages <= 1) return;
-
-    const interval = setInterval(() => {
-      setActivePage((current) => {
-        const next = (current + 1) % totalPages;
-        scrollToPage(next);
-        return next;
-      });
-    }, AUTO_ADVANCE_MS);
-
-    return () => clearInterval(interval);
-  }, [isPaused, totalPages]);
 
   if (destinations.length === 0) {
     return null;
@@ -93,13 +83,7 @@ function DestinationsCarousel({ destinations }: { destinations: DestinationTileD
 
   return (
     <>
-      <div
-        className="destinations-carousel-wrap"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onFocus={() => setIsPaused(true)}
-        onBlur={() => setIsPaused(false)}
-      >
+      <div className="destinations-carousel-wrap">
         <button
           type="button"
           className="carousel-nav-btn carousel-nav-prev"

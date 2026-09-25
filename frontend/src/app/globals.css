@@ -177,12 +177,21 @@ body {
 }
 
 .nav-link {
+  appearance: none;
+  background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
   font-weight: 600;
   padding: 0.55rem 1.3rem;
   text-decoration: none;
   transition: background 0.15s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .nav-link:hover,
@@ -1086,8 +1095,11 @@ body {
 .destinations-section {
   bottom: 78px;
   left: 0;
+  margin: 0 auto;
+  max-width: 1400px;
   padding: 0 2.5rem;
   position: absolute;
+  right: 0;
   width: 100%;
   z-index: 2;
 }
@@ -1210,7 +1222,10 @@ body {
 }
 
 .destination-tile-image-wrap {
-  aspect-ratio: 4 / 5;
+  /* Landscape (was 4/5 portrait) — that ratio, combined with 6 tiles
+     stretched across the full hero width, made each tile much taller
+     than intended ("too big" — see the reported screenshot). */
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -1285,18 +1300,24 @@ body {
   align-items: center;
   display: flex;
   gap: 0.6rem;
+  width: 100%;
 }
 
 .activities-carousel {
   --carousel-visible: 5;
   display: flex;
+  /* flex: 1 + min-width: 0 — see .destinations-carousel's comment for why
+     this matters; added here too so this carousel reliably stretches to
+     fill the row instead of relying on width: 100%'s browser-dependent
+     flex-basis behavior. */
+  flex: 1;
   gap: 1rem;
+  min-width: 0;
   overflow-x: auto;
   padding: 4px 4px 0.5rem;
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
-  width: 100%;
 }
 
 .activities-carousel::-webkit-scrollbar {
@@ -1366,6 +1387,10 @@ body {
 
 .activity-tile-badge-other-activities {
   background: #4a6a55;
+}
+
+.activity-tile-badge-nightlife {
+  background: #7b3fa0;
 }
 
 .activity-tile-body {

@@ -18,6 +18,7 @@ export type ActivityCategoryId =
   | "high-adrenaline"
   | "water-sports"
   | "history-culture"
+  | "nightlife"
   | "other-activities";
 
 export interface ActivityCategoryFilter {
@@ -31,6 +32,7 @@ export const ACTIVITY_CATEGORY_FILTERS: ActivityCategoryFilter[] = [
   { id: "high-adrenaline", label: "High Adrenaline" },
   { id: "water-sports", label: "Water Sports" },
   { id: "history-culture", label: "History & Culture" },
+  { id: "nightlife", label: "Nightlife" },
   { id: "other-activities", label: "Other Activities" }
 ];
 
@@ -122,7 +124,7 @@ export const activityHighlights: ActivityHighlight[] = [
     slug: "nightlife",
     activity: "Party",
     title: "Best of Rio's Carnival Nights",
-    categories: ["other-activities"],
+    categories: ["nightlife"],
     imageUrl:
       "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=600&q=80",
     location: "Rio de Janeiro, Brazil",

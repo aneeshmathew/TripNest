@@ -17,7 +17,8 @@ async function DestinationsSection() {
       imageUrl: await getDestinationPhotoUrl(
         `${destination.name} ${destination.location}`,
         destination.imageUrl
-      )
+      ),
+      fallbackImageUrl: destination.imageUrl
     }))
   );
 
