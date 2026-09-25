@@ -129,7 +129,13 @@ body {
   justify-content: space-between;
   left: 0;
   padding: 0 2rem;
-  position: fixed;
+  /* absolute, not fixed — per request, the nav should scroll away with
+     the page rather than stay pinned to the viewport while everything
+     else scrolls underneath it. .container's own padding-top (below)
+     still reserves the same vertical space for it either way, since an
+     absolutely-positioned element is out of normal flow exactly like a
+     fixed one is. */
+  position: absolute;
   right: 0;
   top: 0;
   z-index: 50;
@@ -312,7 +318,12 @@ body {
   height: var(--navbar-height);
   left: 0;
   pointer-events: none;
-  position: fixed;
+  /* absolute, not fixed — matches .navbar's change above. This bar exists
+     purely as a backdrop directly behind the navbar on non-hero pages
+     (see AppShell.tsx), so it needs to scroll away together with it
+     rather than staying pinned once the navbar it's backing has already
+     scrolled off. */
+  position: absolute;
   right: 0;
   top: 0;
   z-index: 40;
@@ -973,16 +984,15 @@ body {
 }
 
 .hero-title {
-  font-size: 2.9rem;
-  line-height: 1.15;
-  margin: 0 0 1rem;
-  max-width: 620px;
+  font-size: 2.2rem;
+  line-height: 1.2;
+  margin: 0 0 0.85rem;
+  max-width: 900px;
 }
 
 .hero-subtitle {
-  font-size: 1.05rem;
-  margin: 0 0 2rem;
-  max-width: 480px;
+  font-size: 0.98rem;
+  margin: 0 0 1.6rem;
   opacity: 0.92;
 }
 
@@ -996,8 +1006,8 @@ body {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   display: flex;
   gap: 0;
-  max-width: 620px;
-  padding: 0.4rem;
+  max-width: 900px;
+  padding: 0.3rem;
 }
 
 .hero-search-field {
@@ -1007,7 +1017,7 @@ body {
   flex: 1 1 auto;
   gap: 0.5rem;
   min-width: 0;
-  padding: 0.5rem 0.9rem;
+  padding: 0.4rem 0.9rem;
 }
 
 .hero-search-field-location {
@@ -1065,10 +1075,10 @@ body {
   cursor: pointer;
   display: flex;
   flex-shrink: 0;
-  height: 46px;
+  height: 40px;
   justify-content: center;
   transition: background 0.15s ease;
-  width: 46px;
+  width: 40px;
 }
 
 .hero-search-submit:hover,
@@ -1095,11 +1105,8 @@ body {
 .destinations-section {
   bottom: 78px;
   left: 0;
-  margin: 0 auto;
-  max-width: 1400px;
   padding: 0 2.5rem;
   position: absolute;
-  right: 0;
   width: 100%;
   z-index: 2;
 }
@@ -1222,10 +1229,11 @@ body {
 }
 
 .destination-tile-image-wrap {
-  /* Landscape (was 4/5 portrait) — that ratio, combined with 6 tiles
-     stretched across the full hero width, made each tile much taller
-     than intended ("too big" — see the reported screenshot). */
-  aspect-ratio: 3 / 2;
+  /* Square, per request — was 3/2 landscape, before that 4/5 portrait;
+     this is now an explicit "make it square" ask rather than a size fix,
+     so it's not tied to the tile-width/carousel-visible math the way the
+     earlier two were. */
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -1305,6 +1313,7 @@ body {
 
 .activities-carousel {
   --carousel-visible: 5;
+  align-items: stretch;
   display: flex;
   /* flex: 1 + min-width: 0 — see .destinations-carousel's comment for why
      this matters; added here too so this carousel reliably stretches to
@@ -1330,12 +1339,17 @@ body {
    text top-to-bottom). flex-basis math is the same percentage-of-track
    approach as .destination-tile above. */
 .activity-tile {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  /* Hardcoded light-theme colors (not var(--color-surface)/var(--color-
+     text)/etc.) — by request, these cards stay a plain white card with
+     dark text at all times, regardless of the site-wide dark/light theme
+     toggle, rather than following the theme like the rest of the page. */
+  background: #ffffff;
+  border: 1px solid #c9c1b1;
   border-radius: 14px;
-  color: inherit;
-  display: block;
+  color: #1b2632;
+  display: flex;
   flex: 0 0 calc((100% - (var(--carousel-visible) - 1) * 1rem) / var(--carousel-visible));
+  flex-direction: column;
   overflow: hidden;
   position: relative;
   scroll-snap-align: start;
@@ -1351,6 +1365,7 @@ body {
 
 .activity-tile-image-wrap {
   aspect-ratio: 4 / 3;
+  flex-shrink: 0;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -1394,35 +1409,57 @@ body {
 }
 
 .activity-tile-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: 0.9rem 1rem 1rem;
 }
 
 .activity-tile-title {
-  color: var(--color-text);
+  /* Hardcoded, matching .activity-tile's forced-light-theme approach —
+     see that rule's comment. */
+  color: #1b2632;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.3;
   margin: 0 0 0.35rem;
+  min-height: 2.6em;
+  overflow: hidden;
 }
 
 .activity-tile-location {
   align-items: center;
-  color: var(--color-text-subtle);
+  color: #7c8894;
   display: flex;
   font-size: 0.8rem;
   gap: 0.3rem;
   margin: 0 0 0.75rem;
 }
 
+.activity-tile-location svg {
+  flex-shrink: 0;
+}
+
+.activity-tile-location span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .activity-tile-footer {
   align-items: center;
   display: flex;
   justify-content: space-between;
+  margin-top: auto;
 }
 
 .activity-tile-duration {
   align-items: center;
-  color: var(--color-text-muted);
+  color: #52606d;
   display: flex;
   font-size: 0.78rem;
   gap: 0.3rem;
@@ -1430,7 +1467,7 @@ body {
 
 .activity-tile-arrow {
   align-items: center;
-  background: var(--color-secondary-bg);
+  background: #e4dfd3;
   border-radius: 999px;
   color: var(--color-primary);
   display: flex;
@@ -1634,14 +1671,18 @@ body {
 }
 
 .featured-stays-row {
-  --carousel-visible: 4;
+  --carousel-visible: 5;
   display: flex;
+  /* flex: 1 + min-width: 0 — same fix as .destinations-carousel/
+     .activities-carousel, added here for the same reason (reliable
+     stretch instead of relying on width: 100%'s flex-basis behavior). */
+  flex: 1;
   gap: 1.25rem;
+  min-width: 0;
   overflow-x: auto;
   padding: 4px 4px 0.5rem;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  width: 100%;
 }
 
 .featured-stays-row::-webkit-scrollbar {
@@ -1654,10 +1695,12 @@ body {
 }
 
 .featured-stay-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  /* Hardcoded light-theme colors — same "stays white/dark regardless of
+     site theme" approach as .activity-tile, see that rule's comment. */
+  background: #ffffff;
+  border: 1px solid #c9c1b1;
   border-radius: 14px;
-  color: inherit;
+  color: #1b2632;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1727,7 +1770,7 @@ body {
 
 .featured-stay-card-location {
   align-items: center;
-  color: var(--color-text-subtle);
+  color: #7c8894;
   display: flex;
   font-size: 0.82rem;
   gap: 0.3rem;
@@ -1742,16 +1785,16 @@ body {
 }
 
 .featured-stay-card-price span {
-  color: var(--color-text-muted);
+  color: #52606d;
   font-size: 0.8rem;
   font-weight: 500;
 }
 
 .featured-stay-card-btn {
   align-items: center;
-  background: var(--color-secondary-bg);
+  background: #e4dfd3;
   border-radius: 999px;
-  color: var(--color-text);
+  color: #1b2632;
   display: inline-flex;
   font-size: 0.82rem;
   font-weight: 600;

@@ -20,13 +20,10 @@ function Hero() {
         <div className="hero-content">
           <p className="hero-eyebrow">Plan &bull; Explore &bull; Travel</p>
           <h1 className="hero-title">
-            Find the perfect place
-            <br />
-            to make your next trip.
+            Find the perfect place to make your next trip.
           </h1>
           <p className="hero-subtitle">
-            Discover beautiful destinations, handpicked stays, and unforgettable experiences —
-            all in one place.
+            Discover beautiful destinations, handpicked stays, and unforgettable experiences — all in one place.
           </p>
 
           <form className="hero-search" method="GET" action="/plan" data-testid="hero-search-form">

@@ -86,7 +86,7 @@ function ActivityTile({ highlight }: { highlight: ResolvedActivityHighlight }) {
         <p className="activity-tile-title">{highlight.title}</p>
         <p className="activity-tile-location">
           <MapPin size={13} aria-hidden="true" />
-          {highlight.location}
+          <span>{highlight.location}</span>
         </p>
         <div className="activity-tile-footer">
           <span className="activity-tile-duration">
