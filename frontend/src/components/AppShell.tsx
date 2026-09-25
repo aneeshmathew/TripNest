@@ -14,10 +14,15 @@ import AuthModal from "./AuthModal";
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   // The marketing homepage Hero (see Hero.tsx) is a full-bleed photo
-  // section starting at the very top of the viewport — the decorative
-  // watermark, the dark navbar backdrop bar, and the illustration banner
-  // above the footer are all styled for the app's normal (non-hero) pages
-  // and would clash on top of the hero photo, so they're skipped on "/".
+  // section starting at the very top of the viewport — the dark navbar
+  // backdrop bar and the illustration banner above the footer are styled
+  // for the app's normal (non-hero) pages and would clash on top of the
+  // hero photo, so they're skipped on "/". The watermark is NOT skipped
+  // here (per request, it should show on the homepage too) — it's
+  // fixed-to-viewport and z-index: 0 (see TravelWatermark.tsx's own
+  // comment), so it just shows through wherever the page doesn't paint
+  // over it, same as any other page; it never actually clashed with the
+  // hero photo the way the other two would have.
   // Note: "/" also has a second state — search results, when a filter
   // query param is present (see app/page.tsx's hasActiveFilters) — which
   // is normal content, not the hero. Root layout/AppShell has no access
@@ -34,7 +39,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <AuthModalProvider>
           <div className="app">
             {!isHome && <div className="app-background-graphic" aria-hidden="true" />}
-            {!isHome && <TravelWatermark />}
+            <TravelWatermark />
             <Navbar />
             <main className={isHome ? "container container-flush" : "container"}>{children}</main>
             {!isHome && <TripIllustrationBanner />}

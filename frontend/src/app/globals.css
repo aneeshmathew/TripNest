@@ -971,7 +971,16 @@ body {
   text-align: left;
   top: 108px;
   width: 100%;
-  z-index: 2;
+  /* Higher than .destinations-section's z-index: 2 below — they're
+     siblings each establishing their own stacking context (both
+     position: absolute with an explicit z-index), so a z-index set on
+     something *inside* .hero-content (like .hero-search-panel's dropdown
+     — see HeroSearchBar.tsx) can never win against .destinations-section
+     unless .hero-content itself outranks it. Without this, the date/
+     traveler dropdown panel — which is tall enough to reach down past
+     the destinations strip — was rendering behind the destination tiles
+     instead of over them. */
+  z-index: 3;
 }
 
 .hero-eyebrow {
@@ -993,6 +1002,7 @@ body {
 .hero-subtitle {
   font-size: 0.98rem;
   margin: 0 0 1.6rem;
+  max-width: 640px;
   opacity: 0.92;
 }
 
@@ -1039,12 +1049,134 @@ body {
   width: 100%;
 }
 
-.hero-search-field-static {
+.hero-search-field-button {
+  appearance: none;
+  background: transparent;
+  border: 0;
   color: #52606d;
-  cursor: default;
+  cursor: pointer;
+  font: inherit;
   font-size: 0.92rem;
   font-weight: 500;
   white-space: nowrap;
+}
+
+.hero-search-dropdown {
+  position: relative;
+}
+
+.hero-search-panel {
+  background: #ffffff;
+  border: 1px solid #c9c1b1;
+  border-radius: 14px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
+  color: #1b2632;
+  left: 50%;
+  padding: 1rem;
+  position: absolute;
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.hero-search-panel-dates {
+  width: 300px;
+}
+
+.hero-search-panel-travelers {
+  width: 220px;
+}
+
+.hero-search-panel-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.hero-search-panel-field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 0.78rem;
+  font-weight: 600;
+  gap: 0.35rem;
+}
+
+.hero-search-panel-field input[type="date"] {
+  border: 1px solid #c9c1b1;
+  border-radius: 8px;
+  color: #1b2632;
+  font: inherit;
+  padding: 0.45rem 0.5rem;
+}
+
+.hero-search-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.hero-search-panel-clear {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: #52606d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 0.3rem;
+}
+
+.hero-search-panel-apply {
+  appearance: none;
+  background: var(--color-primary);
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1.1rem;
+}
+
+.hero-search-stepper {
+  align-items: center;
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 600;
+  justify-content: space-between;
+}
+
+.hero-search-stepper-controls {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.hero-search-stepper-controls span {
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+.hero-search-stepper-controls button {
+  align-items: center;
+  appearance: none;
+  background: #e4dfd3;
+  border: 0;
+  border-radius: 999px;
+  color: #1b2632;
+  cursor: pointer;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.hero-search-stepper-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .hero-search-field-icon {
@@ -1187,10 +1319,18 @@ body {
 
 .carousel-nav-btn {
   align-items: center;
+  /* Hardcoded (not var(--color-text)/var(--color-border)) — this button
+     is always a white circle, on every carousel (some sit over the hero
+     photo, some over a plain themed section background), so its icon
+     needs to always be dark regardless of the site's light/dark theme,
+     the same "stays white regardless of theme" reasoning as
+     .activity-tile/.featured-stay-card above. Previously used
+     var(--color-text) here, which turns light in dark mode — invisible
+     against this button's always-white background. */
   background: rgba(255, 255, 255, 0.9);
-  border: 1px solid var(--color-border);
+  border: 1px solid #c9c1b1;
   border-radius: 999px;
-  color: var(--color-text);
+  color: #1b2632;
   cursor: pointer;
   display: flex;
   flex-shrink: 0;
@@ -2547,7 +2687,17 @@ body {
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 0;
+  /* Negative, not 0 — a position: fixed element with z-index: 0 (or
+     auto) still outranks plain, non-positioned in-flow content in CSS's
+     stacking order (positioned elements paint after in-flow content
+     regardless of z-index value), so at z-index: 0 this was rendering on
+     top of ordinary boxes like .faq-item and .testimonial-card — visibly
+     drawing its dashed lines/icons over their content instead of sitting
+     behind them. A negative z-index moves it below that normal in-flow
+     paint layer, so it now only shows through actual gaps (transparent
+     background), which was always the intent (see the comment atop this
+     component's .tsx file). */
+  z-index: -1;
 }
 
 .travel-watermark-lines {
