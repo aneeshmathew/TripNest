@@ -323,7 +323,7 @@ body {
   padding-top: calc(var(--navbar-height) + 2rem);
 }
 .app-background-graphic {
-  background: #1b2632;
+  background: rgba(27, 38, 50, 0.75);
   height: var(--navbar-height);
   left: 0;
   pointer-events: none;
@@ -2508,7 +2508,9 @@ body {
    since Footer is shared chrome rendered on every page (see AppShell.tsx),
    not just the home page. */
 .site-footer {
-  background: rgba(48, 62, 94, 0.75);
+  /* Matches the navbar's dark color (see .app-background-graphic) at the
+     same transparency level, so both read as the same tone. */
+  background: rgba(27, 38, 50, 0.75);
   color: rgba(255, 255, 255, 0.75);
   overflow: hidden;
   position: relative;
