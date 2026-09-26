@@ -148,25 +148,51 @@ describe("deleteReview", () => {
 });
 
 describe("getFeaturedReviews", () => {
-  it("orders by rating desc, then most recent, and includes listing context", async () => {
-    prismaMock.review.findMany.mockResolvedValue([{ id: "review-1", rating: 5 }]);
+  it("orders by rating desc, then most recent, overfetches, and includes listing context", async () => {
+    prismaMock.review.findMany.mockResolvedValue([
+      { id: "review-1", rating: 5, userId: "user-1", body: "Loved it" }
+    ]);
 
     const result = await getFeaturedReviews();
 
     expect(prismaMock.review.findMany).toHaveBeenCalledWith({
       orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
-      take: 3,
+      take: 90,
       include: {
         user: { select: { id: true, name: true } },
         listing: { select: { id: true, title: true, location: true } }
       }
     });
-    expect(result).toEqual([{ id: "review-1", rating: 5 }]);
+    expect(result).toEqual([{ id: "review-1", rating: 5, userId: "user-1", body: "Loved it" }]);
   });
 
   it("respects a custom limit", async () => {
     prismaMock.review.findMany.mockResolvedValue([]);
     await getFeaturedReviews(5);
-    expect(prismaMock.review.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 5 }));
+    expect(prismaMock.review.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 50 }));
+  });
+
+  it("drops a second review from the same user", async () => {
+    prismaMock.review.findMany.mockResolvedValue([
+      { id: "review-1", rating: 5, userId: "user-1", body: "Great stay" },
+      { id: "review-2", rating: 5, userId: "user-1", body: "A different write-up" },
+      { id: "review-3", rating: 4, userId: "user-2", body: "Also great" }
+    ]);
+
+    const result = await getFeaturedReviews(3);
+
+    expect(result.map((r) => r.id)).toEqual(["review-1", "review-3"]);
+  });
+
+  it("drops a review with the same (normalized) body text as an earlier one, even from a different user", async () => {
+    prismaMock.review.findMany.mockResolvedValue([
+      { id: "review-1", rating: 5, userId: "user-1", body: "Everything was perfect, would recommend." },
+      { id: "review-2", rating: 5, userId: "user-2", body: "  EVERYTHING was perfect, would recommend.  " },
+      { id: "review-3", rating: 4, userId: "user-3", body: "A genuinely different review" }
+    ]);
+
+    const result = await getFeaturedReviews(3);
+
+    expect(result.map((r) => r.id)).toEqual(["review-1", "review-3"]);
   });
 });

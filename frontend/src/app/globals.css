@@ -159,6 +159,12 @@ body {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
+.account-menu-trigger,
+.theme-toggle-icon-btn {
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
 .navbar svg {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
@@ -193,7 +199,12 @@ body {
 
 .nav-link {
   appearance: none;
-  background: transparent;
+  /* Same translucent dark backdrop as .account-menu-trigger/
+     .theme-toggle-icon-btn above, and for the same reason — a
+     transparent background relying only on a light border/text-shadow
+     nearly disappears over Hero's bright sky photo on the homepage. */
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
   border: 1.5px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
   cursor: pointer;
@@ -206,12 +217,7 @@ body {
 
 .nav-link:hover,
 .nav-link:focus-visible {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.nav-link:hover,
-.nav-link:focus-visible {
-  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .nav-actions {
@@ -226,8 +232,7 @@ body {
 
 .account-menu-trigger {
   align-items: center;
-  background: none;
-  border: 1.5px solid var(--color-primary);
+  border: 1.5px solid #54bee1;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -890,23 +895,29 @@ body {
 /* Nav CTA is solid (fill + white text) rather than the site-wide outline
    .primary-btn shape used elsewhere (hero search, forms, etc.) — scoped
    to .navbar .nav-cta specifically so it doesn't affect any other button
-   on the site. */
+   on the site. Background pinned to a fixed blue (same value as the
+   brand wordmark/icon pins above) instead of var(--color-primary): the
+   navbar sits over Hero's bright sky photo on the homepage, where
+   dark theme's lighter --color-primary shade nearly blends into the
+   photo; a fixed, more saturated blue plus its own shadow keeps it
+   reading as a distinct button regardless of theme or what's behind it. */
 .navbar .primary-btn.nav-cta {
-  background: var(--color-primary);
+  background: #2d8fc2;
   border: none;
   border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   color: #ffffff;
 }
 
 .navbar .primary-btn.nav-cta:hover,
 .navbar .primary-btn.nav-cta:focus-visible {
-  background: color-mix(in srgb, var(--color-primary) 85%, black);
+  background: #256f97;
 }
 
 .theme-toggle-icon-btn {
   align-items: center;
-  background: none;
   border: 0;
+  border-radius: 999px;
   cursor: pointer;
   display: flex;
   height: 36px;
@@ -2285,6 +2296,13 @@ body {
 /* FAQ accordion — two-column grid to match the design reference */
 .faq-list {
   display: grid;
+  /* Without this, grid's default align-items: stretch makes every item
+     in a row match the row's tallest item — so opening one <details>
+     grows its row height, and its row-mate on the other side stretches
+     to match, leaving a tall blank box that reads as if it opened too,
+     even though only one <details> is actually open. align-items: start
+     lets each item size to its own content instead. */
+  align-items: start;
   gap: 0.9rem 1.5rem;
   grid-template-columns: 1fr 1fr;
 }

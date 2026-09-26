@@ -47,8 +47,8 @@ npm run setup                                # installs root, backend, frontend 
 cp backend/.env.example backend/.env         # fill in JWT_ACCESS_SECRET / JWT_REFRESH_SECRET / DATABASE_URL
 cp frontend/.env.example frontend/.env.local # Next.js convention for local env vars
 npm run db:migrate                           # creates schema (prompts for a migration name the first time)
-npm run db:seed                              # seeds a demo user + listings (all 25 curated destinations)
-npm run dev                                  # runs backend (:5001) + frontend (:3000)
+npm run db:seed                              # seeds a demo user + listings (75 destinations: 25 Nat Geo + 50 world, across 6 continents)
+npm run dev                                  # runs backend (:5001) + frontend (:3000, or :3001+ if 3000 is already taken)
 ```
 
 Demo login: `user1@mail.com` / `user123`.
@@ -61,9 +61,9 @@ An optional `docker-compose.yml` is included if you'd rather run Postgres locall
 | Command | Does |
 |---|---|
 | `npm run setup` | Installs root, backend, and frontend dependencies |
-| `npm run dev` | Runs backend (`:5001`) and frontend (`:3000`) concurrently |
+| `npm run dev` | Runs backend (`:5001`) and frontend concurrently. Frontend defaults to `:3000`, but Next.js silently bumps to `:3001` (then `:3002`, etc.) if that port's already taken by something else — check your terminal output for the actual port. `CORS_ORIGIN` in `backend/.env.example` already allows both `:3000` and `:3001` by default. |
 | `npm run db:migrate` | Runs Prisma migrations against `DATABASE_URL` |
-| `npm run db:seed` | Seeds a demo user + listings/hotels/restaurants for all 25 destinations |
+| `npm run db:seed` | Seeds a demo user + listings/hotels/restaurants for all 75 destinations (25 Nat Geo + 50 world, across 6 continents) |
 | `npm run typecheck` | Type-checks backend and frontend |
 | `npm test` | Runs backend + frontend unit tests (Vitest) |
 | `npm run test:e2e` | Runs Playwright end-to-end tests against the running stack |
@@ -107,7 +107,7 @@ TripNest/
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma        # User, RefreshToken, Listing, Review, ReviewPhoto, Hotel, Restaurant
-│   │   └── seed.ts              # demo user + listings/hotels/restaurants for all 25 destinations
+│   │   └── seed.ts              # demo user + listings/hotels/restaurants for all 75 destinations
 │   └── src/
 │       ├── config/env.ts        # zod-validated env vars
 │       ├── db/prisma.ts         # Prisma client singleton

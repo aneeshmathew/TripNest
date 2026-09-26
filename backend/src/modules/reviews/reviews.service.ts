@@ -39,15 +39,33 @@ export async function listReviewsForListing(listingId: string) {
 // marketing copy. Highest-rated first, tie-broken by most recent, with the
 // listing's title/location included since a testimonial needs that
 // context ("— Jane, about Eiffel View Loft").
-export async function getFeaturedReviews(limit = 3) {
-  return prisma.review.findMany({
+export async function getFeaturedReviews(limit = 9) {
+  const OVERFETCH_FACTOR = 10; // headroom for how many candidates get filtered out below
+  const candidates = await prisma.review.findMany({
     orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
-    take: limit,
+    take: limit * OVERFETCH_FACTOR,
     include: {
       user: { select: { id: true, name: true } },
       listing: { select: { id: true, title: true, location: true } }
     }
   });
+
+  const seenUserIds = new Set<string>();
+  const seenBodies = new Set<string>();
+  const featured: typeof candidates = [];
+
+  for (const review of candidates) {
+    const normalizedBody = review.body.trim().toLowerCase();
+    if (seenUserIds.has(review.userId) || seenBodies.has(normalizedBody)) {
+      continue;
+    }
+    seenUserIds.add(review.userId);
+    seenBodies.add(normalizedBody);
+    featured.push(review);
+    if (featured.length === limit) break;
+  }
+
+  return featured;
 }
 
 export async function createReview(listingId: string, userId: string, input: CreateReviewInput) {
