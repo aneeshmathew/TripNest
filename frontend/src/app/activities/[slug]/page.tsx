@@ -14,7 +14,12 @@ import ReviewItem from "../../../components/ReviewItem";
 import BackButton from "../../../components/BackButton";
 import LocationAutosuggest from "../../../components/LocationAutosuggest";
 import AttractionsGrid from "../../../components/AttractionsGrid";
-import { getAttractionsNear } from "../../../lib/geoapify";
+import {
+  getAttractionsNear,
+  getHotelsNear,
+  getApartmentsNear,
+  getRestaurantsNear
+} from "../../../lib/geoapify";
 import { getDestinationPhotoUrl } from "../../../lib/unsplash";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "attractions" | "reviews";
@@ -84,37 +89,94 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   let tabContent;
   try {
     if (activeTab === "apartments") {
-      const listings = await getListings({ search: effectiveKeyword });
-      tabContent =
-        listings.length === 0 ? (
-          <p className="status-text">No apartments match &quot;{effectiveKeyword}&quot; yet.</p>
-        ) : (
-          <ApartmentList apartments={listings} />
-        );
+      // Same fix as the destination page's Apartments tab: our seeded
+      // Listing table is thin and keyword-matched, so it's supplemented
+      // with live Geoapify apartment/chalet/gite results near the
+      // activity's pinned real-world location.
+      const [listings, geoApartments] = await Promise.all([
+        getListings({ search: effectiveKeyword }),
+        getApartmentsNear(effectiveKeyword)
+      ]);
+      tabContent = (
+        <>
+          {listings.length === 0 ? (
+            <p className="status-text">No apartments match &quot;{effectiveKeyword}&quot; yet.</p>
+          ) : (
+            <ApartmentList apartments={listings} />
+          )}
+          {geoApartments.length > 0 && (
+            <div className="destination-tab-more-results">
+              <h3 className="destination-tab-more-heading">More apartments nearby</h3>
+              <AttractionsGrid
+                attractions={geoApartments}
+                placeName={effectiveKeyword}
+                testIdPrefix="geo-apartment"
+                gridTestId="geo-apartments-grid"
+              />
+            </div>
+          )}
+        </>
+      );
     } else if (activeTab === "hotels") {
-      const hotels = await getHotels(effectiveKeyword);
-      tabContent =
-        hotels.length === 0 ? (
-          <p className="status-text">No hotels match &quot;{effectiveKeyword}&quot; yet.</p>
-        ) : (
-          <div className="grid">
-            {hotels.map((hotel) => (
-              <HotelCard key={hotel.id} hotel={hotel} />
-            ))}
-          </div>
-        );
+      // Same fix as the destination page's Hotels tab.
+      const [hotels, geoHotels] = await Promise.all([
+        getHotels(effectiveKeyword),
+        getHotelsNear(effectiveKeyword)
+      ]);
+      tabContent = (
+        <>
+          {hotels.length === 0 ? (
+            <p className="status-text">No hotels match &quot;{effectiveKeyword}&quot; yet.</p>
+          ) : (
+            <div className="grid">
+              {hotels.map((hotel) => (
+                <HotelCard key={hotel.id} hotel={hotel} />
+              ))}
+            </div>
+          )}
+          {geoHotels.length > 0 && (
+            <div className="destination-tab-more-results">
+              <h3 className="destination-tab-more-heading">More hotels nearby</h3>
+              <AttractionsGrid
+                attractions={geoHotels}
+                placeName={effectiveKeyword}
+                testIdPrefix="geo-hotel"
+                gridTestId="geo-hotels-grid"
+              />
+            </div>
+          )}
+        </>
+      );
     } else if (activeTab === "restaurants") {
-      const restaurants = await getRestaurants(effectiveKeyword);
-      tabContent =
-        restaurants.length === 0 ? (
-          <p className="status-text">No restaurants match &quot;{effectiveKeyword}&quot; yet.</p>
-        ) : (
-          <div className="grid">
-            {restaurants.map((restaurant) => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-            ))}
-          </div>
-        );
+      // Same fix as the destination page's Restaurants tab.
+      const [restaurants, geoRestaurants] = await Promise.all([
+        getRestaurants(effectiveKeyword),
+        getRestaurantsNear(effectiveKeyword)
+      ]);
+      tabContent = (
+        <>
+          {restaurants.length === 0 ? (
+            <p className="status-text">No restaurants match &quot;{effectiveKeyword}&quot; yet.</p>
+          ) : (
+            <div className="grid">
+              {restaurants.map((restaurant) => (
+                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              ))}
+            </div>
+          )}
+          {geoRestaurants.length > 0 && (
+            <div className="destination-tab-more-results">
+              <h3 className="destination-tab-more-heading">More restaurants nearby</h3>
+              <AttractionsGrid
+                attractions={geoRestaurants}
+                placeName={effectiveKeyword}
+                testIdPrefix="geo-restaurant"
+                gridTestId="geo-restaurants-grid"
+              />
+            </div>
+          )}
+        </>
+      );
     } else if (activeTab === "attractions") {
       // Live third-party data (Geoapify Places), keyed off the activity's
       // pinned real-world location — same pattern as the destination

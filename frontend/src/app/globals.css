@@ -2495,7 +2495,7 @@ body {
    since Footer is shared chrome rendered on every page (see AppShell.tsx),
    not just the home page. */
 .site-footer {
-  background: #303e5e;
+  background: rgba(48, 62, 94, 0.92);
   color: rgba(255, 255, 255, 0.75);
   overflow: hidden;
   position: relative;

@@ -127,6 +127,20 @@ export const ATTRACTION_CATEGORIES = "tourism.sights,tourism.attraction";
 // experiential side: entertainment venues, leisure spots, sport
 // facilities, and natural features worth visiting (beaches, viewpoints).
 export const THINGS_TO_DO_CATEGORIES = "entertainment,leisure,sport,natural.water,natural.forest";
+// The Hotels/Apartments tabs' own data comes from our seeded Prisma
+// tables (see getHotels/getListings), which only cover a handful of
+// destinations and get matched by a loose name/location substring
+// search — so most destinations show wrong or empty results. These two
+// category sets pull real, live venues from Geoapify Places (same API
+// as Attractions/Things to Do) to supplement that thin seed data rather
+// than replace it — our own listings still have real prices/photos/
+// reviews, so they're kept front and center; Geoapify just fills in
+// "more nearby" beneath them.
+export const HOTEL_CATEGORIES = "accommodation.hotel,accommodation.motel,accommodation.hostel,accommodation.guest_house";
+export const APARTMENT_CATEGORIES = "accommodation.apartment,accommodation.chalet,accommodation.gite";
+// Same rationale as HOTEL_CATEGORIES/APARTMENT_CATEGORIES above, for the
+// Restaurants tab's seeded Restaurant table.
+export const RESTAURANT_CATEGORIES = "catering.restaurant,catering.cafe,catering.fast_food,catering.pub,catering.bar";
 
 /**
  * Nearby places around a point, via Geoapify's Places API. `categories`
@@ -203,4 +217,19 @@ export async function getAttractionsNear(
 /** Same as getAttractionsNear, scoped to the "Things to Do" category set. */
 export async function getThingsToDoNear(placeQuery: string): Promise<GeoAttraction[]> {
   return getAttractionsNear(placeQuery, THINGS_TO_DO_CATEGORIES);
+}
+
+/** Same as getAttractionsNear, scoped to real hotels/motels/hostels/guest houses. */
+export async function getHotelsNear(placeQuery: string): Promise<GeoAttraction[]> {
+  return getAttractionsNear(placeQuery, HOTEL_CATEGORIES);
+}
+
+/** Same as getAttractionsNear, scoped to real apartments/chalets/gites. */
+export async function getApartmentsNear(placeQuery: string): Promise<GeoAttraction[]> {
+  return getAttractionsNear(placeQuery, APARTMENT_CATEGORIES);
+}
+
+/** Same as getAttractionsNear, scoped to real restaurants/cafes/fast food/pubs/bars. */
+export async function getRestaurantsNear(placeQuery: string): Promise<GeoAttraction[]> {
+  return getAttractionsNear(placeQuery, RESTAURANT_CATEGORIES);
 }

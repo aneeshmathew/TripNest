@@ -14,7 +14,13 @@ import ReviewItem from "../../../components/ReviewItem";
 import BackButton from "../../../components/BackButton";
 import LocationAutosuggest from "../../../components/LocationAutosuggest";
 import AttractionsGrid from "../../../components/AttractionsGrid";
-import { getAttractionsNear, getThingsToDoNear } from "../../../lib/geoapify";
+import {
+  getAttractionsNear,
+  getThingsToDoNear,
+  getHotelsNear,
+  getApartmentsNear,
+  getRestaurantsNear
+} from "../../../lib/geoapify";
 import { getDestinationPhotoUrl } from "../../../lib/unsplash";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "things-to-do" | "attractions" | "reviews";
@@ -78,37 +84,101 @@ export default async function DestinationPage({ params, searchParams }: Destinat
   let tabContent;
   try {
     if (activeTab === "apartments") {
-      const listings = await getListings({ search: effectiveKeyword });
-      tabContent =
-        listings.length === 0 ? (
-          <p className="status-text">No apartments match &quot;{effectiveKeyword}&quot; yet.</p>
-        ) : (
-          <ApartmentList apartments={listings} />
-        );
+      // Our own seeded Listing table only covers a handful of
+      // destinations and is matched with a loose substring search, so it
+      // regularly comes back empty or off-target. Geoapify's apartment/
+      // chalet/gite categories (same Places API as Attractions/Things to
+      // Do) supplement it with real, live nearby results — shown as a
+      // second "more nearby" section underneath rather than replacing our
+      // own listings, since only our own have real prices/reviews.
+      const [listings, geoApartments] = await Promise.all([
+        getListings({ search: effectiveKeyword }),
+        getApartmentsNear(effectiveKeyword)
+      ]);
+      tabContent = (
+        <>
+          {listings.length === 0 ? (
+            <p className="status-text">No apartments match &quot;{effectiveKeyword}&quot; yet.</p>
+          ) : (
+            <ApartmentList apartments={listings} />
+          )}
+          {geoApartments.length > 0 && (
+            <div className="destination-tab-more-results">
+              <h3 className="destination-tab-more-heading">More apartments nearby</h3>
+              <AttractionsGrid
+                attractions={geoApartments}
+                placeName={effectiveKeyword}
+                testIdPrefix="geo-apartment"
+                gridTestId="geo-apartments-grid"
+              />
+            </div>
+          )}
+        </>
+      );
     } else if (activeTab === "hotels") {
-      const hotels = await getHotels(effectiveKeyword);
-      tabContent =
-        hotels.length === 0 ? (
-          <p className="status-text">No hotels match &quot;{effectiveKeyword}&quot; yet.</p>
-        ) : (
-          <div className="grid">
-            {hotels.map((hotel) => (
-              <HotelCard key={hotel.id} hotel={hotel} />
-            ))}
-          </div>
-        );
+      // Same rationale as apartments above: supplement our thin seeded
+      // Hotel table with live Geoapify hotel/motel/hostel/guest-house
+      // results near the destination.
+      const [hotels, geoHotels] = await Promise.all([
+        getHotels(effectiveKeyword),
+        getHotelsNear(effectiveKeyword)
+      ]);
+      tabContent = (
+        <>
+          {hotels.length === 0 ? (
+            <p className="status-text">No hotels match &quot;{effectiveKeyword}&quot; yet.</p>
+          ) : (
+            <div className="grid">
+              {hotels.map((hotel) => (
+                <HotelCard key={hotel.id} hotel={hotel} />
+              ))}
+            </div>
+          )}
+          {geoHotels.length > 0 && (
+            <div className="destination-tab-more-results">
+              <h3 className="destination-tab-more-heading">More hotels nearby</h3>
+              <AttractionsGrid
+                attractions={geoHotels}
+                placeName={effectiveKeyword}
+                testIdPrefix="geo-hotel"
+                gridTestId="geo-hotels-grid"
+              />
+            </div>
+          )}
+        </>
+      );
     } else if (activeTab === "restaurants") {
-      const restaurants = await getRestaurants(effectiveKeyword);
-      tabContent =
-        restaurants.length === 0 ? (
-          <p className="status-text">No restaurants match &quot;{effectiveKeyword}&quot; yet.</p>
-        ) : (
-          <div className="grid">
-            {restaurants.map((restaurant) => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-            ))}
-          </div>
-        );
+      // Same rationale as apartments/hotels above: supplement our thin
+      // seeded Restaurant table with live Geoapify restaurant/cafe/fast
+      // food/pub/bar results near the destination.
+      const [restaurants, geoRestaurants] = await Promise.all([
+        getRestaurants(effectiveKeyword),
+        getRestaurantsNear(effectiveKeyword)
+      ]);
+      tabContent = (
+        <>
+          {restaurants.length === 0 ? (
+            <p className="status-text">No restaurants match &quot;{effectiveKeyword}&quot; yet.</p>
+          ) : (
+            <div className="grid">
+              {restaurants.map((restaurant) => (
+                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              ))}
+            </div>
+          )}
+          {geoRestaurants.length > 0 && (
+            <div className="destination-tab-more-results">
+              <h3 className="destination-tab-more-heading">More restaurants nearby</h3>
+              <AttractionsGrid
+                attractions={geoRestaurants}
+                placeName={effectiveKeyword}
+                testIdPrefix="geo-restaurant"
+                gridTestId="geo-restaurants-grid"
+              />
+            </div>
+          )}
+        </>
+      );
     } else if (activeTab === "things-to-do") {
       // Live third-party data (Geoapify Places, entertainment/leisure/
       // sport/natural categories) — replaces the old curated Activities
