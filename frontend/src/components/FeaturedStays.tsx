@@ -29,37 +29,39 @@ function FeaturedStays({ listings }: FeaturedStaysProps) {
   };
 
   return (
-    <section className="section featured-stays-section" id="featured-stays">
-      <h2 className="section-title">Featured stays</h2>
-      <p className="section-subtitle">Handpicked accommodations for every kind of traveler.</p>
-      <div className="featured-stays-carousel-wrap">
-        <button
-          type="button"
-          className="carousel-nav-btn carousel-nav-prev"
-          onClick={() => scrollByOneCard(-1)}
-          aria-label="Previous stay"
-          data-testid="featured-stays-prev"
-        >
-          <ChevronLeft size={20} aria-hidden="true" />
-        </button>
+    <section className="wide-section-breakout">
+      <div className="wide-section-inner featured-stays-section" id="featured-stays">
+        <h2 className="section-title">Featured stays</h2>
+        <p className="section-subtitle">Handpicked accommodations for every kind of traveler.</p>
+        <div className="featured-stays-carousel-wrap">
+          <button
+            type="button"
+            className="carousel-nav-btn carousel-nav-prev"
+            onClick={() => scrollByOneCard(-1)}
+            aria-label="Previous stay"
+            data-testid="featured-stays-prev"
+          >
+            <ChevronLeft size={20} aria-hidden="true" />
+          </button>
 
-        <div className="featured-stays-row" ref={trackRef}>
-          {listings.map((listing) => (
-            <div className="featured-stay-item" key={listing.id}>
-              <FeaturedStayCard apartment={listing} />
-            </div>
-          ))}
+          <div className="featured-stays-row" ref={trackRef}>
+            {listings.map((listing) => (
+              <div className="featured-stay-item" key={listing.id}>
+                <FeaturedStayCard apartment={listing} />
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="carousel-nav-btn carousel-nav-next"
+            onClick={() => scrollByOneCard(1)}
+            aria-label="Next stay"
+            data-testid="featured-stays-next"
+          >
+            <ChevronRight size={20} aria-hidden="true" />
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="carousel-nav-btn carousel-nav-next"
-          onClick={() => scrollByOneCard(1)}
-          aria-label="Next stay"
-          data-testid="featured-stays-next"
-        >
-          <ChevronRight size={20} aria-hidden="true" />
-        </button>
       </div>
     </section>
   );

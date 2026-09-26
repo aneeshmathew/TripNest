@@ -8,7 +8,6 @@ import { ThemeProvider } from "../context/ThemeContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import TripIllustrationBanner from "./TripIllustrationBanner";
-import TravelWatermark from "./TravelWatermark";
 import AuthModal from "./AuthModal";
 
 export default function AppShell({ children }: { children: ReactNode }) {
@@ -17,12 +16,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // section starting at the very top of the viewport — the dark navbar
   // backdrop bar and the illustration banner above the footer are styled
   // for the app's normal (non-hero) pages and would clash on top of the
-  // hero photo, so they're skipped on "/". The watermark is NOT skipped
-  // here (per request, it should show on the homepage too) — it's
-  // fixed-to-viewport and z-index: 0 (see TravelWatermark.tsx's own
-  // comment), so it just shows through wherever the page doesn't paint
-  // over it, same as any other page; it never actually clashed with the
-  // hero photo the way the other two would have.
+  // hero photo, so they're skipped on "/".
   // Note: "/" also has a second state — search results, when a filter
   // query param is present (see app/page.tsx's hasActiveFilters) — which
   // is normal content, not the hero. Root layout/AppShell has no access
@@ -31,6 +25,19 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // page.tsx instead renders its own local backdrop bar + top padding to
   // stay legible under this still-transparent-styled navbar. See that
   // file's SearchResultsIntro/wrapper for the other half of this.
+  //
+  // The page's decorative backdrop (gradient wash + dot pattern) is a
+  // plain CSS `background` on <body> now (see globals.css) rather than a
+  // separate `position: fixed` component layered on top with its own
+  // z-index. That component (TravelWatermark.tsx, still in the repo but
+  // no longer rendered here) went through two rounds of z-index bugs —
+  // painting over ordinary content, then becoming invisible — because a
+  // fixed overlay's stacking position relative to normal in-flow content
+  // depends on stacking-context rules that are easy to get subtly wrong.
+  // An element's own `background` has no such failure mode: it always
+  // paints behind that element's own content, by definition, so this is
+  // both simpler and structurally guaranteed correct rather than
+  // depending on a z-index value staying right forever.
   const isHome = pathname === "/";
 
   return (
@@ -39,7 +46,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <AuthModalProvider>
           <div className="app">
             {!isHome && <div className="app-background-graphic" aria-hidden="true" />}
-            <TravelWatermark />
             <Navbar />
             <main className={isHome ? "container container-flush" : "container"}>{children}</main>
             {!isHome && <TripIllustrationBanner />}

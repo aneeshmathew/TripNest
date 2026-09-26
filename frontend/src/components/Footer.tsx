@@ -18,6 +18,7 @@ const SUPPORT_LINKS = ["Help Center", "Safety", "Terms of Service", "Privacy Pol
 function Footer() {
   return (
     <footer className="site-footer">
+      <div className="footer-illustration-strip" aria-hidden="true" />
       <div className="footer-columns">
         <div className="footer-column footer-column-brand">
           <Link href="/" className="brand footer-brand">

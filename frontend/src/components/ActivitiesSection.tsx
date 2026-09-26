@@ -22,10 +22,12 @@ async function ActivitiesSection() {
   );
 
   return (
-    <section className="section activities-section" id="trip-inspiration">
-      <h2 className="section-title">Trip inspiration</h2>
-      <p className="section-subtitle">Handpicked experiences and activities for every kind of traveler.</p>
-      <ActivitiesCarousel highlights={highlights} />
+    <section className="wide-section-breakout">
+      <div className="wide-section-inner activities-section" id="trip-inspiration">
+        <h2 className="section-title">Trip inspiration</h2>
+        <p className="section-subtitle">Handpicked experiences and activities for every kind of traveler.</p>
+        <ActivitiesCarousel highlights={highlights} />
+      </div>
     </section>
   );
 }

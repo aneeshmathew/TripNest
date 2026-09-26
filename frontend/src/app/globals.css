@@ -90,20 +90,30 @@ h6,
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  background-image: radial-gradient(circle at 12% 15%, rgba(84, 190, 225, 0.14), transparent 42%),
+    radial-gradient(circle at 88% 8%, rgba(255, 177, 98, 0.1), transparent 38%),
+    radial-gradient(circle at 78% 92%, rgba(84, 190, 225, 0.12), transparent 42%),
+    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.08), transparent 36%),
+    url("/patterns/travel-doodles-light.svg");
+  background-attachment: fixed, fixed, fixed, fixed, fixed;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  background-size: auto, auto, auto, auto, 340px 340px;
   color: var(--color-text);
   transition: background-color 0.15s ease, color 0.15s ease;
-  /* The full-bleed hero (.hero below) sizes itself with 100vw plus a
-     calc(-50vw + 50%) negative margin. `vw` is based on the viewport
-     including the scrollbar gutter, which is very slightly wider than
-     the actual visible/scrollable area whenever a vertical scrollbar is
-     present — so that trick overshoots by roughly half the scrollbar's
-     width, and the page's own background (cream in light mode) peeks
-     through as a thin line around the hero photo instead of the trick
-     landing pixel-exact. Clipping horizontal overflow here is the
-     standard fix: the sliver of overshoot is simply cut off instead of
-     shifting layout to reveal what's behind it. */
-  overflow-x: hidden;
+ overflow-x: hidden;
+}
+
+/* Same backdrop, recolored for dark mode — a data: URI can't reference a
+   CSS custom property, so the whole background-image is restated here
+   with the dark-theme dot color (--color-border's dark value) rather
+   than just swapping one layer. */
+[data-theme="dark"] body {
+  background-image: radial-gradient(circle at 12% 15%, rgba(136, 210, 234, 0.16), transparent 42%),
+    radial-gradient(circle at 88% 8%, rgba(255, 177, 98, 0.08), transparent 38%),
+    radial-gradient(circle at 78% 92%, rgba(136, 210, 234, 0.14), transparent 42%),
+    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.06), transparent 36%),
+    url("/patterns/travel-doodles-dark.svg");
 }
 
 /* Fixed rather than sticky — sticky still occupies its normal space in
@@ -937,10 +947,12 @@ body {
 }
 
 .hero-image-wrap {
-  /* Fixed height rather than 100vh — the hero is a defined banner (photo +
-     headline/search + the popular-destinations strip + wave divider), not
-     a full-viewport splash screen. */
-  height: 800px;
+  /* Taller (was 800px) — both to push .destinations-section further down
+     (it's anchored to the bottom via `bottom: 78px`, so a taller wrapper
+     moves it down automatically) and to leave more clearance below the
+     search bar for the date-range calendar dropdown to open into before
+     reaching the destinations strip. */
+  height: 1000px;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -1002,7 +1014,6 @@ body {
 .hero-subtitle {
   font-size: 0.98rem;
   margin: 0 0 1.6rem;
-  max-width: 640px;
   opacity: 0.92;
 }
 
@@ -1016,6 +1027,7 @@ body {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   display: flex;
   gap: 0;
+  margin: 8rem 0 0 22rem;
   max-width: 900px;
   padding: 0.3rem;
 }
@@ -1063,6 +1075,7 @@ body {
 
 .hero-search-dropdown {
   position: relative;
+  align-content:center;
 }
 
 .hero-search-panel {
@@ -1080,33 +1093,114 @@ body {
 }
 
 .hero-search-panel-dates {
-  width: 300px;
+  width: 320px;
 }
 
 .hero-search-panel-travelers {
   width: 220px;
 }
 
-.hero-search-panel-row {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.hero-search-panel-field {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  font-size: 0.78rem;
-  font-weight: 600;
-  gap: 0.35rem;
-}
-
-.hero-search-panel-field input[type="date"] {
-  border: 1px solid #c9c1b1;
-  border-radius: 8px;
+.hero-calendar-header {
+  align-items: center;
   color: #1b2632;
+  display: flex;
+  font-weight: 700;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.hero-calendar-header button {
+  align-items: center;
+  appearance: none;
+  background: #e4dfd3;
+  border: 0;
+  border-radius: 999px;
+  color: #1b2632;
+  cursor: pointer;
+  display: flex;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+.hero-calendar-weekdays {
+  color: #7c8894;
+  display: grid;
+  font-size: 0.72rem;
+  font-weight: 600;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+.hero-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 0.2rem;
+}
+
+.hero-calendar-cell {
+  align-items: center;
+  appearance: none;
+  aspect-ratio: 1 / 1;
+  background: transparent;
+  border: 0;
+  color: #1b2632;
+  cursor: pointer;
+  display: flex;
   font: inherit;
-  padding: 0.45rem 0.5rem;
+  font-size: 0.82rem;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-calendar-cell-blank {
+  cursor: default;
+}
+
+/* The light band spanning the days between the two selected endpoints —
+   drawn as a full-bleed background on each in-range cell so it reads as
+   one continuous strip across the row rather than a gap between separate
+   rounded pills. Negative-ish stacking (an absolutely positioned child
+   with no positive z-index) automatically paints behind the cell's own
+   in-flow day-number text — see .hero-calendar-cell-selected::after's
+   comment for the same mechanism used deliberately there. */
+.hero-calendar-cell-in-range::before {
+  background: #e4dfd3;
+  content: "";
+  inset: 15% 0;
+  position: absolute;
+  z-index: -1;
+}
+
+/* The band only fills the half of the start/end cell that's actually
+   inside the range (right half of the start day, left half of the end
+   day) rather than bleeding a full cell-width block past either end. */
+.hero-calendar-cell-range-start.hero-calendar-cell-in-range::before {
+  left: 50%;
+}
+
+.hero-calendar-cell-range-end.hero-calendar-cell-in-range::before {
+  right: 50%;
+}
+
+.hero-calendar-cell-selected {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* z-index: -1, not 0 — see .travel-watermark's comment elsewhere in this
+   file for why: a z-index of 0 (or omitted) still paints above plain
+   in-flow content, which here would cover the day number itself instead
+   of sitting behind it. -1 correctly drops it below the button's own
+   text. */
+.hero-calendar-cell-selected::after {
+  background: var(--color-primary);
+  border-radius: 999px;
+  content: "";
+  inset: 8%;
+  position: absolute;
+  z-index: -1;
 }
 
 .hero-search-panel-actions {
@@ -1226,9 +1320,15 @@ body {
   display: block;
   height: 70px;
   left: 0;
-  position: absolute;
+  position: relative;
   width: 100%;
   z-index: 2;
+   background-image: radial-gradient(circle at 12% 15%, rgba(84, 190, 225, 0.14), transparent 42%),
+    radial-gradient(circle at 88% 8%, rgba(255, 177, 98, 0.1), transparent 38%),
+    radial-gradient(circle at 78% 92%, rgba(84, 190, 225, 0.12), transparent 42%),
+    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.08), transparent 36%),
+    url("/patterns/travel-doodles-light.svg");
+  background-attachment: fixed, fixed, fixed, fixed, fixed;
 }
 
 /* Popular Destinations strip — lives inside .hero-image-wrap, over the
@@ -1237,8 +1337,14 @@ body {
 .destinations-section {
   bottom: 78px;
   left: 0;
+  margin: 0 auto;
+  /* Caps how wide 6 tiles can stretch on very large screens — shrinks
+     each tile a bit further, per request, on top of the aspect-ratio
+     already fixing their proportions. */
+  max-width: 1500px;
   padding: 0 2.5rem;
   position: absolute;
+  right: 0;
   width: 100%;
   z-index: 2;
 }
@@ -1412,11 +1518,37 @@ body {
   padding-top: 5rem;
 }
 
+/* Breaks Trip Inspiration and Featured Stays out of the normal 1080px
+   .container (same calc(-50vw + 50%) full-bleed technique .hero already
+   uses, proven working there), then re-centers their actual content at a
+   wider 1500px cap — matching the destinations strip's width (see
+   .destinations-section), which lives inside the hero and was never
+   bound by .container's 1080px in the first place. Only these two
+   sections use this; nothing about .container or .section itself
+   changed, so every other page is unaffected. */
+.wide-section-breakout {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: 100vw;
+}
+
+.wide-section-inner {
+  margin: 0 auto;
+  max-width: 1500px;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
 .activity-filter-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   margin: 0 0 2.5rem;
+  /* Lines the pills row up with the tile carousel below it — that
+     carousel's first tile starts inset by the left nav arrow's width
+     plus the gap next to it (see .activities-carousel-wrap), so without
+     this the pills started further left than the tiles they filter. */
+  padding-left: calc(40px + 0.6rem);
 }
 
 .activity-filter-pill {
@@ -2363,9 +2495,18 @@ body {
    since Footer is shared chrome rendered on every page (see AppShell.tsx),
    not just the home page. */
 .site-footer {
-  background: #16213a;
+  background: #303e5e;
   color: rgba(255, 255, 255, 0.75);
-  padding: 3.5rem 2rem 1.5rem;
+  overflow: hidden;
+}
+.footer-illustration-strip {
+    position: absolute;
+    background-image: url(/images/footer-travel-illustration.png);
+    background-position: bottom center;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    height: 190px;
+    width: 100%;
 }
 
 .footer-columns {
@@ -2533,6 +2674,10 @@ body {
 }
 
 @media (max-width: 768px) {
+  .footer-illustration-strip {
+    height: 100px;
+  }
+
   .plan-group {
     flex-direction: column;
   }
@@ -2568,7 +2713,7 @@ body {
   }
 
   .hero-image-wrap {
-    height: 940px;
+    height: 1150px;
   }
 
   .hero-search {
