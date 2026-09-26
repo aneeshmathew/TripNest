@@ -164,9 +164,8 @@ body {
 }
 
 /* Logo colors pinned to fixed brand values inside the navbar specifically
-   (BrandMark itself still uses theme-following var(--color-primary)/
-   var(--color-text) elsewhere, e.g. the footer, where that reads fine
-   against a normal surface) — the icon's --color-primary fill would
+   (same values, and same rationale, as the footer's pin further down —
+   see .footer-column-brand) — the icon's --color-primary fill would
    otherwise shift slightly between the two theme's blue shades, and
    brand-word-secondary would flip between near-black and near-white. */
 .navbar .brand-icon rect {
@@ -651,6 +650,20 @@ body {
   color: var(--color-text-muted);
   padding: 3rem 0;
   font-size: 1.05rem;
+}
+
+/* "More hotels/apartments nearby" — Geoapify results shown beneath our
+   own seeded Hotel/Listing cards on the destination page's Hotels and
+   Apartments tabs (see app/destinations/[slug]/page.tsx). */
+.destination-tab-more-results {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.destination-tab-more-heading {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
 }
 
 /* Star rating (display) */
@@ -2495,7 +2508,7 @@ body {
    since Footer is shared chrome rendered on every page (see AppShell.tsx),
    not just the home page. */
 .site-footer {
-  background: rgba(48, 62, 94, 0.92);
+  background: rgba(48, 62, 94, 0.75);
   color: rgba(255, 255, 255, 0.75);
   overflow: hidden;
   position: relative;
@@ -2522,11 +2535,35 @@ body {
   gap: 2.5rem;
   grid-template-columns: 1.3fr 1fr 1fr 1.3fr;
   margin: 0 auto;
+  margin-top: 20px;
   max-width: 1080px;
 }
 
 .footer-column-brand .brand {
   color: #fff;
+}
+
+/* Logo colors pinned to fixed brand values inside the footer specifically,
+   same rationale/values as the navbar's pin above: the footer's own
+   background is a fixed navy (not theme-following — see .site-footer),
+   but BrandMark's "Nest" word normally follows var(--color-text), which
+   in light theme is a dark navy that all but disappears against the
+   footer's dark background. Pinning to a fixed blue/white combo keeps the
+   wordmark legible and unchanging regardless of site theme. */
+.footer-column-brand .brand-icon rect {
+  fill: #54bee1;
+}
+
+.footer-column-brand .brand-icon path {
+  fill: #ffffff;
+}
+
+.footer-column-brand .brand-word-primary {
+  color: #54bee1;
+}
+
+.footer-column-brand .brand-word-secondary {
+  color: #f5f2ec;
 }
 
 .footer-brand {
@@ -2558,9 +2595,9 @@ body {
   text-decoration: none;
 }
 
-.footer-links-placeholder li {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.9rem;
+.footer-links a:hover {
+  color: #fff;
+  text-decoration: underline;
 }
 
 .footer-social {

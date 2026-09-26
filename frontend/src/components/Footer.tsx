@@ -4,16 +4,22 @@ import Link from "next/link";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import BrandMark from "./BrandMark";
 
-// Company/Support links below are decorative placeholders, not real
-// routes — TripNest has no /about, /careers, /blog, /press, /help-center,
-// /safety, /terms-of-service or /privacy-policy pages today, so these are
-// rendered as inert text (same "don't fake it" approach as the social
-// icons) rather than links to pages that don't exist. Real functional
-// links (Browse stays, Reviews, Settings, Log in) that used to live here
-// still work via the navbar / homepage; only their footer shortcut is
-// gone now that this column layout matches the design reference.
-const COMPANY_LINKS = ["About Us", "Careers", "Blog", "Press"];
-const SUPPORT_LINKS = ["Help Center", "Safety", "Terms of Service", "Privacy Policy"];
+// Real routes now exist for each of these (see app/about, app/careers,
+// etc.) — pages are honest "coming soon" placeholders since there's no
+// real content yet, but the footer links themselves are live rather
+// than the earlier inert-text placeholders.
+const COMPANY_LINKS = [
+  { label: "About Us", href: "/about" },
+  { label: "Careers", href: "/careers" },
+  { label: "Blog", href: "/blog" },
+  { label: "Press", href: "/press" }
+];
+const SUPPORT_LINKS = [
+  { label: "Help Center", href: "/help-center" },
+  { label: "Safety", href: "/safety" },
+  { label: "Terms of Service", href: "/terms-of-service" },
+  { label: "Privacy Policy", href: "/privacy-policy" }
+];
 
 function Footer() {
   return (
@@ -46,18 +52,22 @@ function Footer() {
 
         <div className="footer-column">
           <h3 className="footer-heading">Company</h3>
-          <ul className="footer-links footer-links-placeholder" aria-disabled="true">
-            {COMPANY_LINKS.map((label) => (
-              <li key={label}>{label}</li>
+          <ul className="footer-links">
+            {COMPANY_LINKS.map(({ label, href }) => (
+              <li key={label}>
+                <Link href={href}>{label}</Link>
+              </li>
             ))}
           </ul>
         </div>
 
         <div className="footer-column">
           <h3 className="footer-heading">Support</h3>
-          <ul className="footer-links footer-links-placeholder" aria-disabled="true">
-            {SUPPORT_LINKS.map((label) => (
-              <li key={label}>{label}</li>
+          <ul className="footer-links">
+            {SUPPORT_LINKS.map(({ label, href }) => (
+              <li key={label}>
+                <Link href={href}>{label}</Link>
+              </li>
             ))}
           </ul>
         </div>

@@ -2,12 +2,13 @@
 // two-tone wordmark treatment. The second word uses var(--color-text)
 // rather than a second hardcoded brand color, so it stays legible against
 // var(--color-primary) automatically in both light and dark theme.
-// Exception: inside the navbar, globals.css pins both words (and the
-// icon's fill colors) to fixed values instead — the logo shouldn't
-// visibly change when the visitor toggles theme, and the navbar always
-// sits over a photo/background graphic rather than a normal surface, so a
-// fixed color is safe there. Elsewhere (e.g. the footer), BrandMark keeps
-// following the theme, since it's on a normal, theme-following surface.
+// Exception: inside the navbar and the footer, globals.css pins both
+// words (and the icon's fill colors) to fixed values instead — both
+// surfaces have their own fixed background (a photo/background graphic
+// for the navbar, a fixed navy for the footer) rather than a normal
+// theme-following surface, so the logo shouldn't visibly change, and in
+// the footer's case a theme-following --color-text would otherwise nearly
+// disappear against the fixed dark background in light theme.
 function BrandMark() {
   return (
     <>
