@@ -2498,9 +2498,17 @@ body {
   background: #303e5e;
   color: rgba(255, 255, 255, 0.75);
   overflow: hidden;
+  position: relative;
 }
+/* Was `position: absolute`, which pulled it out of normal flow: its
+   190px never counted toward .site-footer's height, and — because
+   positioned elements paint above static ones regardless of DOM
+   order — it sat on top of .footer-columns, silently swallowing
+   clicks on the footer links and the email input beneath it (even
+   over the image's transparent areas, since the whole box intercepts
+   pointer events). Keeping it in-flow makes the footer the height it
+   visually appears to be and stops it from blocking the content below. */
 .footer-illustration-strip {
-    position: absolute;
     background-image: url(/images/footer-travel-illustration.png);
     background-position: bottom center;
     background-repeat: no-repeat;
