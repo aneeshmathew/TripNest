@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import BrandMark from "./BrandMark";
@@ -10,18 +11,16 @@ import BrandMark from "./BrandMark";
 // than the earlier inert-text placeholders.
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
-  { label: "Careers", href: "/careers" },
-  { label: "Blog", href: "/blog" },
-  { label: "Press", href: "/press" }
+  { label: "Blog", href: "/blog" }
 ];
 const SUPPORT_LINKS = [
-  { label: "Help Center", href: "/help-center" },
-  { label: "Safety", href: "/safety" },
   { label: "Terms of Service", href: "/terms-of-service" },
   { label: "Privacy Policy", href: "/privacy-policy" }
 ];
 
 function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
   return (
     <footer className="site-footer">
       <div className="footer-illustration-strip" aria-hidden="true" />
@@ -78,18 +77,36 @@ function Footer() {
             Join our newsletter for the latest deals, travel tips and more.
           </p>
           {/* No real newsletter/subscription endpoint exists yet — submit
-              is a no-op rather than pretending to sign the visitor up. */}
-          <form className="footer-newsletter-form" onSubmit={(event) => event.preventDefault()}>
-            <input
-              type="email"
-              placeholder="Your email address"
-              aria-label="Email address"
-              className="footer-newsletter-input"
-            />
-            <button type="submit" className="footer-newsletter-submit" aria-label="Subscribe">
-              &rarr;
-            </button>
-          </form>
+              just shows an inline confirmation and clears the field,
+              rather than pretending to call a backend that doesn't
+              exist. Swap this for a real API call once one exists. */}
+          {subscribed ? (
+            <p className="footer-newsletter-success" role="status">
+              You&apos;ve been added to the newsletter group!
+            </p>
+          ) : (
+            <form
+              className="footer-newsletter-form"
+              onSubmit={(event: FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                setSubscribed(true);
+                setEmail("");
+              }}
+            >
+              <input
+                type="email"
+                placeholder="Your email address"
+                aria-label="Email address"
+                className="footer-newsletter-input"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+              <button type="submit" className="footer-newsletter-submit" aria-label="Subscribe">
+                &rarr;
+              </button>
+            </form>
+          )}
         </div>
       </div>
       <div className="footer-bottom">

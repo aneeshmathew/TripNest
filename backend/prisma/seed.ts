@@ -1149,6 +1149,58 @@ async function main() {
   }
   ];
 
+  // Rotating pool of distinct review templates for the 50 world
+  // destinations below, instead of one hardcoded sentence with just the
+  // city name swapped in — the previous single-template approach meant
+  // every one of these 50 reviews read identically apart from the city
+  // name, which is exactly the "same sentence, only the location
+  // changes" complaint reported against this seed. Each function takes
+  // the destination name and returns its own title/body, so rotating
+  // through 10 of these gives real variety in phrasing and structure,
+  // not just a substituted noun.
+  const worldDestinationReviewTemplates: Array<(name: string) => { title: string; body: string }> = [
+    (name) => ({
+      title: `Great home base in ${name}`,
+      body: `Central, comfortable, and an easy walk to the main sights in ${name}. Would book again.`
+    }),
+    (name) => ({
+      title: `Exactly what we needed`,
+      body: `Quiet at night, close to everything during the day — couldn't have picked a better spot to explore ${name} from.`
+    }),
+    (name) => ({
+      title: `${name} done right`,
+      body: `Host was quick to respond and the place was even nicer than the photos. Already thinking about our next trip back to ${name}.`
+    }),
+    (name) => ({
+      title: `Loved our stay here`,
+      body: `Clean, well-equipped, and the neighborhood turned out to be our favorite part of the whole ${name} trip.`
+    }),
+    (name) => ({
+      title: `Would stay again`,
+      body: `Check-in was seamless and the place had everything we needed after long days out exploring ${name}.`
+    }),
+    (name) => ({
+      title: `Perfect home away from home`,
+      body: `Felt safe, felt local, and the location made getting around ${name} without a car completely painless.`
+    }),
+    (name) => ({
+      title: `Highly recommend this one`,
+      body: `A few small touches — fresh coffee, good wifi, thoughtful notes — made this stand out from other places we've booked in ${name}.`
+    }),
+    (name) => ({
+      title: `Better than expected`,
+      body: `We almost extended our stay. Great value for ${name}, and the host went out of their way to help us plan our days.`
+    }),
+    (name) => ({
+      title: `Couldn't have asked for more`,
+      body: `Bright, quiet, and genuinely close to everything worth seeing in ${name}. Would happily book this exact place again.`
+    }),
+    (name) => ({
+      title: `A real find`,
+      body: `We booked this last-minute and got lucky — great location for getting around ${name}, and nicer inside than the listing photos suggested.`
+    })
+  ];
+
   for (const [i, dest] of worldDestinationSeeds.entries()) {
     const location = dest.region === dest.name ? dest.name : `${dest.name}, ${dest.region}`;
     const listingTitle = `${dest.name} City Center Stay`;
@@ -1162,10 +1214,12 @@ async function main() {
       continent: dest.continent,
       imageUrl: dest.imageUrl
     });
+    const { title: reviewTitle, body: reviewBody } =
+      worldDestinationReviewTemplates[i % worldDestinationReviewTemplates.length](dest.name);
     reviewsByListingTitle[listingTitle] = {
       rating: 4 + (i % 2),
-      title: `Great home base in ${dest.name}`,
-      body: `Central, comfortable, and an easy walk to the main sights in ${dest.name}. Would book again.`
+      title: reviewTitle,
+      body: reviewBody
     };
 
     hotels.push({

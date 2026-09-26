@@ -159,6 +159,14 @@ body {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
+/* .account-menu-trigger and .theme-toggle-icon-btn both had a
+   transparent/borderless background, relying on text-shadow alone for
+   contrast — fine over the app's normal dark backdrop, but on the
+   homepage the navbar sits over Hero's bright sky photo, where the
+   light text/border nearly disappears. A translucent dark backdrop
+   behind both keeps them legible over any photo brightness, matching
+   how .nav-link (Login) already gets a visible border regardless of
+   background. */
 .account-menu-trigger,
 .theme-toggle-icon-btn {
   background: rgba(0, 0, 0, 0.25);
@@ -347,6 +355,30 @@ body {
   font-size: 2rem;
   margin-bottom: 0.3rem;
   text-align: center;
+}
+
+/* Prose styling for the long-form legal/info pages (About Us, Terms of
+   Service, Privacy Policy) — .details/.page-title above are shared with
+   short detail pages (apartments, hotels) and don't style headings or
+   give paragraphs breathing room, which multi-section prose needs. */
+.static-page h2 {
+  font-size: 1.15rem;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.static-page p {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.static-page .subtitle {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.static-page .details-link {
+  display: inline-block;
+  margin-top: 1.5rem;
 }
 
 .subtitle {
@@ -2645,6 +2677,19 @@ body {
 .footer-newsletter-form {
   display: flex;
   gap: 0.5rem;
+}
+
+.footer-newsletter-success {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  color: #fff;
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
 }
 
 .footer-newsletter-input {
