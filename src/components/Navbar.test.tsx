@@ -57,8 +57,22 @@ describe("Navbar account menu", () => {
     mockLoggedOut();
     render(<Navbar />);
     expect(screen.getByText("Login")).toBeInTheDocument();
-    expect(screen.getByTestId("signup-nav-link")).toBeInTheDocument();
+    expect(screen.getByTestId("signup-nav-btn")).toBeInTheDocument();
     expect(screen.queryByTestId("account-menu-trigger")).not.toBeInTheDocument();
+  });
+
+  it("Login/Sign up open the auth modal in place, rather than navigating away", async () => {
+    mockLoggedOut();
+    const openLogin = vi.fn();
+    const openSignup = vi.fn();
+    mockedUseAuthModal.mockReturnValue({ mode: null, openLogin, openSignup, close: vi.fn() });
+    render(<Navbar />);
+
+    await userEvent.click(screen.getByTestId("login-nav-btn"));
+    expect(openLogin).toHaveBeenCalledTimes(1);
+
+    await userEvent.click(screen.getByTestId("signup-nav-btn"));
+    expect(openSignup).toHaveBeenCalledTimes(1);
   });
 
   it("shows 'Hello <name>' using the real User.name field once logged in", () => {
