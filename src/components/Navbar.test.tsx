@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useAuthModal } from "../context/AuthModalContext";
 
 vi.mock("../context/AuthContext", () => ({
   useAuth: vi.fn()
@@ -13,8 +14,18 @@ vi.mock("../context/ThemeContext", () => ({
   useTheme: vi.fn()
 }));
 
+// Navbar calls useAuthModal() unconditionally (for the Login/Sign up
+// buttons' onClick handlers), so it needs a mock here too — without it,
+// every test below throws "useAuthModal must be used within an
+// AuthModalProvider" before ever reaching its own assertions, since
+// there's no real AuthModalProvider wrapping these bare <Navbar /> renders.
+vi.mock("../context/AuthModalContext", () => ({
+  useAuthModal: vi.fn()
+}));
+
 const mockedUseAuth = vi.mocked(useAuth);
 const mockedUseTheme = vi.mocked(useTheme);
+const mockedUseAuthModal = vi.mocked(useAuthModal);
 
 function mockLoggedIn() {
   mockedUseAuth.mockReturnValue({
@@ -39,6 +50,7 @@ function mockLoggedOut() {
 describe("Navbar account menu", () => {
   beforeEach(() => {
     mockedUseTheme.mockReturnValue({ theme: "light", toggleTheme: vi.fn() });
+    mockedUseAuthModal.mockReturnValue({ mode: null, openLogin: vi.fn(), openSignup: vi.fn(), close: vi.fn() });
   });
 
   it("shows Login/Sign up when logged out, no account menu", () => {

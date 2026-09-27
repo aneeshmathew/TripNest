@@ -8,16 +8,25 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+// ActivitiesSection is an async Server Component (it awaits Unsplash
+// lookups for each tile — see the component itself) so it can't be
+// rendered as plain JSX like `render(<ActivitiesSection />)`: React
+// Testing Library's render() doesn't await Server Components, so doing
+// that hands React the un-awaited Promise itself as a child, producing
+// "Objects are not valid as a React child (found: [object Promise])".
+// Calling and awaiting the async function directly first, then rendering
+// its resolved JSX, is the fix — same pattern DestinationsSection's own
+// test (if/when it exists) would need too.
 describe("ActivitiesSection", () => {
-  it("renders a tile for every curated activity", () => {
-    render(<ActivitiesSection />);
+  it("renders a tile for every curated activity", async () => {
+    render(await ActivitiesSection());
     activityHighlights.forEach((highlight) => {
       expect(screen.getByTestId(`activity-${highlight.slug}`)).toBeInTheDocument();
     });
   });
 
-  it("renders all six category filter pills, with All active by default", () => {
-    render(<ActivitiesSection />);
+  it("renders all six category filter pills, with All active by default", async () => {
+    render(await ActivitiesSection());
     expect(screen.getByTestId("activity-filter-all")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("activity-filter-adventure")).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByTestId("activity-filter-high-adrenaline")).toBeInTheDocument();
@@ -27,7 +36,7 @@ describe("ActivitiesSection", () => {
   });
 
   it("clicking a category pill narrows the tiles to that category", async () => {
-    render(<ActivitiesSection />);
+    render(await ActivitiesSection());
 
     await userEvent.click(screen.getByTestId("activity-filter-history-culture"));
 
@@ -46,8 +55,8 @@ describe("ActivitiesSection", () => {
     expect(screen.queryByTestId(`activity-${hiddenSlug}`)).not.toBeInTheDocument();
   });
 
-  it("links every tile — including Kayaking — to its /activities/[slug] page", () => {
-    render(<ActivitiesSection />);
+  it("links every tile — including Kayaking — to its /activities/[slug] page", async () => {
+    render(await ActivitiesSection());
     const surfing = activityHighlights.find((h) => h.slug === "surfing");
     const kayaking = activityHighlights.find((h) => h.slug === "kayaking");
     expect(surfing).toBeDefined();
@@ -62,11 +71,17 @@ describe("ActivitiesSection", () => {
     );
   });
 
-  it("renders the Kayaking tile the same shape as every other tile — badge, photo, title", () => {
-    render(<ActivitiesSection />);
+  it("renders the Kayaking tile the same shape as every other tile — badge, photo, title", async () => {
+    render(await ActivitiesSection());
     const kayaking = activityHighlights.find((highlight) => highlight.slug === "kayaking");
     expect(kayaking).toBeDefined();
     const tile = screen.getByTestId(`activity-${kayaking!.slug}`);
+    // The tile's badge shows the activity's category (e.g. "Water Sports"),
+    // not the short `activity` field — that field is only used server-side
+    // to build the Unsplash search query. `title` ("New Zealand Fjord
+    // Kayaking") is what's actually rendered, and it happens to contain
+    // the activity name as a substring, which is what this assertion
+    // checks (toHaveTextContent does substring matching).
     expect(tile).toHaveTextContent(kayaking!.activity);
     expect(tile).toHaveTextContent(kayaking!.title);
     expect(tile.querySelector("img")).toHaveAttribute("src", kayaking!.imageUrl);
@@ -74,7 +89,7 @@ describe("ActivitiesSection", () => {
 
   it("renders Previous/Next controls that scroll the track", async () => {
     const scrollBySpy = vi.spyOn(HTMLElement.prototype, "scrollBy").mockImplementation(() => {});
-    render(<ActivitiesSection />);
+    render(await ActivitiesSection());
 
     expect(screen.getByTestId("activities-carousel-prev")).toBeInTheDocument();
     await userEvent.click(screen.getByTestId("activities-carousel-next"));

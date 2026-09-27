@@ -1,86 +1,96 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import DestinationsCarousel from "./DestinationsCarousel";
-import { natGeoDestinations } from "../data/natGeoDestinations";
+import DestinationsCarousel, { type DestinationTileData } from "./DestinationsCarousel";
 
-// jsdom has no real layout engine, so scrollTo/scrollBy are stubbed
-// no-ops there already — these spies just let us assert the component
-// *calls* them (and how often), not that scroll position actually moves.
+// jsdom has no real layout engine, so scrollTo is stubbed a no-op already
+// (see vitest.setup.tsx) and clientWidth is always 0 — these spies let us
+// assert the component *calls* scrollTo (and how often/with what page
+// math), not that scroll position visibly moves.
 afterEach(() => {
   vi.restoreAllMocks();
-  vi.useRealTimers();
 });
 
+// A small synthetic dataset (8 destinations, so 8/6 = 2 pages with one
+// partial page) rather than a real curated data file — this component
+// takes destinations as a plain prop, so unit-testing it against a fixed
+// fixture keeps these tests from breaking again the next time the real
+// destinations list (or which curated list feeds the homepage) changes.
+function makeDestinations(count: number): DestinationTileData[] {
+  return Array.from({ length: count }, (_, i) => ({
+    slug: `destination-${i}`,
+    name: `Destination ${i}`,
+    location: `Country ${i}`,
+    imageUrl: `https://example.com/${i}.jpg`,
+    fallbackImageUrl: `https://example.com/${i}-fallback.jpg`
+  }));
+}
+
 describe("DestinationsCarousel", () => {
-  it("renders a tile for all 25 Nat Geo destinations", () => {
-    render(<DestinationsCarousel />);
-    const tiles = screen.getAllByRole("link");
-    expect(tiles).toHaveLength(25);
-    expect(natGeoDestinations).toHaveLength(25);
+  it("renders a tile for every destination provided", () => {
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
+    expect(screen.getAllByRole("link")).toHaveLength(8);
   });
 
   it("links each tile to its real destination detail page", () => {
-    render(<DestinationsCarousel />);
-    expect(screen.getByTestId("destination-rio-de-janeiro-brazil")).toHaveAttribute(
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
+    expect(screen.getByTestId("destination-destination-3")).toHaveAttribute(
       "href",
-      "/destinations/rio-de-janeiro-brazil"
+      "/destinations/destination-3"
     );
   });
 
   it("renders Previous/Next controls", () => {
-    render(<DestinationsCarousel />);
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
     expect(screen.getByTestId("destinations-carousel-prev")).toBeInTheDocument();
     expect(screen.getByTestId("destinations-carousel-next")).toBeInTheDocument();
   });
 
-  it("clicking Next scrolls the track forward", async () => {
-    const scrollBySpy = vi.spyOn(HTMLElement.prototype, "scrollBy").mockImplementation(() => {});
-    render(<DestinationsCarousel />);
+  it("clicking Next scrolls the track to the next page", async () => {
+    const scrollToSpy = vi.spyOn(HTMLElement.prototype, "scrollTo").mockImplementation(() => {});
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
 
     await userEvent.click(screen.getByTestId("destinations-carousel-next"));
 
-    expect(scrollBySpy).toHaveBeenCalled();
+    expect(scrollToSpy).toHaveBeenCalledWith(expect.objectContaining({ behavior: "smooth" }));
   });
 
-  it("auto-advances every 2 seconds", () => {
-    vi.useFakeTimers();
+  it("clicking Previous on the first page wraps around to the last page", async () => {
     const scrollToSpy = vi.spyOn(HTMLElement.prototype, "scrollTo").mockImplementation(() => {});
-    render(<DestinationsCarousel />);
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
 
-    vi.advanceTimersByTime(2000);
-    expect(scrollToSpy).toHaveBeenCalledTimes(1);
+    // 8 destinations / 6 per page = 2 pages; wrapping back from page 0
+    // should land on page 1 (the last page), not go negative.
+    await userEvent.click(screen.getByTestId("destinations-carousel-prev"));
 
-    vi.advanceTimersByTime(2000);
-    expect(scrollToSpy).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId("destinations-dot-1")).toHaveAttribute("aria-selected", "true");
+    expect(scrollToSpy).toHaveBeenCalled();
   });
 
-  it("renders a hidden duplicate set of tiles for seamless looping, excluded from the accessibility tree", () => {
-    const { container } = render(<DestinationsCarousel />);
-    // 25 real + 25 hidden clones = 50 in the DOM...
-    expect(container.querySelectorAll(".destination-tile")).toHaveLength(50);
-    // ...but role queries (what screen readers/testing-library see) only
-    // find the 25 real ones, since the clones are aria-hidden.
-    expect(screen.getAllByRole("link")).toHaveLength(25);
+  it("renders one dot per page, with the first page active by default", () => {
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
+    expect(screen.getByTestId("destinations-dot-0")).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("destinations-dot-1")).toHaveAttribute("aria-selected", "false");
+    expect(screen.queryByTestId("destinations-dot-2")).not.toBeInTheDocument();
   });
 
-  it("snaps back seamlessly once scrolled past one full set width, instead of visibly resetting to the start", () => {
-    vi.useFakeTimers();
+  it("clicking a dot jumps straight to that page", async () => {
     const scrollToSpy = vi.spyOn(HTMLElement.prototype, "scrollTo").mockImplementation(() => {});
-    const { container } = render(<DestinationsCarousel />);
+    render(<DestinationsCarousel destinations={makeDestinations(8)} />);
 
-    const track = container.querySelector(".destinations-carousel") as HTMLDivElement;
-    const fallbackStep = 216; // jsdom has no layout, so offsetWidth is always 0 and the fallback kicks in
-    // Simulate having scrolled exactly one full set's width into the
-    // (visually identical) cloned second copy.
-    track.scrollLeft = fallbackStep * natGeoDestinations.length;
+    await userEvent.click(screen.getByTestId("destinations-dot-1"));
 
-    vi.advanceTimersByTime(2000);
+    expect(screen.getByTestId("destinations-dot-1")).toHaveAttribute("aria-selected", "true");
+    expect(scrollToSpy).toHaveBeenCalled();
+  });
 
-    // Snapped back to the equivalent position in the real first copy...
-    expect(track.scrollLeft).toBe(0);
-    // ...then continued the normal forward step from there, rather than
-    // stopping dead at the reset point.
-    expect(scrollToSpy).toHaveBeenCalledWith({ left: fallbackStep, behavior: "smooth" });
+  it("renders no page dots at all when everything fits on one page", () => {
+    render(<DestinationsCarousel destinations={makeDestinations(6)} />);
+    expect(screen.queryByTestId("destinations-dot-0")).not.toBeInTheDocument();
+  });
+
+  it("renders nothing when given an empty destinations list", () => {
+    const { container } = render(<DestinationsCarousel destinations={[]} />);
+    expect(container).toBeEmptyDOMElement();
   });
 });
