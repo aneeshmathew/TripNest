@@ -21,7 +21,7 @@ import {
   getApartmentsNear,
   getRestaurantsNear
 } from "../../../lib/geoapify";
-import { getDestinationPhotoUrl } from "../../../lib/unsplash";
+import { getDestinationPhotoUrl } from "../../../lib/pixabay";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "things-to-do" | "attractions" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [

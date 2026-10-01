@@ -11,7 +11,7 @@ export interface DestinationTileData {
   location: string;
   imageUrl: string;
   /** Local picsum placeholder — swapped in client-side if imageUrl (the
-      real Unsplash photo) fails to load. See DestinationTile below. */
+      real Pixabay photo) fails to load. See DestinationTile below. */
   fallbackImageUrl: string;
 }
 

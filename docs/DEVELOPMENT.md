@@ -36,7 +36,7 @@
 - Live "Attractions" tab on `/destinations/[slug]` and `/activities/[slug]` (Geoapify Places, via `app/api/attractions` / `lib/geoapify.ts`) — third-party data, not the internal `Attraction` model described below, which is still not started
 - `/destinations/[slug]`'s old curated "Activities" tab (which linked to `/activities/[slug]` pages) has been replaced by a live "Things to Do" tab — same Geoapify Places API as Attractions, different category set (entertainment/leisure/sport/natural vs. tourism.sights/attraction). The standalone `/activities/[slug]` pages and their own curated data (`data/activityHighlights.ts`, `data/destinationActivities.ts`) are unaffected — only the destination page's tab changed.
 - Navbar is fully transparent with fixed white text/logo colors (doesn't shift on theme toggle) and outlined buttons; Login/Sign up now open as a closable popup (`AuthModal.tsx` / `AuthModalContext.tsx`) instead of navigating to `/login`/`/signup` — those routes still exist and work directly (deep links, no-JS)
-- Destination/activity hero photos and `/plan` group photos now try Unsplash's Search Photos API first (`lib/unsplash.ts`), falling back to the existing curated/placeholder `imageUrl` only when Unsplash has no match or isn't configured
+- Destination/activity hero photos and `/plan` group photos now try Pixabay's image search API first (`lib/pixabay.ts`) — safesearch on, tag blocklist, and a relevance check on the photo's tags — falling back to the existing curated/placeholder `imageUrl` whenever Pixabay has no safe, relevant match or isn't configured
 
 ### 🟡 Partially done / honest approximations
 - "Activities" are a keyword-search approximation against existing Listings/Hotels/Restaurants — no real `Attraction`/`Activity` model or tagging yet
@@ -45,7 +45,7 @@
 - `continent` filter exists and works but has no UI entry point (the old `ContinentMap` was removed)
 - Automated tests exist but nothing enforces them — no CI gate blocks a merge on failing tests yet
 - The 50 world destinations' images are seeded `picsum.photos` placeholders (stable per slug), not hand-picked real photography — real per-destination photos would need sourcing, same caveat as the rest of the app's hotlinked images
-- The homepage carousel/gallery/activity strips (`DestinationsCarousel`, `DestinationGallery`, `ActivitiesSection`) still render the static curated/placeholder images directly — Unsplash is only wired into the detail-page heroes and `/plan` so far (client components rendering 30-50 tiles each would need a data-fetching refactor plus care around Unsplash's rate limit to do live per-tile)
+- The homepage carousel/gallery/activity strips (`DestinationsCarousel`, `DestinationGallery`, `ActivitiesSection`) still render the static curated/placeholder images directly — Pixabay is only wired into the detail-page heroes and `/plan` so far (client components rendering 30-50 tiles each would need a data-fetching refactor plus care around Pixabay's 100 req/min rate limit to do live per-tile)
 
 ### ⛔ Not started
 - Real geo data (`lat`/`lng`), map view, "near me" / radius search

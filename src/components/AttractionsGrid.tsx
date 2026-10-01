@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { MapPin } from "lucide-react";
 import type { GeoAttraction } from "../lib/geoapify";
-import { getDestinationPhotoUrl } from "../lib/unsplash";
+import { getDestinationPhotoUrl } from "../lib/pixabay";
 
 interface AttractionsGridProps {
   attractions: GeoAttraction[];
@@ -21,7 +21,7 @@ interface AttractionsGridProps {
 // here just means "nothing found nearby" rather than a broken page.
 //
 // Geoapify's Places API doesn't return photos on the free tier, so each
-// card's image comes from a separate Unsplash search keyed on the
+// card's image comes from a separate Pixabay search keyed on the
 // place's own name (falls back to the destination's photo if a given
 // place has no good match, so a card is never left blank).
 async function AttractionsGrid({

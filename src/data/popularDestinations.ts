@@ -6,11 +6,11 @@
 // carousel). Exactly 30 so the 6-tiles-per-page carousel lands on a clean
 // 5 pages with nothing left over.
 //
-// `imageUrl` here is only a fallback for when Unsplash has nothing (no
+// `imageUrl` here is only a fallback for when Pixabay has nothing (no
 // access key configured, rate-limited, or no match) — a stable per-slug
 // placeholder, same approach as data/worldDestinations.ts.
 // DestinationsSection.tsx (an async Server Component) fetches the real
-// photo for each from Unsplash at request time via lib/unsplash.ts's
+// photo for each from Pixabay at request time via lib/pixabay.ts's
 // getDestinationPhotoUrl(), the same call the destination detail pages
 // already make.
 export interface PopularDestination {

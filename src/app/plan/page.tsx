@@ -7,7 +7,7 @@ import type { NatGeoDestination } from "../../data/natGeoDestinations";
 import { activityHighlights, type ActivityHighlight } from "../../data/activityHighlights";
 import { destinationActivitySlugs } from "../../data/destinationActivities";
 import { parseTripQuery } from "../../lib/parseTripQuery";
-import { getDestinationPhotoUrl } from "../../lib/unsplash";
+import { getDestinationPhotoUrl } from "../../lib/pixabay";
 
 export const metadata: Metadata = {
   title: "Plan your trip",

@@ -44,7 +44,7 @@ function getApiKey(): string {
 }
 
 // Autocomplete is meant for fast-typing UI, so cache lightly (or not at
-// all) rather than Unsplash's day-long cache — 5 minutes keeps repeat
+// all) rather than Pixabay's day-long cache — 5 minutes keeps repeat
 // keystrokes on a popular query cheap without serving stale-for-long data.
 const AUTOCOMPLETE_REVALIDATE_SECONDS = 300;
 
@@ -117,7 +117,7 @@ export async function geocodePlace(query: string): Promise<{ lat: number; lon: n
   }
 }
 
-// Attractions change slowly — cache for a day, same rationale as Unsplash.
+// Attractions change slowly — cache for a day, same rationale as Pixabay.
 const PLACES_REVALIDATE_SECONDS = 60 * 60 * 24;
 
 /** Geoapify Places category groups — see https://apidocs.geoapify.com/docs/places/#categories */

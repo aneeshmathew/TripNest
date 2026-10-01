@@ -27,7 +27,7 @@ repo.
 ### Setup
 ```bash
 npm install
-cp .env.example .env.local     # set NEXT_PUBLIC_API_URL, GEOAPIFY_API_KEY, UNSPLASH_ACCESS_KEY
+cp .env.example .env.local     # set NEXT_PUBLIC_API_URL, GEOAPIFY_API_KEY, PIXABAY_API_KEY
 npm run dev                    # runs on :3000, or :3001+ if 3000 is already taken
 ```
 
@@ -54,7 +54,7 @@ on the backend, which isn't a framework Vercel auto-detects).
 2. **Deploy the backend first** (see `TripNest_Backend`'s README) — you need its URL for the next step.
 3. **Set environment variables** in this project's Settings → Environment Variables:
    - `NEXT_PUBLIC_API_URL` — the deployed backend's URL (e.g. `https://tripnest-backend.vercel.app`)
-   - `GEOAPIFY_API_KEY`, `UNSPLASH_ACCESS_KEY`, `UNSPLASH_API_URL` — same values as your local `.env.local`
+   - `GEOAPIFY_API_KEY`, `PIXABAY_API_KEY`, `PIXABAY_API_URL` — same values as your local `.env.local`
 4. **Deploy.**
 5. **Go back to the backend's Vercel project** and add this frontend's deployed URL to its
    `CORS_ORIGIN` env var — otherwise the browser will block requests to the API with a CORS error, the
@@ -77,7 +77,7 @@ frontend/
 │   ├── components/                # UI components (Navbar, Footer, Hero, cards, carousels, forms, etc.)
 │   ├── context/                    # AuthContext, ThemeContext
 │   ├── data/                        # curated static content (Nat Geo destinations, activities, destination↔activity map)
-│   ├── lib/                          # server-only data fetching (listings, reviews, hotels, restaurants, geoapify, unsplash) + query parsing
+│   ├── lib/                          # server-only data fetching (listings, reviews, hotels, restaurants, geoapify, pixabay) + query parsing
 │   ├── api/                           # client-only API layer (auth, reviews, token storage) — talks to the backend over NEXT_PUBLIC_API_URL
 │   └── types/
 ├── e2e/                                # Playwright end-to-end specs (exercise frontend + backend together)

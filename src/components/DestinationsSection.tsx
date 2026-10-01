@@ -1,12 +1,12 @@
 import DestinationsCarousel from "./DestinationsCarousel";
 import { popularDestinationSeeds } from "../data/popularDestinations";
-import { getDestinationPhotoUrl } from "../lib/unsplash";
+import { getDestinationPhotoUrl } from "../lib/pixabay";
 
-// Server Component (no "use client") so it can call the Unsplash search
-// API directly — see lib/unsplash.ts, the same server-only integration
+// Server Component (no "use client") so it can call the Pixabay search
+// API directly — see lib/pixabay.ts, the same server-only integration
 // the /destinations/[slug] pages already use, with the same "<Name>
 // <Location>" query shape and fallback-to-placeholder behavior. Results
-// are cached 24h per query there, so this only actually hits Unsplash
+// are cached 24h per query there, so this only actually hits Pixabay
 // once a day per destination, not on every homepage load.
 async function DestinationsSection() {
   const destinations = await Promise.all(

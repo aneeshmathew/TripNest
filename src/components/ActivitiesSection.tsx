@@ -1,8 +1,8 @@
 import ActivitiesCarousel from "./ActivitiesCarousel";
 import { activityHighlights } from "../data/activityHighlights";
-import { getDestinationPhotoUrl } from "../lib/unsplash";
+import { getDestinationPhotoUrl } from "../lib/pixabay";
 
-// Server Component (no "use client") so it can call the Unsplash search
+// Server Component (no "use client") so it can call the Pixabay search
 // API directly — same integration as DestinationsSection.tsx. Searching
 // "<activity> <real location>" (e.g. "Skydiving Queenstown, New Zealand")
 // rather than just the activity name gets a photo that actually matches

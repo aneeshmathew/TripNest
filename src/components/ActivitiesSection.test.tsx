@@ -8,7 +8,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// ActivitiesSection is an async Server Component (it awaits Unsplash
+// ActivitiesSection is an async Server Component (it awaits Pixabay
 // lookups for each tile — see the component itself) so it can't be
 // rendered as plain JSX like `render(<ActivitiesSection />)`: React
 // Testing Library's render() doesn't await Server Components, so doing
@@ -78,7 +78,7 @@ describe("ActivitiesSection", () => {
     const tile = screen.getByTestId(`activity-${kayaking!.slug}`);
     // The tile's badge shows the activity's category (e.g. "Water Sports"),
     // not the short `activity` field — that field is only used server-side
-    // to build the Unsplash search query. `title` ("New Zealand Fjord
+    // to build the Pixabay search query. `title` ("New Zealand Fjord
     // Kayaking") is what's actually rendered, and it happens to contain
     // the activity name as a substring, which is what this assertion
     // checks (toHaveTextContent does substring matching).

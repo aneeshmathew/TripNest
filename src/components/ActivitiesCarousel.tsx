@@ -28,7 +28,7 @@ export interface ResolvedActivityHighlight {
   durationLabel: string;
   imageUrl: string;
   /** Local static fallback — swapped in client-side if imageUrl (the real
-      Unsplash photo) fails to load. See ActivityTile below. */
+      Pixabay photo) fails to load. See ActivityTile below. */
   fallbackImageUrl: string;
 }
 
@@ -52,7 +52,7 @@ const CATEGORY_META: Record<ActivityCategoryFilter["id"], { icon: typeof Compass
 // Hotels/Restaurants/Reviews) built from our own real data, the same
 // pattern as DestinationsCarousel's tiles linking to /destinations/[slug].
 //
-// Falls back to a local placeholder if the real Unsplash photo fails to
+// Falls back to a local placeholder if the real Pixabay photo fails to
 // load client-side (same resilience as DestinationTile in
 // DestinationsCarousel.tsx — a search succeeding server-side doesn't
 // guarantee the CDN hotlink itself always loads).
