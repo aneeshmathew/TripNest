@@ -4,9 +4,10 @@ import { activityPhotoQuery, getDestinationPhotoUrl } from "../lib/pixabay";
 
 // Server Component (no "use client") so it can call the Pixabay search
 // API directly — same integration as DestinationsSection.tsx. Searching
-// for the card's real place (e.g. "Queenstown", with "New Zealand" and
-// "Skydiving" as ranking hints — see activityPhotoQuery) gets a photo of the
-// right place instead of a generic shot of the activity from anywhere.
+// the card's own title (e.g. "Sunset Surf on Mexico's Coast") gets a photo
+// matching both the activity and the place, with "<activity> <location>" as
+// a second try; if Pixabay has no close match the card keeps its curated
+// image (see activityPhotoQuery).
 async function ActivitiesSection() {
   const highlights = await Promise.all(
     activityHighlights.map(async (highlight) => ({

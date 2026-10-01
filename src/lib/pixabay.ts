@@ -133,8 +133,25 @@ export function queryKeywords(query: string): string[] {
   return Array.from(new Set(words.filter((w) => w.length >= 3 && !STOPWORDS.has(w))));
 }
 
+/**
+ * Very light stemmer so "surf" matches the tags "surfer" / "surfing" and
+ * "falls" matches "fall". Applied to both the query and the tag words, so
+ * it only needs to be consistent, not linguistically correct.
+ */
+export function stem(word: string): string {
+  for (const suffix of ["ing", "ers", "er", "ed", "es", "s"]) {
+    if (word.length - suffix.length >= 4 && word.endsWith(suffix)) return word.slice(0, -suffix.length);
+  }
+  return word;
+}
+
 function wordSet(text: string): Set<string> {
-  return new Set(normalize(text).split(/[\s-]+/).filter(Boolean));
+  return new Set(
+    normalize(text)
+      .split(/[\s-]+/)
+      .filter(Boolean)
+      .map(stem)
+  );
 }
 
 /** Whole-word / whole-phrase blocklist check. */
@@ -156,6 +173,20 @@ export interface PhotoQuery {
   region?: string;
   /** Extra flavour, e.g. the activity "Hiking". Ranking only. */
   hint?: string;
+  /** Override the share of `subject` keywords the tags must cover (default MIN_MATCH_RATIO). */
+  minMatchRatio?: number;
+  /** Send `subject` to Pixabay verbatim (no region/hint added) — region/hint still rank results. */
+  literal?: boolean;
+  /** Queries to try, in order, if this one finds no acceptable photo. */
+  alternates?: PhotoQuery[];
+  /**
+   * Groups of acceptable tag words. A photo is rejected unless its tags
+   * contain at least one word from EVERY group — e.g. [activity words, place
+   * words] guarantees the photo shows both the activity and the place.
+   */
+  mustMatch?: string[][];
+  /** Tag words/phrases that earn a ranking bonus (e.g. the exact city rather than just the country). */
+  focus?: string[];
 }
 
 function asPhotoQuery(q: string | PhotoQuery): PhotoQuery {
@@ -163,18 +194,57 @@ function asPhotoQuery(q: string | PhotoQuery): PhotoQuery {
 }
 
 /**
- * Photo query for an activity card such as {activity: "Hiking", location:
- * "Dublin, Ireland"}: the *place* ("Dublin") must match, the country and the
- * activity only rank photos — so we get a photo of the right place, ideally
- * showing the activity, rather than any photo of the activity anywhere.
+ * Photo query for an activity card, e.g. {activity: "Surfing", title: "Sunset
+ * Surf on Mexico's Coast", location: "Coastal Oaxaca, Mexico"}.
+ *
+ * 1. Search the card's own TITLE, verbatim — it already describes the picture
+ *    we want (activity + scenery + place), and it is what returns the right
+ *    photos when typed into pixabay.com. Country/activity only rank results.
+ * 2. If nothing acceptable, fall back to "<activity> <location>" with the
+ *    stricter 60% tag match (the previous behaviour).
+ * 3. If that fails too, the card keeps its curated image.
  */
-export function activityPhotoQuery(h: { activity: string; location: string }): PhotoQuery {
-  const parts = h.location.split(",").map((p) => p.trim()).filter(Boolean);
+export function activityPhotoQuery(h: { activity: string; title: string; location: string }): PhotoQuery {
+  const country = regionTail(h.location);
+  // Accuracy comes from this rule, not from how many title words match
+  // (titles contain filler like "Ultimate", "Journey", "Walk Through"): the
+  // tags must name the ACTIVITY and the PLACE.
+  const firstSegment = h.location.split(",")[0] ?? h.location;
+  const mustMatch = [activityTerms(h.activity), placeTerms(h.location)];
+  const common = { literal: true, minMatchRatio: 0, mustMatch, focus: placeTerms(firstSegment) };
   return {
-    subject: parts[0] ?? h.location,
-    region: parts.slice(1).join(", ") || undefined,
-    hint: h.activity
+    ...common,
+    subject: h.title,
+    region: country || undefined,
+    hint: h.activity,
+    alternates: [
+      { ...common, subject: `${h.activity} ${h.location}` },
+      // Broader pool for places with rare names (Oaxaca, Khiva): activity + country.
+      ...(country ? [{ ...common, subject: `${queryKeywords(h.activity).join(" ")} ${country}` }] : [])
+    ]
   };
+}
+
+/** Words photographers use for each activity (the card says "Surfing", tags say "surfer"). */
+const ACTIVITY_TERMS: Record<string, string[]> = {
+  hiking: ["hiking", "hike", "hiker", "trekking", "trek", "trail", "walking"],
+  "animal watching": ["wildlife", "safari", "animal", "zebra", "elephant", "giraffe", "lion", "gorilla", "antelope", "buffalo", "hippo", "rhino"],
+  surfing: ["surf", "surfing", "surfer", "surfboard", "longboard", "bodyboard"],
+  cycling: ["cycling", "cyclist", "bicycle", "bike", "biking"],
+  kayaking: ["kayak", "kayaking", "kayaker", "canoe", "paddle", "paddling"],
+  "whale watching": ["whale", "humpback", "orca"],
+  party: ["party", "nightlife", "carnival", "festival", "club", "samba", "parade", "dance", "celebration"],
+  "rock climbing": ["climbing", "climber", "climb", "bouldering", "ferrata", "cliff"],
+  skydiving: ["skydiving", "skydiver", "skydive", "parachute", "parachuting", "freefall"],
+  "history & culture": ["history", "historic", "historical", "culture", "cultural", "heritage", "ancient", "temple", "monument", "architecture", "palace", "fortress", "mosque", "madrasa", "courtyard", "landmark", "tradition"],
+  "scuba diving": ["scuba", "diving", "diver", "underwater", "reef", "snorkel", "snorkeling", "coral", "marine"],
+  skiing: ["ski", "skiing", "skier", "snowboard", "snowboarding", "slope", "piste", "powder"],
+  mountaineering: ["mountaineering", "mountaineer", "alpinist", "climbing", "climber", "summit", "peak", "alpine", "mountain", "glacier"]
+};
+
+/** Tag words that count as "this photo shows <activity>". Unknown activities use their own words. */
+export function activityTerms(activity: string): string[] {
+  return ACTIVITY_TERMS[activity.trim().toLowerCase()] ?? queryKeywords(activity);
 }
 
 /** "British Columbia, Canada" -> "Canada" (last, broadest segment). */
@@ -185,15 +255,52 @@ function regionTail(region?: string): string {
 }
 
 /**
+ * Pixabay appends auto-generated colour tags to many photos ("gray ocean",
+ * "brown mountain", "gray wallpaper"). They are noise — "gray" would
+ * otherwise match the "Gray" in "Baja's Gray Whale Migration" — so drop them.
+ */
+export function cleanTags(tags: string): string {
+  return tags
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t && !/^(gray|grey|brown)\s/i.test(t))
+    .join(", ");
+}
+
+/**
+ * Place terms for a location such as "Rio de Janeiro, Brazil" or "New
+ * Zealand": the whole name as a phrase (so "new zealand" cannot be satisfied
+ * by "new york") plus each distinctive word of 4+ letters ("new" alone is
+ * deliberately excluded).
+ */
+export function placeTerms(location: string): string[] {
+  const terms: string[] = [];
+  for (const segment of location.split(",").map((s) => s.trim()).filter(Boolean)) {
+    const phrase = normalize(segment).replace(/^the /, "");
+    if (phrase.includes(" ")) terms.push(phrase);
+    terms.push(...queryKeywords(segment).filter((w) => w.length >= 4));
+  }
+  return Array.from(new Set(terms));
+}
+
+/** Does `term` (a word, or a multi-word phrase) appear in the photo's tags? */
+function tagsHaveTerm(term: string, words: Set<string>, normalizedTags: string): boolean {
+  const t = normalize(term);
+  return t.includes(" ") ? ` ${normalizedTags} `.includes(` ${t} `) : words.has(stem(t));
+}
+
+/**
  * Scores how well `hit` matches the query.
  * Returns -1 if the photo must be rejected (unsafe / unusable / wrong
  * place), otherwise a number where higher is better.
  */
 export function scorePhoto(hit: PixabayHit, query: string | PhotoQuery): number {
-  const { subject, region, hint } = asPhotoQuery(query);
-  const tags = hit.tags ?? "";
+  const { subject, region, hint, mustMatch, focus, minMatchRatio = MIN_MATCH_RATIO } = asPhotoQuery(query);
+  const rawTags = hit.tags ?? "";
+  const tags = cleanTags(rawTags);
 
-  if (containsBlockedTerm(tags)) return -1;
+  // Safety check runs on the raw tags — never relax it for cleaned-up ones.
+  if (containsBlockedTerm(rawTags)) return -1;
   // Only real photos — never illustrations, vectors or videos.
   if (hit.type && hit.type !== "photo") return -1;
   if (!hit.largeImageURL) return -1;
@@ -205,9 +312,11 @@ export function scorePhoto(hit: PixabayHit, query: string | PhotoQuery): number 
   if (keywords.length === 0) return -1;
 
   const words = wordSet(tags);
-  const matched = keywords.filter((k) => words.has(k)).length;
+  const normalizedTags = normalize(tags);
+  if (mustMatch?.some((group) => !group.some((term) => tagsHaveTerm(term, words, normalizedTags)))) return -1;
+  const matched = keywords.filter((k) => words.has(stem(k))).length;
   const ratio = matched / keywords.length;
-  if (matched === 0 || ratio < MIN_MATCH_RATIO) return -1;
+  if (matched === 0 || ratio < minMatchRatio) return -1;
 
   let score = ratio * 10;
   // The whole place name appearing as one tag ("iguazu falls") is the
@@ -215,8 +324,14 @@ export function scorePhoto(hit: PixabayHit, query: string | PhotoQuery): number 
   if (keywords.length > 1 && ` ${normalize(tags).replace(/\s*,\s*/g, " , ")} `.includes(` ${normalize(subject)} `)) {
     score += 3;
   }
+  // More distinct activity/place words in the tags = stronger evidence (max 3 per group).
+  for (const group of mustMatch ?? []) {
+    score += Math.min(group.filter((term) => tagsHaveTerm(term, words, normalizedTags)).length, 3);
+  }
+  // The exact city/place beats a photo that only matches the country.
+  if (focus?.some((term) => tagsHaveTerm(term, words, normalizedTags))) score += 4;
   // Tie-breakers: country/region and activity words found in the tags.
-  const extra = (text?: string) => queryKeywords(text ?? "").filter((k) => words.has(k)).length;
+  const extra = (text?: string) => queryKeywords(text ?? "").filter((k) => words.has(stem(k))).length;
   score += extra(region) * 1.5 + extra(hint);
   // Mild nudge toward well-liked, high-resolution shots.
   score += Math.min((hit.likes ?? 0) / 500, 2);
@@ -244,8 +359,9 @@ export function pickBestPhoto(hits: PixabayHit[], query: string | PhotoQuery): P
  * acceptable photo we retry with just the place name.
  */
 export function searchLadder(query: string | PhotoQuery): string[] {
-  const { subject, region, hint } = asPhotoQuery(query);
+  const { subject, region, hint, literal } = asPhotoQuery(query);
   const base = subject.trim();
+  if (literal) return base ? [base.slice(0, 100)] : [];
   const tail = regionTail(region);
   const ladder = [
     [base, tail, hint].filter(Boolean).join(" "),
@@ -264,7 +380,7 @@ export function searchLadder(query: string | PhotoQuery): string[] {
 // flip-flopping between renders) without re-scoring.
 const resolved = new Map<string, DestinationPhoto | null>();
 
-async function fetchHits(apiKey: string, q: string): Promise<PixabayHit[] | null> {
+export async function fetchHits(apiKey: string, q: string): Promise<PixabayHit[] | null> {
   const params = new URLSearchParams({
     key: apiKey,
     q,
@@ -303,10 +419,15 @@ export async function searchDestinationPhoto(query: string | PhotoQuery): Promis
 
   try {
     let hit: PixabayHit | null = null;
-    for (const q of searchLadder(pq)) {
-      const hits = await fetchHits(apiKey, q);
-      if (hits === null) return null; // transient failure: don't memoize
-      hit = pickBestPhoto(hits, pq);
+    // Primary query first, then each alternate; every step has its own
+    // narrow-to-broad ladder and its own relevance rules.
+    for (const step of [pq, ...(pq.alternates ?? [])]) {
+      for (const q of searchLadder(step)) {
+        const hits = await fetchHits(apiKey, q);
+        if (hits === null) return null; // transient failure: don't memoize
+        hit = pickBestPhoto(hits, step);
+        if (hit) break;
+      }
       if (hit) break;
     }
 

@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   activityPhotoQuery,
+  cleanTags,
+  placeTerms,
+  activityTerms,
   containsBlockedTerm,
   getDestinationPhotoUrl,
   pickBestPhoto,
   queryKeywords,
   scorePhoto,
   searchLadder,
+  stem,
   type PixabayHit
 } from "./pixabay";
 
@@ -107,12 +111,95 @@ describe("searchLadder / activityPhotoQuery", () => {
     ]);
     expect(searchLadder("Iguazu Falls")).toEqual(["Iguazu Falls"]);
   });
-  it("splits an activity location into place / region / hint", () => {
-    expect(activityPhotoQuery({ activity: "Skydiving", location: "Queenstown, New Zealand" })).toEqual({
-      subject: "Queenstown",
-      region: "New Zealand",
-      hint: "Skydiving"
+  it("searches an activity by its card title, verbatim, then by activity + location, then activity + country", () => {
+    const q = activityPhotoQuery({
+      activity: "Surfing",
+      title: "Sunset Surf on Mexico's Coast",
+      location: "Coastal Oaxaca, Mexico"
     });
+    expect(searchLadder(q)).toEqual(["Sunset Surf on Mexico's Coast"]); // literal: nothing appended
+    expect((q.alternates ?? []).map((a) => searchLadder(a)[0])).toEqual([
+      "Surfing Coastal Oaxaca, Mexico",
+      "surfing Mexico"
+    ]);
+  });
+});
+
+describe("activity cards must show BOTH the activity and the place", () => {
+  const surf = activityPhotoQuery({ activity: "Surfing", title: "Sunset Surf on Mexico's Coast", location: "Coastal Oaxaca, Mexico" });
+  const khiva = activityPhotoQuery({ activity: "History & Culture", title: "Silk Road Walk Through Khiva", location: "Khiva, Uzbekistan" });
+  const hike = activityPhotoQuery({ activity: "Hiking", title: "Ultimate Ireland Hiking Journey", location: "Dublin, Ireland" });
+  it("rejects a beach photo with no surfing", () => {
+    expect(scorePhoto(hit({ tags: "beach, sea, mexico, sunset" }), surf)).toBe(-1);
+  });
+  it("rejects surfing in the wrong country", () => {
+    expect(scorePhoto(hit({ tags: "surfer, wave, california, sunset" }), surf)).toBe(-1);
+  });
+  it("accepts surfing in the right country, whatever the word form", () => {
+    expect(scorePhoto(hit({ tags: "surfer, wave, mexico" }), surf)).toBeGreaterThan(0);
+  });
+  it("is not thrown off by filler words in the title (only 'khiva' appears)", () => {
+    expect(scorePhoto(hit({ tags: "khiva, uzbekistan, architecture" }), khiva)).toBeGreaterThan(0);
+  });
+  it("rejects the right place without the activity, and vice versa", () => {
+    expect(scorePhoto(hit({ tags: "ireland, castle, green" }), hike)).toBe(-1);
+    expect(scorePhoto(hit({ tags: "hiking, mountains, nepal" }), hike)).toBe(-1);
+    expect(scorePhoto(hit({ tags: "hiking, trail, ireland" }), hike)).toBeGreaterThan(0);
+  });
+  it("maps activities to the words photographers use", () => {
+    expect(activityTerms("Animal Watching")).toEqual(expectedSafari());
+    expect(activityTerms("Something New")).toEqual(["something", "new"].filter((w) => w.length >= 3));
+  });
+});
+
+function expectedSafari() {
+  return ["wildlife", "safari", "animal", "zebra", "elephant", "giraffe", "lion", "gorilla", "antelope", "buffalo", "hippo", "rhino"];
+}
+
+describe("cleanTags / placeTerms", () => {
+  it("drops Pixabay's auto-generated colour tags", () => {
+    expect(cleanTags("sea, whale, gray ocean, gray boat, brown path, grey sky")).toBe("sea, whale");
+  });
+  it("keeps multi-word places as phrases and ignores 3-letter words", () => {
+    expect(placeTerms("New Zealand")).toEqual(["new zealand", "zealand"]);
+    expect(placeTerms("Rio de Janeiro, Brazil")).toEqual(["rio de janeiro", "janeiro", "brazil"]);
+    expect(placeTerms("Coastal Oaxaca, Mexico")).toEqual(["coastal oaxaca", "oaxaca", "mexico"]);
+  });
+});
+
+// Regression tests built from REAL Pixabay tags (scripts/pixabay-debug.ts output).
+describe("real-data regressions", () => {
+  const khivaQ = activityPhotoQuery({ activity: "History & Culture", title: "Silk Road Walk Through Khiva", location: "Khiva, Uzbekistan" });
+  const whaleQ = activityPhotoQuery({ activity: "Whale Watching", title: "Baja's Gray Whale Migration", location: "Reykjavík, Iceland" });
+  const skyQ = activityPhotoQuery({ activity: "Skydiving", title: "Skydiving Over the Southern Alps", location: "Queenstown, New Zealand" });
+  const surfQ = activityPhotoQuery({ activity: "Surfing", title: "Sunset Surf on Mexico's Coast", location: "Coastal Oaxaca, Mexico" });
+
+  it("Khiva card: the Khiva photo beats a Tashkent mosque that only shares the country", () => {
+    const tashkent = hit({ id: 1, tags: "tashkent, mosque, uzbekistan, islam, central asia, tile, building, ceramic, historical, silk road, dome, silk road, silk road" });
+    const khiva = hit({ id: 2, tags: "khiva, kihva, unesco world heritage, museum city, evening atmosphere, uzbekistan" });
+    expect(pickBestPhoto([tashkent, khiva], khivaQ)?.id).toBe(2);
+  });
+  it("Whale card: 'gray ocean' no longer matches 'Gray' in the title", () => {
+    const bw = hit({ id: 1, tags: "sea, ocean, whale, ship, boat, fins, black and white, nature, iceland, gray ocean, gray boat" });
+    const humpback = hit({ id: 2, tags: "whale, the humpback whale, humpback whales, mammal, iceland, the fjord, tourism, travel, tail, sea, nature, whale watching" });
+    expect(pickBestPhoto([bw, humpback], whaleQ)?.id).toBe(2);
+  });
+  it("Skydiving Queenstown (New Zealand): a New York photo cannot pass on the word 'new'", () => {
+    expect(scorePhoto(hit({ tags: "skydiving, new york, usa, skydiver" }), skyQ)).toBe(-1);
+    expect(scorePhoto(hit({ tags: "skydiving, skydiver, new zealand" }), skyQ)).toBeGreaterThan(0);
+  });
+  it("Surfing card: surfing photos without 'mexico' in the tags are rejected; the Mexico one is accepted", () => {
+    expect(scorePhoto(hit({ tags: "surf, beach, sand, sports, waves, sunset, costa, coast, landscape, nature, paradise, surfer" }), surfQ)).toBe(-1);
+    expect(scorePhoto(hit({ tags: "mexico, nature, surfing, water, ocean, beach, wave" }), surfQ)).toBeGreaterThan(0);
+  });
+});
+
+describe("stem", () => {
+  it("lets 'surf' match surfer / surfing", () => {
+    expect(stem("surfing")).toBe(stem("surf"));
+    expect(stem("surfer")).toBe(stem("surf"));
+    expect(stem("falls")).toBe(stem("fall"));
+    expect(stem("mexico")).toBe("mexico");
   });
 });
 
@@ -145,6 +232,44 @@ describe("getDestinationPhotoUrl (mocked Pixabay)", () => {
       const url = await getDestinationPhotoUrl({ subject: "Iguazu Falls", region: "Argentina" }, "fallback.jpg");
       expect(url).toBe("https://pixabay.com/get/iguazu_1280.jpg");
       expect(calls).toEqual(["Iguazu Falls Argentina", "Iguazu Falls"]);
+    } finally {
+      restore();
+    }
+  });
+
+  it("activity card: finds the photo via the title query, no need for the fallback query", async () => {
+    process.env.PIXABAY_API_KEY = "test";
+    const title = "Sunset Surf on Mexico's Coast";
+    const calls = mockPixabay({
+      [title]: [hit({ id: 3, tags: "surfer, sunset, mexico", largeImageURL: "https://pixabay.com/get/surf_1280.jpg" })]
+    });
+    try {
+      const url = await getDestinationPhotoUrl(
+        activityPhotoQuery({ activity: "Surfing", title, location: "Coastal Oaxaca, Mexico" }),
+        "fallback.jpg"
+      );
+      expect(url).toBe("https://pixabay.com/get/surf_1280.jpg");
+      expect(calls).toEqual([title]);
+    } finally {
+      restore();
+    }
+  });
+
+  it("activity card: tries '<activity> <location>' when the title query has no acceptable photo", async () => {
+    process.env.PIXABAY_API_KEY = "test";
+    const title = "Skydiving Over the Southern Alps";
+    const alt = "Skydiving Queenstown, New Zealand";
+    const calls = mockPixabay({
+      [title]: [hit({ tags: "cat, pet" })],
+      [alt]: [hit({ id: 4, tags: "skydiving, queenstown, new zealand", largeImageURL: "https://pixabay.com/get/sky_1280.jpg" })]
+    });
+    try {
+      const url = await getDestinationPhotoUrl(
+        activityPhotoQuery({ activity: "Skydiving", title, location: "Queenstown, New Zealand" }),
+        "fallback.jpg"
+      );
+      expect(url).toBe("https://pixabay.com/get/sky_1280.jpg");
+      expect(calls).toEqual([title, alt]);
     } finally {
       restore();
     }
