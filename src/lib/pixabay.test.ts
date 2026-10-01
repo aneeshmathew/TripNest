@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  activityPhotoQuery,
   containsBlockedTerm,
+  getDestinationPhotoUrl,
   pickBestPhoto,
   queryKeywords,
   scorePhoto,
+  searchLadder,
   type PixabayHit
 } from "./pixabay";
 
@@ -46,9 +49,28 @@ describe("scorePhoto", () => {
   it("rejects a photo of the wrong place", () => {
     expect(scorePhoto(hit({ tags: "city, skyline, night" }), "Dolomites Italy")).toBe(-1);
   });
-  it("rejects a photo that only matches a generic word of the query", () => {
-    // 1 of 2 keywords = 0.5, below the 0.6 bar.
-    expect(scorePhoto(hit({ tags: "italy, pizza, food" }), "Dolomites Italy")).toBe(-1);
+  it("rejects a photo that only matches the country, not the place", () => {
+    expect(scorePhoto(hit({ tags: "italy, pizza, food" }), { subject: "Dolomites", region: "Italy" })).toBe(-1);
+  });
+  it("does not require the country in the tags (Iguazu Falls)", () => {
+    const iguazu = hit({ tags: "iguazu falls, waterfall, nature" });
+    expect(scorePhoto(iguazu, { subject: "Iguazu Falls", region: "Argentina" })).toBeGreaterThan(0);
+  });
+  it("accepts a partial name match but ranks the full name higher", () => {
+    const partial = hit({ tags: "iguazu, river" });
+    const full = hit({ tags: "iguazu falls, waterfall" });
+    const q = { subject: "Iguazu Falls" };
+    expect(scorePhoto(partial, q)).toBeGreaterThan(0);
+    expect(scorePhoto(full, q)).toBeGreaterThan(scorePhoto(partial, q));
+  });
+  it("ignores generic words like National Park", () => {
+    expect(scorePhoto(hit({ tags: "akagera, safari, zebra" }), { subject: "Akagera National Park" })).toBeGreaterThan(0);
+  });
+  it("ranks region and hint matches higher", () => {
+    const q = { subject: "Dublin", region: "Ireland", hint: "Hiking" };
+    const plain = hit({ tags: "dublin, city" });
+    const better = hit({ tags: "dublin, ireland, hiking" });
+    expect(scorePhoto(better, q)).toBeGreaterThan(scorePhoto(plain, q));
   });
   it("rejects blocklisted content even if the place matches", () => {
     expect(scorePhoto(hit({ tags: "dolomites, italy, weapon" }), "Dolomites Italy")).toBe(-1);
@@ -73,5 +95,72 @@ describe("pickBestPhoto", () => {
     const unsafe = hit({ id: 9, tags: "dolomites, italy, naked", likes: 99999 });
     const ok = hit({ id: 2 });
     expect(pickBestPhoto([unsafe, ok], "Dolomites Italy")?.id).toBe(2);
+  });
+});
+
+describe("searchLadder / activityPhotoQuery", () => {
+  it("goes from specific to broad, de-duplicated", () => {
+    expect(searchLadder({ subject: "Haida Gwaii", region: "British Columbia, Canada", hint: "Kayaking" })).toEqual([
+      "Haida Gwaii Canada Kayaking",
+      "Haida Gwaii Canada",
+      "Haida Gwaii"
+    ]);
+    expect(searchLadder("Iguazu Falls")).toEqual(["Iguazu Falls"]);
+  });
+  it("splits an activity location into place / region / hint", () => {
+    expect(activityPhotoQuery({ activity: "Skydiving", location: "Queenstown, New Zealand" })).toEqual({
+      subject: "Queenstown",
+      region: "New Zealand",
+      hint: "Skydiving"
+    });
+  });
+});
+
+describe("getDestinationPhotoUrl (mocked Pixabay)", () => {
+  const realFetch = globalThis.fetch;
+  const realKey = process.env.PIXABAY_API_KEY;
+
+  function mockPixabay(byQuery: Record<string, PixabayHit[]>) {
+    const calls: string[] = [];
+    globalThis.fetch = (async (url: string) => {
+      const q = new URL(url).searchParams.get("q") ?? "";
+      calls.push(q);
+      return { ok: true, json: async () => ({ hits: byQuery[q] ?? [] }) } as Response;
+    }) as typeof fetch;
+    return calls;
+  }
+  function restore() {
+    globalThis.fetch = realFetch;
+    if (realKey === undefined) delete process.env.PIXABAY_API_KEY;
+    else process.env.PIXABAY_API_KEY = realKey;
+  }
+
+  it("falls back from the narrow query to the plain place name", async () => {
+    process.env.PIXABAY_API_KEY = "test";
+    const calls = mockPixabay({
+      "Iguazu Falls Argentina": [], // too narrow: no results
+      "Iguazu Falls": [hit({ id: 7, tags: "iguazu falls, waterfall", largeImageURL: "https://pixabay.com/get/iguazu_1280.jpg" })]
+    });
+    try {
+      const url = await getDestinationPhotoUrl({ subject: "Iguazu Falls", region: "Argentina" }, "fallback.jpg");
+      expect(url).toBe("https://pixabay.com/get/iguazu_1280.jpg");
+      expect(calls).toEqual(["Iguazu Falls Argentina", "Iguazu Falls"]);
+    } finally {
+      restore();
+    }
+  });
+
+  it("uses the curated fallback when every result is off-topic or unsafe", async () => {
+    process.env.PIXABAY_API_KEY = "test";
+    mockPixabay({
+      "Machu Picchu Peru": [hit({ tags: "beach, palm trees" }), hit({ tags: "machu picchu, naked" })],
+      "Machu Picchu": [hit({ tags: "city, skyline" })]
+    });
+    try {
+      const url = await getDestinationPhotoUrl({ subject: "Machu Picchu", region: "Peru" }, "fallback.jpg");
+      expect(url).toBe("fallback.jpg");
+    } finally {
+      restore();
+    }
   });
 });

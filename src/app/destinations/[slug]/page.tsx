@@ -66,7 +66,7 @@ export default async function DestinationPage({ params, searchParams }: Destinat
   }
 
   const heroImageUrl = await getDestinationPhotoUrl(
-    `${destination.name} ${destination.location}`,
+    { subject: destination.name, region: destination.location },
     destination.imageUrl
   );
 

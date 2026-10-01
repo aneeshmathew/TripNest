@@ -1,13 +1,12 @@
 import ActivitiesCarousel from "./ActivitiesCarousel";
 import { activityHighlights } from "../data/activityHighlights";
-import { getDestinationPhotoUrl } from "../lib/pixabay";
+import { activityPhotoQuery, getDestinationPhotoUrl } from "../lib/pixabay";
 
 // Server Component (no "use client") so it can call the Pixabay search
 // API directly — same integration as DestinationsSection.tsx. Searching
-// "<activity> <real location>" (e.g. "Skydiving Queenstown, New Zealand")
-// rather than just the activity name gets a photo that actually matches
-// both the activity and the place, replacing the earlier static/reused
-// image pool that didn't always match what a card claimed to show.
+// for the card's real place (e.g. "Queenstown", with "New Zealand" and
+// "Skydiving" as ranking hints — see activityPhotoQuery) gets a photo of the
+// right place instead of a generic shot of the activity from anywhere.
 async function ActivitiesSection() {
   const highlights = await Promise.all(
     activityHighlights.map(async (highlight) => ({
@@ -16,7 +15,7 @@ async function ActivitiesSection() {
       categories: highlight.categories,
       location: highlight.location,
       durationLabel: highlight.durationLabel,
-      imageUrl: await getDestinationPhotoUrl(`${highlight.activity} ${highlight.location}`, highlight.imageUrl),
+      imageUrl: await getDestinationPhotoUrl(activityPhotoQuery(highlight), highlight.imageUrl),
       fallbackImageUrl: highlight.imageUrl
     }))
   );

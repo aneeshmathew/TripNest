@@ -39,7 +39,7 @@ async function AttractionsGrid({
   const attractionsWithPhotos = await Promise.all(
     attractions.map(async (attraction) => ({
       attraction,
-      photoUrl: await getDestinationPhotoUrl(`${attraction.name} ${placeName}`, fallbackPhotoUrl)
+      photoUrl: await getDestinationPhotoUrl({ subject: attraction.name, region: placeName }, fallbackPhotoUrl)
     }))
   );
 

@@ -114,7 +114,7 @@ async function PlanGroupCard({
 }) {
   const { destination, activities, requestedIncluded } = group;
   const photoUrl = await getDestinationPhotoUrl(
-    `${destination.name} ${destination.location}`,
+    { subject: destination.name, region: destination.location },
     destination.imageUrl
   );
 

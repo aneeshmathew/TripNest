@@ -15,7 +15,7 @@ async function DestinationsSection() {
       name: destination.name,
       location: destination.location,
       imageUrl: await getDestinationPhotoUrl(
-        `${destination.name} ${destination.location}`,
+        { subject: destination.name, region: destination.location },
         destination.imageUrl
       ),
       fallbackImageUrl: destination.imageUrl

@@ -20,7 +20,7 @@ import {
   getApartmentsNear,
   getRestaurantsNear
 } from "../../../lib/geoapify";
-import { getDestinationPhotoUrl } from "../../../lib/pixabay";
+import { activityPhotoQuery, getDestinationPhotoUrl } from "../../../lib/pixabay";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "attractions" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
@@ -82,7 +82,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   const effectiveKeyword = trimmedQuery || highlight.location;
 
   const heroImageUrl = await getDestinationPhotoUrl(
-    `${highlight.activity} ${highlight.location}`,
+    activityPhotoQuery(highlight),
     highlight.imageUrl
   );
 

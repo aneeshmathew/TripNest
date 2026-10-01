@@ -31,14 +31,14 @@ const PIXABAY_API_URL = process.env.PIXABAY_API_URL ?? "https://pixabay.com/api/
 const REVALIDATE_SECONDS = 60 * 60 * 24;
 
 /** How many candidates to request so there is something to choose from. */
-const CANDIDATES_PER_QUERY = 20;
+const CANDIDATES_PER_QUERY = 40;
 
 /**
- * Minimum fraction of the query's keywords a photo's tags must cover.
- * 0.6 means "both of two", "2 of 3", "3 of 4"... — a single generic word
- * ("hiking") must not be enough to accept a photo of the wrong place.
+ * Minimum fraction of the *subject's* keywords (the place name — never the
+ * country or activity) that a photo's tags must cover. 0.5 means "1 of 2",
+ * "2 of 3"... For a one-word subject ("Dublin") the word itself must match.
  */
-const MIN_MATCH_RATIO = 0.6;
+const MIN_MATCH_RATIO = 0.5;
 
 /** Reject tiny images — they look bad stretched across a hero banner. */
 const MIN_WIDTH = 1200;
@@ -76,7 +76,11 @@ export const BLOCKED_TERMS: readonly string[] = [
 // against) the relevance match.
 const STOPWORDS = new Set([
   "the", "and", "of", "in", "on", "at", "to", "for", "a", "an", "with", "de",
-  "la", "le", "el", "del", "du", "des"
+  "la", "le", "el", "del", "du", "des",
+  // Generic descriptors: "Akagera National Park" is matched by "akagera"
+  // alone — photographers rarely tag "national" / "park" / "coastal".
+  "national", "park", "reserve", "city", "coastal", "region", "province",
+  "county", "town", "village"
 ]);
 
 /** The subset of Pixabay's image object that we use. */
@@ -140,11 +144,53 @@ export function containsBlockedTerm(text: string): boolean {
 }
 
 /**
- * Scores how well `hit` matches `query`.
+ * What we are looking for. Only `subject` MUST match a photo's tags; `region`
+ * and `hint` merely rank otherwise-acceptable photos higher. Pixabay tags
+ * rarely include the country, so requiring it rejected perfectly good photos
+ * (e.g. "Iguazu Falls" tagged "iguazu, waterfall, nature").
+ */
+export interface PhotoQuery {
+  /** The place/attraction itself, e.g. "Iguazu Falls", "Dublin". Must match. */
+  subject: string;
+  /** Wider area, e.g. "Argentina" or "British Columbia, Canada". Ranking only. */
+  region?: string;
+  /** Extra flavour, e.g. the activity "Hiking". Ranking only. */
+  hint?: string;
+}
+
+function asPhotoQuery(q: string | PhotoQuery): PhotoQuery {
+  return typeof q === "string" ? { subject: q } : q;
+}
+
+/**
+ * Photo query for an activity card such as {activity: "Hiking", location:
+ * "Dublin, Ireland"}: the *place* ("Dublin") must match, the country and the
+ * activity only rank photos — so we get a photo of the right place, ideally
+ * showing the activity, rather than any photo of the activity anywhere.
+ */
+export function activityPhotoQuery(h: { activity: string; location: string }): PhotoQuery {
+  const parts = h.location.split(",").map((p) => p.trim()).filter(Boolean);
+  return {
+    subject: parts[0] ?? h.location,
+    region: parts.slice(1).join(", ") || undefined,
+    hint: h.activity
+  };
+}
+
+/** "British Columbia, Canada" -> "Canada" (last, broadest segment). */
+function regionTail(region?: string): string {
+  if (!region) return "";
+  const parts = region.split(",").map((p) => p.trim()).filter(Boolean);
+  return parts[parts.length - 1] ?? "";
+}
+
+/**
+ * Scores how well `hit` matches the query.
  * Returns -1 if the photo must be rejected (unsafe / unusable / wrong
  * place), otherwise a number where higher is better.
  */
-export function scorePhoto(hit: PixabayHit, query: string): number {
+export function scorePhoto(hit: PixabayHit, query: string | PhotoQuery): number {
+  const { subject, region, hint } = asPhotoQuery(query);
   const tags = hit.tags ?? "";
 
   if (containsBlockedTerm(tags)) return -1;
@@ -155,7 +201,7 @@ export function scorePhoto(hit: PixabayHit, query: string): number {
   // Landscape only: hero banners crop badly from portrait shots.
   if (hit.imageWidth && hit.imageHeight && hit.imageHeight > hit.imageWidth) return -1;
 
-  const keywords = queryKeywords(query);
+  const keywords = queryKeywords(subject);
   if (keywords.length === 0) return -1;
 
   const words = wordSet(tags);
@@ -164,6 +210,14 @@ export function scorePhoto(hit: PixabayHit, query: string): number {
   if (matched === 0 || ratio < MIN_MATCH_RATIO) return -1;
 
   let score = ratio * 10;
+  // The whole place name appearing as one tag ("iguazu falls") is the
+  // strongest signal that the photo is of exactly this place.
+  if (keywords.length > 1 && ` ${normalize(tags).replace(/\s*,\s*/g, " , ")} `.includes(` ${normalize(subject)} `)) {
+    score += 3;
+  }
+  // Tie-breakers: country/region and activity words found in the tags.
+  const extra = (text?: string) => queryKeywords(text ?? "").filter((k) => words.has(k)).length;
+  score += extra(region) * 1.5 + extra(hint);
   // Mild nudge toward well-liked, high-resolution shots.
   score += Math.min((hit.likes ?? 0) / 500, 2);
   if ((hit.imageWidth ?? 0) >= 3000) score += 0.5;
@@ -171,7 +225,7 @@ export function scorePhoto(hit: PixabayHit, query: string): number {
 }
 
 /** Highest-scoring acceptable photo, or null if none pass the safety/relevance bar. */
-export function pickBestPhoto(hits: PixabayHit[], query: string): PixabayHit | null {
+export function pickBestPhoto(hits: PixabayHit[], query: string | PhotoQuery): PixabayHit | null {
   let best: PixabayHit | null = null;
   let bestScore = -1;
   for (const hit of hits) {
@@ -184,6 +238,23 @@ export function pickBestPhoto(hits: PixabayHit[], query: string): PixabayHit | n
   return best;
 }
 
+/**
+ * Search strings to try, most specific first. Pixabay ANDs every word, so
+ * each extra word shrinks the result pool; if the narrow query yields no
+ * acceptable photo we retry with just the place name.
+ */
+export function searchLadder(query: string | PhotoQuery): string[] {
+  const { subject, region, hint } = asPhotoQuery(query);
+  const base = subject.trim();
+  const tail = regionTail(region);
+  const ladder = [
+    [base, tail, hint].filter(Boolean).join(" "),
+    [base, tail].filter(Boolean).join(" "),
+    base
+  ].map((q) => q.slice(0, 100)); // Pixabay caps `q` at 100 characters
+  return Array.from(new Set(ladder.filter(Boolean)));
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -193,51 +264,57 @@ export function pickBestPhoto(hits: PixabayHit[], query: string): PixabayHit | n
 // flip-flopping between renders) without re-scoring.
 const resolved = new Map<string, DestinationPhoto | null>();
 
-/**
- * Searches Pixabay for a photo matching `query` (typically a destination
- * or attraction name, e.g. "Dolomites Italy"). Returns null on any miss —
- * no API key configured, no *safe and relevant* result, or a request
- * failure — so callers can fall back to a curated/static image instead.
- * Never throws.
- */
-export async function searchDestinationPhoto(query: string): Promise<DestinationPhoto | null> {
-  const apiKey = process.env.PIXABAY_API_KEY;
-  // Pixabay caps `q` at 100 characters.
-  const trimmed = query.trim().slice(0, 100);
-  if (!apiKey || !trimmed) return null;
+async function fetchHits(apiKey: string, q: string): Promise<PixabayHit[] | null> {
+  const params = new URLSearchParams({
+    key: apiKey,
+    q,
+    image_type: "photo",
+    orientation: "horizontal",
+    min_width: String(MIN_WIDTH),
+    // Pixabay's safe-search filter: only content suitable for all ages.
+    safesearch: "true",
+    order: "popular",
+    per_page: String(CANDIDATES_PER_QUERY)
+  });
+  const res = await fetch(`${PIXABAY_API_URL}?${params.toString()}`, {
+    next: { revalidate: REVALIDATE_SECONDS }
+  });
+  // Transient failures (incl. 429 rate limiting) → null, so the caller does
+  // not memoize them and retries on the next render.
+  if (!res.ok) return null;
+  const data = (await res.json()) as PixabaySearchResponse;
+  return data.hits ?? [];
+}
 
-  const cacheKey = normalize(trimmed);
+/**
+ * Searches Pixabay for a photo of `query` (a place name, or a PhotoQuery with
+ * region/hint for better ranking). Returns null on any miss — no API key, no
+ * *safe and relevant* result, or a request failure — so callers can fall back
+ * to a curated/static image instead. Never throws.
+ */
+export async function searchDestinationPhoto(query: string | PhotoQuery): Promise<DestinationPhoto | null> {
+  const apiKey = process.env.PIXABAY_API_KEY;
+  const pq = asPhotoQuery(query);
+  const subject = pq.subject.trim();
+  if (!apiKey || !subject) return null;
+
+  const cacheKey = normalize([subject, pq.region, pq.hint].filter(Boolean).join("|"));
   if (resolved.has(cacheKey)) return resolved.get(cacheKey) ?? null;
 
   try {
-    const params = new URLSearchParams({
-      key: apiKey,
-      q: trimmed,
-      image_type: "photo",
-      orientation: "horizontal",
-      min_width: String(MIN_WIDTH),
-      // Pixabay's safe-search filter: only content suitable for all ages.
-      safesearch: "true",
-      order: "popular",
-      per_page: String(CANDIDATES_PER_QUERY)
-    });
-
-    const res = await fetch(`${PIXABAY_API_URL}?${params.toString()}`, {
-      next: { revalidate: REVALIDATE_SECONDS }
-    });
-
-    // Don't memoize transient failures (incl. 429 rate limiting) — retry on
-    // the next render.
-    if (!res.ok) return null;
-
-    const data = (await res.json()) as PixabaySearchResponse;
-    const hit = pickBestPhoto(data.hits ?? [], trimmed);
+    let hit: PixabayHit | null = null;
+    for (const q of searchLadder(pq)) {
+      const hits = await fetchHits(apiKey, q);
+      if (hits === null) return null; // transient failure: don't memoize
+      hit = pickBestPhoto(hits, pq);
+      if (hit) break;
+    }
 
     const result: DestinationPhoto | null =
       hit && hit.largeImageURL
         ? {
             url: hit.largeImageURL,
-            alt: trimmed,
+            alt: subject,
             attribution: {
               photographerName: hit.user ?? "Pixabay contributor",
               photographerUrl: hit.user && hit.user_id ? `https://pixabay.com/users/${hit.user}-${hit.user_id}/` : "https://pixabay.com",
@@ -259,7 +336,7 @@ export async function searchDestinationPhoto(query: string): Promise<Destination
  * has nothing safe and relevant. Once the curated imageUrl fields are
  * removed from the destination/activity data files, drop the fallback param.
  */
-export async function getDestinationPhotoUrl(query: string, fallbackUrl?: string): Promise<string> {
+export async function getDestinationPhotoUrl(query: string | PhotoQuery, fallbackUrl?: string): Promise<string> {
   const photo = await searchDestinationPhoto(query);
   return photo?.url ?? fallbackUrl ?? "";
 }
