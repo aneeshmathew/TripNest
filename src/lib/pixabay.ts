@@ -87,14 +87,14 @@ const STOPWORDS = new Set([
 const SCENIC_TERMS = [
   "skyline", "panorama", "landscape", "landmark", "aerial", "scenery", "scenic",
   "architecture", "mountains", "beach", "waterfall", "lake", "cityscape", "desert",
-  "old town", "historic", "temple", "coast", "ancient", "view", "wildlife", "nature", 
+  "old town", "historic", "temple", "coast", "ancient", "view", "wildlife", "nature", "heritage" 
 ];
 // ... and ones that suggest a close-up of a person, a meal or an object
 // instead of the place itself. These demote a photo; they never reject it.
 const OFF_TOPIC_TERMS = [
   "woman", "man", "girl", "boy", "people", "person", "portrait", "couple", "model", "selfie",
-  "food", "dish", "meal", "coffee", "drink", "cocktail", "mask", "costume", "car", "truck",
-  "sign", "text", "logo", "icon", "product", "object", "furniture", "interior", "nightview"
+  "food", "dish", "meal", "coffee", "drink", "cocktail", "mask", "costume", "car", "truck", "bridge", "plant", "parking",
+  "sign", "text", "logo", "icon", "product", "object", "furniture", "fog", "rain", "storm", "statue", "sunset", "sunrise"
 ];
 
 /** The subset of Pixabay's image object that we use. */
