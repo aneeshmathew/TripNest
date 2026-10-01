@@ -1,6 +1,6 @@
 import DestinationsCarousel from "./DestinationsCarousel";
 import { popularDestinationSeeds } from "../data/popularDestinations";
-import { getDestinationPhotoUrl } from "../lib/pixabay";
+import { destinationPhotoQuery, getDestinationPhotoUrl } from "../lib/pixabay";
 
 // Server Component (no "use client") so it can call the Pixabay search
 // API directly — see lib/pixabay.ts, the same server-only integration
@@ -15,7 +15,7 @@ async function DestinationsSection() {
       name: destination.name,
       location: destination.location,
       imageUrl: await getDestinationPhotoUrl(
-        { subject: destination.name, region: destination.location },
+        destinationPhotoQuery(destination),
         destination.imageUrl
       ),
       fallbackImageUrl: destination.imageUrl

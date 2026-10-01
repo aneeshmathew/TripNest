@@ -83,6 +83,20 @@ const STOPWORDS = new Set([
   "county", "town", "village"
 ]);
 
+// Tags that suggest a good destination hero shot ...
+const SCENIC_TERMS = [
+  "skyline", "panorama", "landscape", "landmark", "aerial", "scenery", "scenic",
+  "architecture", "mountains", "beach", "waterfall", "lake", "cityscape", "desert",
+  "old town", "historic", "temple", "coast", "ancient", "view", "wildlife", "nature", 
+];
+// ... and ones that suggest a close-up of a person, a meal or an object
+// instead of the place itself. These demote a photo; they never reject it.
+const OFF_TOPIC_TERMS = [
+  "woman", "man", "girl", "boy", "people", "person", "portrait", "couple", "model", "selfie",
+  "food", "dish", "meal", "coffee", "drink", "cocktail", "mask", "costume", "car", "truck",
+  "sign", "text", "logo", "icon", "product", "object", "furniture", "interior", "nightview"
+];
+
 /** The subset of Pixabay's image object that we use. */
 export interface PixabayHit {
   id?: number;
@@ -187,10 +201,26 @@ export interface PhotoQuery {
   mustMatch?: string[][];
   /** Tag words/phrases that earn a ranking bonus (e.g. the exact city rather than just the country). */
   focus?: string[];
+  /**
+   * Rank for use as a destination hero image: prefer skylines, landmarks and
+   * landscapes; demote close-ups of people, food and objects. (Off for
+   * activities, where a person doing the activity is exactly what we want.)
+   */
+  scenic?: boolean;
 }
 
 function asPhotoQuery(q: string | PhotoQuery): PhotoQuery {
   return typeof q === "string" ? { subject: q } : q;
+}
+
+/**
+ * Photo query for a destination, e.g. {name: "Iguazu Falls", location:
+ * "Argentina/Brazil"}: the NAME must match the photo's tags (country only
+ * ranks), then photos that read as a hero shot of the place are preferred —
+ * see `scenic`. Searches "<name> <country>" first, then the plain name.
+ */
+export function destinationPhotoQuery(d: { name: string; location: string }): PhotoQuery {
+  return { subject: d.name, region: d.location, scenic: true };
 }
 
 /**
@@ -295,7 +325,7 @@ function tagsHaveTerm(term: string, words: Set<string>, normalizedTags: string):
  * place), otherwise a number where higher is better.
  */
 export function scorePhoto(hit: PixabayHit, query: string | PhotoQuery): number {
-  const { subject, region, hint, mustMatch, focus, minMatchRatio = MIN_MATCH_RATIO } = asPhotoQuery(query);
+  const { subject, region, hint, mustMatch, focus, scenic, minMatchRatio = MIN_MATCH_RATIO } = asPhotoQuery(query);
   const rawTags = hit.tags ?? "";
   const tags = cleanTags(rawTags);
 
@@ -330,6 +360,13 @@ export function scorePhoto(hit: PixabayHit, query: string | PhotoQuery): number 
   }
   // The exact city/place beats a photo that only matches the country.
   if (focus?.some((term) => tagsHaveTerm(term, words, normalizedTags))) score += 4;
+  // A tag that is exactly the place name ("paris") is a strong signal on its own.
+  if (tags.split(",").some((t) => normalize(t) === normalize(subject))) score += 2;
+  if (scenic) {
+    score += Math.min(SCENIC_TERMS.filter((t) => tagsHaveTerm(t, words, normalizedTags)).length * 0.5, 2);
+    score -= Math.min(OFF_TOPIC_TERMS.filter((t) => tagsHaveTerm(t, words, normalizedTags)).length * 2, 6);
+    if ((hit.imageWidth ?? 0) >= 1920) score += 0.5;
+  }
   // Tie-breakers: country/region and activity words found in the tags.
   const extra = (text?: string) => queryKeywords(text ?? "").filter((k) => words.has(stem(k))).length;
   score += extra(region) * 1.5 + extra(hint);

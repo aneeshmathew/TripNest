@@ -21,7 +21,7 @@ import {
   getApartmentsNear,
   getRestaurantsNear
 } from "../../../lib/geoapify";
-import { getDestinationPhotoUrl } from "../../../lib/pixabay";
+import { destinationPhotoQuery, getDestinationPhotoUrl } from "../../../lib/pixabay";
 
 type TabKey = "apartments" | "hotels" | "restaurants" | "things-to-do" | "attractions" | "reviews";
 const TABS: { key: TabKey; label: string }[] = [
@@ -66,7 +66,7 @@ export default async function DestinationPage({ params, searchParams }: Destinat
   }
 
   const heroImageUrl = await getDestinationPhotoUrl(
-    { subject: destination.name, region: destination.location },
+    destinationPhotoQuery(destination),
     destination.imageUrl
   );
 

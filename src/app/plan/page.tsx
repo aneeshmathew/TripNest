@@ -7,7 +7,7 @@ import type { NatGeoDestination } from "../../data/natGeoDestinations";
 import { activityHighlights, type ActivityHighlight } from "../../data/activityHighlights";
 import { destinationActivitySlugs } from "../../data/destinationActivities";
 import { parseTripQuery } from "../../lib/parseTripQuery";
-import { getDestinationPhotoUrl } from "../../lib/pixabay";
+import { destinationPhotoQuery, getDestinationPhotoUrl } from "../../lib/pixabay";
 
 export const metadata: Metadata = {
   title: "Plan your trip",
@@ -114,7 +114,7 @@ async function PlanGroupCard({
 }) {
   const { destination, activities, requestedIncluded } = group;
   const photoUrl = await getDestinationPhotoUrl(
-    { subject: destination.name, region: destination.location },
+    destinationPhotoQuery(destination),
     destination.imageUrl
   );
 

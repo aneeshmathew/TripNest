@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   activityPhotoQuery,
+  destinationPhotoQuery,
   cleanTags,
   placeTerms,
   activityTerms,
@@ -191,6 +192,35 @@ describe("real-data regressions", () => {
   it("Surfing card: surfing photos without 'mexico' in the tags are rejected; the Mexico one is accepted", () => {
     expect(scorePhoto(hit({ tags: "surf, beach, sand, sports, waves, sunset, costa, coast, landscape, nature, paradise, surfer" }), surfQ)).toBe(-1);
     expect(scorePhoto(hit({ tags: "mexico, nature, surfing, water, ocean, beach, wave" }), surfQ)).toBeGreaterThan(0);
+  });
+});
+
+describe("destination cards: name must match, then prefer hero-style shots", () => {
+  const paris = destinationPhotoQuery({ name: "Paris", location: "France" });
+  it("uses the name as the subject and the country for ranking only", () => {
+    expect(paris).toEqual({ subject: "Paris", region: "France", scenic: true });
+    expect(searchLadder(paris)).toEqual(["Paris France", "Paris"]);
+  });
+  it("prefers a skyline over a portrait or a meal that share the place tag", () => {
+    const skyline = hit({ id: 1, tags: "paris, eiffel tower, skyline, france, sunset" });
+    const portrait = hit({ id: 2, tags: "paris, woman, portrait, france", likes: 5000 });
+    const meal = hit({ id: 3, tags: "paris, food, coffee, croissant, france", likes: 5000 });
+    expect(pickBestPhoto([portrait, meal, skyline], paris)?.id).toBe(1);
+  });
+  it("demotes but does not reject: a person photo is still used if nothing else exists", () => {
+    expect(scorePhoto(hit({ tags: "paris, woman, france" }), paris)).toBeGreaterThan(0);
+  });
+  it("still rejects a photo that does not name the place", () => {
+    expect(scorePhoto(hit({ tags: "skyline, france, sunset" }), paris)).toBe(-1);
+  });
+  it("gives a bonus to a tag that is exactly the place name", () => {
+    const exact = hit({ tags: "paris, city" });
+    const loose = hit({ tags: "paris travel, city" });
+    expect(scorePhoto(exact, paris)).toBeGreaterThan(scorePhoto(loose, paris));
+  });
+  it("does not apply scenic ranking to activity cards", () => {
+    const surf = activityPhotoQuery({ activity: "Surfing", title: "Sunset Surf on Mexico's Coast", location: "Coastal Oaxaca, Mexico" });
+    expect(scorePhoto(hit({ tags: "surfer, man, mexico" }), surf)).toBeGreaterThan(0);
   });
 });
 
