@@ -92,7 +92,9 @@ body {
   margin: 0;
   position: relative;
   min-height: 100vh;
-  background-color: var(--color-bg);
+  /* No solid color here: :root already paints --color-bg, and a solid body
+     background would hide the z-index:-1 doodle layer (body::before). */
+  background-color: transparent;
   background-image: radial-gradient(circle at 12% 15%, rgba(84, 190, 225, 0.14), transparent 42%),
     radial-gradient(circle at 88% 8%, rgba(255, 177, 98, 0.1), transparent 38%),
     radial-gradient(circle at 78% 92%, rgba(84, 190, 225, 0.12), transparent 42%),
