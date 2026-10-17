@@ -90,33 +90,45 @@ h6,
 
 body {
   margin: 0;
+  position: relative;
+  min-height: 100vh;
   background-color: var(--color-bg);
   background-image: radial-gradient(circle at 12% 15%, rgba(84, 190, 225, 0.14), transparent 42%),
     radial-gradient(circle at 88% 8%, rgba(255, 177, 98, 0.1), transparent 38%),
     radial-gradient(circle at 78% 92%, rgba(84, 190, 225, 0.12), transparent 42%),
-    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.08), transparent 36%),
-    url("/patterns/travel-doodles-light.svg");
-  background-attachment: fixed, fixed, fixed, fixed, fixed;
-  /* Doodle tile is shown once (not tiled), centered and enlarged so the
-     backdrop stays calm instead of congested. */
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  background-position: 0 0, 0 0, 0 0, 0 0, center;
-  background-size: auto, auto, auto, auto, min(900px, 90vmin) min(900px, 90vmin);
+    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.08), transparent 36%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--color-text);
   transition: background-color 0.15s ease, color 0.15s ease;
- overflow-x: hidden;
+  overflow-x: hidden;
 }
 
-/* Same backdrop, recolored for dark mode — a data: URI can't reference a
-   CSS custom property, so the whole background-image is restated here
-   with the dark-theme dot color (--color-border's dark value) rather
-   than just swapping one layer. */
+/* Travel doodle backdrop: a layer as tall as the whole page (not the
+   viewport), so it spans the full page width and height and scrolls with
+   the content. The illustration is sized to the page width; on pages
+   taller than one illustration it continues downward. */
+body::before {
+  background-image: url("/patterns/travel-doodles-light.svg");
+  background-position: top center;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
 [data-theme="dark"] body {
   background-image: radial-gradient(circle at 12% 15%, rgba(136, 210, 234, 0.16), transparent 42%),
     radial-gradient(circle at 88% 8%, rgba(255, 177, 98, 0.08), transparent 38%),
     radial-gradient(circle at 78% 92%, rgba(136, 210, 234, 0.14), transparent 42%),
-    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.06), transparent 36%),
-    url("/patterns/travel-doodles-dark.svg");
+    radial-gradient(circle at 8% 85%, rgba(255, 177, 98, 0.06), transparent 36%);
+}
+
+[data-theme="dark"] body::before {
+  background-image: url("/patterns/travel-doodles-dark.svg");
 }
 
 /* Fixed rather than sticky — sticky still occupies its normal space in
@@ -1390,7 +1402,7 @@ body {
   background-attachment: fixed, fixed, fixed, fixed, fixed;
   background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
   background-position: 0 0, 0 0, 0 0, 0 0, center;
-  background-size: auto, auto, auto, auto, min(900px, 90vmin) min(900px, 90vmin);
+  background-size: auto, auto, auto, auto, cover;
 }
 
 /* Popular Destinations strip — lives inside .hero-image-wrap, over the
